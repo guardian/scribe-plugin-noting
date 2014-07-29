@@ -1,0 +1,9 @@
+{
+  "name": "scribe-plugin-noting",
+  "homepage": "https://github.com/guardian/scribe-plugin-noting",
+  "authors": [
+    "hugo.gibson@theguardian.com"
+  ],
+  "description": "Adds notes to scribe",
+  "main": "src/scribe-plugin-noting"
+}
