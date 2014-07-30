@@ -1,3 +1,18 @@
 {
-    "name": "scribe-plugin-noting"
+  "name": "scribe-plugin-noting",
+  "version": "0.0.1",
+  "homepage": "https://github.com/guardian/scribe-plugin-noting",
+  "authors": [
+    "hugo.gibson"
+  ],
+  "description": "Adds notes to scribe",
+  "main": "src/scribe-plugin-noting",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
 }

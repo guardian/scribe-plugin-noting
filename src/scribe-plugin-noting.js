@@ -2,7 +2,7 @@ define(function () {
 
     /*
      * Plugin for adding a <note> elements around
-     * things.
+     * things. Please note this is in ALPHA
      */
 
     'use strict';
@@ -11,7 +11,7 @@ define(function () {
         return function(scribe) {
 
           //currently
-          var tag = "<note>";
+          var tag = "<gu:note>";
           var nodeName = "NOTE";
           var noteCommand = new scribe.api.Command('insertHTML');
 
@@ -37,7 +37,7 @@ define(function () {
               if (this.queryState()) {
                 scribe.api.Command.prototype.execute.call(this, '<p>');
               } else {
-                scribe.api.Command.prototype.execute.call(this, "<note>" + selection.selection.anchorNode.data + "</note>");
+                scribe.api.Command.prototype.execute.call(this, "<gu:note>" + selection.selection.anchorNode.data + "</gu:note>");
               }
             }
           };
@@ -70,6 +70,7 @@ define(function () {
               var noteCommand = scribe.getCommand("note");
               var selection = new scribe.api.Selection();
               var range = selection.range;
+
               console.log(range);
               noteCommand.execute();
             }
