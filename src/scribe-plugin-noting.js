@@ -14,8 +14,9 @@ define(function () {
       var tag = "span";
       var nodeName = "SPAN";
       var className = "note";
-      var noteCommand = new scribe.api.Command('insertHTML');
+      var user = "Hugo Gibson"; // need to get the current user
 
+      var noteCommand = new scribe.api.Command('insertHTML');
 
 
       //also need to define a method for splitting existing spans
@@ -25,20 +26,22 @@ define(function () {
       function createWrap() {
         var wrap = document.createElement(tag);
         wrap.className = className;
+        var date = new Date().getTime().toString();
+        wrap.setAttribute("data-edited", user + " " + date);
         return wrap;
 
       }
 
 
-      function wrapText(content, wrap) {
+      function wrapText(content) {
         //wrap the contents of a text node
         // they behave diffent
         var wrap = createWrap();
-        wrap.innerHTML = content.data;
+        wrap.appendChild(content);
         return wrap;
       }
 
-      function wrapBlock(block, wrap) {
+      function wrapBlock(block) {
         // for this one we need to get the text
         // inside as the clone will wrap this in a p and
         // we'll have to do more magic. So we append the
@@ -148,13 +151,16 @@ define(function () {
         return (' ' + node.className + ' ').indexOf(' ' + "scribe-marker" + ' ') > -1;
       }
 
+      function isNote (node) {
+        return (' ' + node.className + ' ').indexOf(' ' + "note" + ' ') > -1;
+      }
+
       function findScribeMarker(node) {
 
         if (checkScribeMarker(node)) {
           // the passed node could also be the marker
           return 1;
         }
-
 
         for(var i = 0, len = node.childNodes.length; i < len; i++) {
           if(checkScribeMarker(node.childNodes[i])) {
@@ -166,8 +172,48 @@ define(function () {
 
 
 
-      function getScribeMarker(arr) {
+      function walk(node, func) {
+        // this is a semi-recursive tree descent
+        // although it's a shame it uses a loop
+        // this could be trivially rewritten to be
+        // fully recursive
+        // this is far simpler than doing rubbish
+        // with do whiles
 
+        var children = node.childNodes;
+
+        for (var i = 0; i < children.length; i++) {
+          walk(children[i], func);
+        }
+
+        func(node);
+      }
+
+
+      function removeScribeMarkers (tree) {
+        walk(tree, function (node) {
+          if (checkScribeMarker(node)) {
+            node.parentElement.removeChild(node);
+          }
+        });
+      }
+
+      function unwrap (element) {
+        var parent = element.parentNode;
+        parentNode.replaceChild(parent, element);
+      }
+
+      function unwrapSpans (tree) {
+        // recur down the tree and unwrap every span
+        walk(tree, function (node) {
+          if (isNote(node)) {
+            unwrap(node);
+          }
+        });
+      }
+
+
+      function getScribeMarker(arr) {
         for (var i = 0, len = arr.length; i < len; i++) {
           var el = arr[i];
           console.log(arr[i]);
@@ -178,48 +224,79 @@ define(function () {
         return -1;
       }
 
-      function treeWalkerWrap (commonAncestor) {
-        var treeWalker = document.createTreeWalker(commonAncestor, NodeFilter.SHOW_ELEMENT);
-        var node = treeWalker.firstChild();
-        var newTree = commonAncestor.cloneNode();
-        if (!node) return;
+      function buildNodeList (tree, predicate) {
+        // walk a tree and build a list of nodes that need to be wrapped
+        var scribeMarkerLocated = false;
         var done = false;
-        var markerCount = 0;
+        var nodeList = [];
+        walk(tree, function (node) {
 
-        do {
-          // when the count is 0 return
           if (done === true) {
-            console.log("All done.");
-            break;
+            return; //do nothing
           }
 
-          var scribeMarker = findScribeMarker(node);
 
-          if (scribeMarker === -1) {
-            console.log("No marker");
-            done = false;
-            break;
-          } else {
-            if (markerCount === 1 ) {
-              // in this case there is already a marker
-              // so we've reached the second one and it's over
-              newTree.appendChild(wrapChildren(node, true));
+          if (checkScribeMarker(node)) {
+            // begin pushing elements
+            if (scribeMarkerLocated === true) {
               done = true;
             } else {
-              markerCount = 1; //can only be 0 or 1
+              scribeMarkerLocated = true;
             }
           }
 
-          if(!done) {
-            //get every child node in between and wrap it
-            newTree.appendChild(wrapChildren(node, false));
+          if (!done && scribeMarkerLocated && predicate(node)) {
+            //scribe markers do not get pushed
+            nodeList.push(node);
           }
 
-        } while ((node = treeWalker.nextSibling()));
-
-        return newTree;
+        });
+        return nodeList;
       }
 
+
+      function iteratorWalk (commonAncestor, predicate) {
+        /*
+         * Basic algorithm
+         * Walk the DOM
+         * Find first scribe marker
+         * Wrap every element
+         * Find last scribe marker
+         * Return
+         */
+
+        var nodeIterator = document.createNodeIterator(commonAncestor, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+        var nodeList = [];
+        var done = false;
+        var scribeMarkerLocated = false;
+
+
+
+
+        var node = nodeIterator.nextNode(); //skip the first element
+        while (node = nodeIterator.nextNode()) {
+          // when the count is 0 return
+
+          if (done === true) {
+            return; //do nothing
+          }
+
+          if (checkScribeMarker(node)) {
+            // begin pushing elements
+            if (scribeMarkerLocated === true) {
+              done = true;
+            } else {
+              scribeMarkerLocated = true;
+            }
+          }
+
+          if (!done && scribeMarkerLocated && predicate(node)) {
+            //scribe markers do not get pushed
+            nodeList.push(node);
+          }
+        }
+        return nodeList;
+      }
 
       /*
        * Need to discuss this with people, etc. Should this be a command or it should
@@ -239,11 +316,32 @@ define(function () {
         if(selection.selection.type === "Range") {
           // for now we only let them do it when they have an actual selection
           if (this.queryState()) {
+            //debugger;
             console.log("Removing note...");
-            // remove all styling from elements withing the range
-            scribe.api.Command.prototype.execute.call(this, '<p>');
-          } else {
 
+            // remove all styling from elements withing the range
+            if (!hasBlockElements(range.cloneContents())) {
+              console.log(range);
+
+              selection.placeMarkers();
+              selection.selectMarkers(true);
+              // use the markers to get the content between them and then
+              // remove all scribe markers in this selection
+              var nodeList = buildNodeList(commonAncestor);
+              console.log(nodeList);
+            } else {
+              // do a recursive unwrap
+              var unwrapped = range.commonAncestorContainer;
+              var toBeUnWrapped = buildNodeList(nodeList, function (node) {
+                return isNote(className);
+              });
+
+              unwrapSpans(toBeUnWrapped);
+
+              range.deleteContents();
+              range.insertNode(unwrapped);
+            }
+          } else {
             // check if the selection has block elements.
             // if it does do the complex version,
             // otherwise do the simple version
@@ -256,26 +354,39 @@ define(function () {
               selection.placeMarkers();
               selection.selectMarkers(true);
 
-              var commonAncestor = range.commonAncestorContainer.cloneNode(true);
+              var commonAncestor = range.commonAncestorContainer;
+
+              var nodes = buildNodeList(commonAncestor, function (node) {
+                return !checkScribeMarker(node)
+                  && (getScribeMarker(node.childNodes) === -1);
+              });
+
+
+              nodes.forEach(function (item, index, array) {
+                if (!item) {
+                  return;
+                }
+
+                var wrap;
+                var parent = item.parentNode;
+                var sibling = item.nextSibling;
+
+                if (item.nodeType === Node.TEXT_NODE) {
+                    // this is for a basic selection
+                   wrap = wrapText(item);
+                } else {
+                   wrap =  wrapBlock(item);
+                }
+
+                // replace directly on the tree
+                if (sibling) {
+                  parent.insertBefore(wrap, sibling);
+                } else {
+                  parent.appendChild(wrap);
+                }
+
+              });
               selection.selectMarkers();
-
-              // do the treewalker solution
-                /*
-                 * Basic algorithm
-                 * Walk the DOM
-                 * Find first scribe marker
-                 * Wrap every element
-                 * Find last scribe marker
-                 * Return
-                 */
-
-              debugger;
-              var newTree = treeWalkerWrap(commonAncestor);
-
-              // replace the common ancestor with the newTree
-              console.log(newTree);
-              commonAncestor.innerHTML = newTree.innerHTML;
-              console.log(commonAncestor);
             }
           }
         }
@@ -284,9 +395,17 @@ define(function () {
 
       noteCommand.queryState = function () {
         var selection = new scribe.api.Selection();
-        return !! selection.getContaining(function (node) {
-          return node.nodeName === nodeName;
+        // check if there is a note in the selection
+        return !!selection.getContaining(function (node) {
+          return node.nodeName === "SPAN";
         });
+
+
+        //TODO: The instance in which there are more scribe nodes
+        // clone the range and see if there are spans in it
+        var scribeEls = selection.range.cloneContents().querySelectorAll('.note');
+        return scribeEls > 0;
+
       };
 
 
@@ -312,7 +431,7 @@ define(function () {
           var range = selection.range;
 
           noteCommand.execute();
-          console.log(scribe.el.innerHTML);
+          console.log("Done...");
         }
       });
     };
