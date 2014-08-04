@@ -7,20 +7,16 @@ define(function () {
 
   'use strict';
 
-  return function () {
+  return function (user) {
     return function(scribe) {
 
       //currently
       var tag = "span";
       var nodeName = "SPAN";
       var className = "note";
-      var user = "Hugo Gibson"; // need to get the current user
+      var blocks = ["P", "LI", "UL"];
 
       var noteCommand = new scribe.api.Command('insertHTML');
-
-
-      //also need to define a method for splitting existing spans
-
 
 
       function createWrap() {
@@ -31,7 +27,6 @@ define(function () {
         return wrap;
 
       }
-
 
       function wrapText(content) {
         //wrap the contents of a text node
@@ -46,12 +41,12 @@ define(function () {
         // inside as the clone will wrap this in a p and
         // we'll have to do more magic. So we append the
         // wrap to the element inside the block
+        // there are some issues with LIs and Bs at the moment
         var wrap = createWrap(wrap);
         var temp = block.cloneNode(true);
         wrap.innerHTML = temp.innerHTML;
         temp.appendChild(wrap);
         return temp;
-
       }
 
       function wrapRange(range, wrap) {
@@ -67,7 +62,7 @@ define(function () {
             return;
           }
 
-          if(item.nodeType === 3) {
+          if(item.nodeType === Node.TEXT_NODE) {
             // this is for a basic selection
             tempNode = wrapText(item, wrap);
           } else {
@@ -80,65 +75,7 @@ define(function () {
         return temp;
       }
 
-      function wrapChildren (node, end) {
-        // wrap all the children in span.notes
-        var childNodes = node.childNodes;
-
-        var temp = node.cloneNode(); //do not do a deep copy
-
-        // these are use to determine which elements to wrap
-        var rangeStart = 0;
-        var rangeEnd = 0;
-
-        var withinRange = function (num) {
-          // if the element is within range, i.e within
-          // the scribe marker range then wrap it, otherwise
-          // just append it and be done with it
-          return num >= rangeStart && num <= rangeEnd;
-        };
-
-
-        // if end do everything before the scribe marker
-        // else do everything after the marker
-        if (end) {
-          rangeStart = 0;
-          rangeEnd = getScribeMarker(childNodes);
-        } else {
-          rangeStart = getScribeMarker(childNodes);
-          rangeEnd = childNodes.length;
-        }
-
-        childNodes = Array.prototype.slice.call(childNodes);
-
-        childNodes.forEach(function (item, i) {
-          var tempNode = item;
-
-          if (!item) {
-            return;
-          }
-
-          if(item.nodeType === 3) {
-            // either wrap a single text element
-            // or wrap a block element
-            if (withinRange (i)) {
-              tempNode = wrapText(item);
-            }
-          } else {
-
-            if (withinRange(i)) {
-              tempNode = wrapBlock(item);
-            }
-          }
-
-          temp.appendChild(tempNode);
-
-        });
-
-        return temp;
-      }
-
       function hasBlockElements (range) {
-        var blocks = ["P", "LI", "UL"];
         for (var i = 0, len = range.childNodes.length; i < len; i++) {
           if(blocks.indexOf(range.childNodes[i].nodeName) !== -1) {
             return true;
@@ -156,7 +93,6 @@ define(function () {
       }
 
       function findScribeMarker(node) {
-
         if (checkScribeMarker(node)) {
           // the passed node could also be the marker
           return 1;
@@ -179,7 +115,6 @@ define(function () {
         // fully recursive
         // this is far simpler than doing rubbish
         // with do whiles
-
         var children = node.childNodes;
 
         for (var i = 0; i < children.length; i++) {
@@ -199,24 +134,17 @@ define(function () {
       }
 
       function unwrap (element) {
+        // get the innercontent and move it in place of the element
+        // TODO: Only does a basic unwrap - does not do the inner
+        // elements
+        var innerNode = element.firstChild;
         var parent = element.parentNode;
-        parentNode.replaceChild(parent, element);
+        parent.replaceChild(innerNode, element);
       }
-
-      function unwrapSpans (tree) {
-        // recur down the tree and unwrap every span
-        walk(tree, function (node) {
-          if (isNote(node)) {
-            unwrap(node);
-          }
-        });
-      }
-
 
       function getScribeMarker(arr) {
         for (var i = 0, len = arr.length; i < len; i++) {
           var el = arr[i];
-          console.log(arr[i]);
           if(checkScribeMarker(arr[i])) {
             return i;
           }
@@ -298,49 +226,72 @@ define(function () {
         return nodeList;
       }
 
-      /*
-       * Need to discuss this with people, etc. Should this be a command or it should
-
-       */
       noteCommand.execute = function () {
 
         var selection = new scribe.api.Selection();
         var range = selection.range;
-
+        var commonAncestor;
 
         // if the selection is the whole line, then we need to note the whole line
         // if it isn't then we just do the bit selected and nothing else.
         // selection.selection.data currently will duplicate things if there is no
         // actual selection
-
         if(selection.selection.type === "Range") {
-          // for now we only let them do it when they have an actual selection
+
           if (this.queryState()) {
-            //debugger;
-            console.log("Removing note...");
 
-            // remove all styling from elements withing the range
             if (!hasBlockElements(range.cloneContents())) {
-              console.log(range);
+              // this is a seriously flaky way of doing it at the moment
+              // I think there are much better alternatives
+              // TODO: Investigate if it's even worth doing this on an undo
+              // might just be able to use unwrap in the same way as it works
+              // when there are block elements.
 
+
+              // drop markers to play with the sibling
               selection.placeMarkers();
               selection.selectMarkers(true);
-              // use the markers to get the content between them and then
-              // remove all scribe markers in this selection
-              var nodeList = buildNodeList(commonAncestor);
-              console.log(nodeList);
+
+              commonAncestor = range.commonAncestorContainer;
+              var parent = commonAncestor.parentNode;
+
+              // this is random - but basically the range thinks the
+              // span is the common ancestor if we only select a little bit of
+              // the note
+              if (commonAncestor.nextSibling) {
+                parent = commonAncestor.nextSibling.parentNode;
+              } else if (commonAncestor.previousSibling) {
+                parent = commonAncestor.previousSibling.parentNode;
+              }
+
+
+              var contents = document.createTextNode(commonAncestor.innerText);
+              parent.replaceChild(contents, commonAncestor);
+              selection.selectMarkers();
+
             } else {
+              // remove all styling from elements within the range
+              // in this case they have selected multiple nodes
+              selection.placeMarkers();
+              selection.selectMarkers(true);
+
               // do a recursive unwrap
-              var unwrapped = range.commonAncestorContainer;
-              var toBeUnWrapped = buildNodeList(nodeList, function (node) {
-                return isNote(className);
+              commonAncestor = range.commonAncestorContainer;
+              var toBeUnWrapped = buildNodeList(commonAncestor, function (node) {
+                return isNote(node);
               });
 
-              unwrapSpans(toBeUnWrapped);
+              toBeUnWrapped = Array.prototype.slice.call(toBeUnWrapped);
 
-              range.deleteContents();
-              range.insertNode(unwrapped);
+              toBeUnWrapped.forEach(function (item) {
+                unwrap(item);
+              });
+
+              selection.selectMarkers();
             }
+
+
+
           } else {
             // check if the selection has block elements.
             // if it does do the complex version,
@@ -354,7 +305,7 @@ define(function () {
               selection.placeMarkers();
               selection.selectMarkers(true);
 
-              var commonAncestor = range.commonAncestorContainer;
+              commonAncestor = range.commonAncestorContainer;
 
               var nodes = buildNodeList(commonAncestor, function (node) {
                 return !checkScribeMarker(node)
@@ -394,17 +345,24 @@ define(function () {
       };
 
       noteCommand.queryState = function () {
+        // TODO: The instance in which there are more scribe nodes
+        // clone the range and see if there are spans in it
         var selection = new scribe.api.Selection();
+        var scribeEls = selection.range.cloneContents().querySelectorAll('.note');
+        var containsNote = function (scribeEls) {
+          for (var i = 0, len = scribeEls.length; i < len; i++) {
+            if (isNote(scribeEls[i])) {
+              return true;
+            }
+          }
+        };
+
         // check if there is a note in the selection
-        return !!selection.getContaining(function (node) {
-          return node.nodeName === "SPAN";
+        var isNode = !!selection.getContaining(function (node) {
+          return isNote(node);
         });
 
-
-        //TODO: The instance in which there are more scribe nodes
-        // clone the range and see if there are spans in it
-        var scribeEls = selection.range.cloneContents().querySelectorAll('.note');
-        return scribeEls > 0;
+        return isNode || containsNote(scribeEls);
 
       };
 
@@ -431,7 +389,6 @@ define(function () {
           var range = selection.range;
 
           noteCommand.execute();
-          console.log("Done...");
         }
       });
     };
