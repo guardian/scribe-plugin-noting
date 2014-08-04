@@ -183,6 +183,53 @@ define(function () {
       }
 
 
+
+      /*
+       * This wraps all elements that contain block elements
+       * in a note class.
+       */
+      function wrapBlocks (selection, range) {
+
+        // drop markers so we can operate on all the sub elements in the selection
+        selection.placeMarkers();
+        selection.selectMarkers(true);
+
+        var commonAncestor = range.commonAncestorContainer;
+
+        var nodes = buildNodeList(commonAncestor, function (node) {
+          return !checkScribeMarker(node)
+            && (getScribeMarker(node.childNodes) === -1);
+        });
+
+
+        nodes.forEach(function (item, index, array) {
+          if (!item) {
+            return;
+          }
+
+          var wrap;
+          var parent = item.parentNode;
+          var sibling = item.nextSibling;
+
+          if (item.nodeType === Node.TEXT_NODE) {
+            // this is for a basic selection
+            wrap = wrapText(item);
+          } else {
+            wrap =  wrapBlock(item);
+          }
+
+          // replace directly on the tree
+          if (sibling) {
+            parent.insertBefore(wrap, sibling);
+          } else {
+            parent.appendChild(wrap);
+          }
+
+        });
+        selection.selectMarkers();
+      }
+
+
       function iteratorWalk (commonAncestor, predicate) {
         /*
          * Basic algorithm
@@ -291,7 +338,6 @@ define(function () {
             }
 
 
-
           } else {
             // check if the selection has block elements.
             // if it does do the complex version,
@@ -301,43 +347,7 @@ define(function () {
               range.deleteContents();
               range.insertNode(wrapped);
             } else {
-              //drop markers so we can operate on all th sub elements in the node
-              selection.placeMarkers();
-              selection.selectMarkers(true);
-
-              commonAncestor = range.commonAncestorContainer;
-
-              var nodes = buildNodeList(commonAncestor, function (node) {
-                return !checkScribeMarker(node)
-                  && (getScribeMarker(node.childNodes) === -1);
-              });
-
-
-              nodes.forEach(function (item, index, array) {
-                if (!item) {
-                  return;
-                }
-
-                var wrap;
-                var parent = item.parentNode;
-                var sibling = item.nextSibling;
-
-                if (item.nodeType === Node.TEXT_NODE) {
-                    // this is for a basic selection
-                   wrap = wrapText(item);
-                } else {
-                   wrap =  wrapBlock(item);
-                }
-
-                // replace directly on the tree
-                if (sibling) {
-                  parent.insertBefore(wrap, sibling);
-                } else {
-                  parent.appendChild(wrap);
-                }
-
-              });
-              selection.selectMarkers();
+              wrapBlocks(selection, range);
             }
           }
         }
