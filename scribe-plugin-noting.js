@@ -11,8 +11,8 @@ define('scribe-plugin-noting',[],function () {
     return function(scribe) {
 
       //currently
-      var tag = "gu-note";
-      var nodeName = "GU-NOTE";
+      var tag = "gu:note";
+      var nodeName = "GU:NOTE";
       var className = "note";
       var dataName = "data-edited-by";
       var dataDate = "data-edited-date";
@@ -99,7 +99,7 @@ define('scribe-plugin-noting',[],function () {
 
 
       function isNote (node) {
-        return checkClass(node, "note");
+        return node.tagName === nodeName;
       }
 
       function findScribeMarker(node) {
@@ -338,17 +338,6 @@ define('scribe-plugin-noting',[],function () {
 
       };
 
-
-      noteCommand.queryEnabled = function () {
-        var selection = new scribe.api.Selection();
-        var headingNode = selection.getContaining(function (node) {
-          return (/^(H[1-6])$/).test(node.nodeName);
-        });
-
-        return scribe.api.CommandPatch.prototype.queryEnabled.apply(this, arguments) && ! headingNode;
-      };
-
-
       scribe.commands.note = noteCommand;
 
       /* There may be case when we don't want to use the default commands */
@@ -357,9 +346,6 @@ define('scribe-plugin-noting',[],function () {
         //that's F10 and F8
         if (event.keyCode === 121 ||event.keyCode === 119) {
           var noteCommand = scribe.getCommand("note");
-          var selection = new scribe.api.Selection();
-          var range = selection.range;
-
           noteCommand.execute();
         }
       });
