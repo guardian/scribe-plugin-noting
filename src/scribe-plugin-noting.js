@@ -99,7 +99,7 @@ define(function () {
 
 
       function isNote (node) {
-        return checkClass(node, "note");
+        return node.tagName === nodeName;
       }
 
       function findScribeMarker(node) {
