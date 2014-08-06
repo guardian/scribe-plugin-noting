@@ -17,7 +17,6 @@ define('scribe-plugin-noting',[],function () {
       var dataName = "data-edited-by";
       var dataDate = "data-edited-date";
       var blocks = ["P", "LI", "UL"];
-
       var noteCommand = new scribe.api.Command('insertHTML');
 
 
@@ -35,6 +34,7 @@ define('scribe-plugin-noting',[],function () {
         //wrap the contents of a text node
         // they behave diffent
         var wrap = createWrap();
+        content.textContent = " " + content.textContent + " ";
         wrap.appendChild(content);
         return wrap;
       }
@@ -47,7 +47,7 @@ define('scribe-plugin-noting',[],function () {
         // there are some issues with LIs and Bs at the moment
         var wrap = createWrap();
         var temp = block.cloneNode(true);
-        wrap.innerHTML = temp.innerHTML;
+        wrap.innerHTML = " " + temp.innerHTML + " ";
         temp.appendChild(wrap);
         return temp;
       }
