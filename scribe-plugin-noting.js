@@ -283,7 +283,6 @@ define('scribe-plugin-noting',[],function () {
 
 
       noteCommand.execute = function () {
-
         var selection = new scribe.api.Selection();
         var range = selection.range;
         var cloned = range.cloneContents();
@@ -291,8 +290,11 @@ define('scribe-plugin-noting',[],function () {
         // if it isn't then we just do the bit selected and nothing else.
         // selection.selection.data currently will duplicate things if there is no
         // actual selection
-        if(selection.selection.type === "Range") {
 
+        var base =  selection.selection.baseOffset;
+        var focus = selection.selection.focusOffset;
+
+        if(base !== focus) {
           if (this.queryState()) {
 
             if (!hasBlockElements(cloned)) {
@@ -340,11 +342,10 @@ define('scribe-plugin-noting',[],function () {
 
       scribe.commands.note = noteCommand;
 
-      /* There may be case when we don't want to use the default commands */
-
       scribe.el.addEventListener('keydown', function (event) {
-        //that's F10 and F8
-        if (event.keyCode === 121 ||event.keyCode === 119) {
+        //that's F10 and F8 and alt+del
+        if (event.keyCode === 121 ||event.keyCode === 119 || (event.altKey && event.keyCode === 121)) {
+          event.preventDefault();
           var noteCommand = scribe.getCommand("note");
           noteCommand.execute();
         }
