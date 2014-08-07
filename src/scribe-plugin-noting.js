@@ -291,10 +291,7 @@ define(function () {
         // selection.selection.data currently will duplicate things if there is no
         // actual selection
 
-        var base =  selection.selection.baseOffset;
-        var focus = selection.selection.focusOffset;
-
-        if(base !== focus) {
+        if(! selection.selection.isCollapsed) {
           if (this.queryState()) {
 
             if (!hasBlockElements(cloned)) {
@@ -344,7 +341,7 @@ define(function () {
 
       scribe.el.addEventListener('keydown', function (event) {
         //that's F10 and F8 and alt+del
-        if (event.keyCode === 121 ||event.keyCode === 119 || (event.altKey && event.keyCode === 121)) {
+        if (event.keyCode === 121 ||event.keyCode === 119) {
           event.preventDefault();
           var noteCommand = scribe.getCommand("note");
           noteCommand.execute();
