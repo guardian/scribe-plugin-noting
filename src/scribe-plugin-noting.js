@@ -1,4 +1,6 @@
-define(function () {
+define([
+ 'scribe-common/src/element'
+], function (elementHelper) {
 
   /*
    * Plugin for adding a <note> elements around
@@ -238,21 +240,22 @@ define(function () {
         selection.placeMarkers();
         selection.selectMarkers(true);
 
-        var commonAncestor = range.commonAncestorContainer;
-        var parent = commonAncestor.parentNode;
+        var note = range.noteContainer;
+        var parent = note.parentNode;
 
         // this is random - but basically the range thinks the
         // span is the common ancestor if we only select a little bit of
         // the note
-        if (commonAncestor.nextSibling) {
-          parent = commonAncestor.nextSibling.parentNode;
-        } else if (commonAncestor.previousSibling) {
-          parent = commonAncestor.previousSibling.parentNode;
+        if (note.nextSibling) {
+          parent = note.nextSibling.parentNode;
+        } else if (note.previousSibling) {
+          parent = note.previousSibling.parentNode;
         }
 
 
-        var contents = document.createTextNode(commonAncestor.innerText);
-        parent.replaceChild(contents, commonAncestor);
+//        var contents = document.createTextNode(note.innerText);
+//        parent.replaceChild(contents, note);
+        elementHelper.unwrap(note);
         selection.selectMarkers();
 
 
