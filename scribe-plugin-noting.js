@@ -255,6 +255,7 @@ define('scribe-plugin-noting',[],function () {
           commonAncestor = nodeList[0];
         }
 
+        selection.selectMarkers();
         var parent = commonAncestor.parentNode;
 
 
