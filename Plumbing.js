@@ -23,6 +23,9 @@ module.exports = function (pipelines) {
     requireJS({
       // FIXME: auto?
       preserveLicenseComments: false,
+      paths: {
+        'scribe-common': '../bower_components/scribe-common'
+      }
     }),
     writeBoth
   ];
