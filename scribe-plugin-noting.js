@@ -311,7 +311,6 @@ define('scribe-plugin-noting',[],function () {
         if(! selection.selection.isCollapsed) {
           if (this.queryState()) {
             if (!hasBlockElements(cloned)) {
-              console.log("Unwrapping.");
               basicUnwrap(selection, range);
             } else {
               descentUnwrap(selection, range);
