@@ -238,8 +238,25 @@ define(function () {
         selection.placeMarkers();
         selection.selectMarkers(true);
 
-        var commonAncestor = range.commonAncestorContainer;
+        // this is the note - or at least it's meant to be
+        // in Firefore it's not so we just get the
+        // containing note
+        var commonAncestor = selection.getContaining(function (node) {
+          return isNote(node);
+        });
+
+        if (!commonAncestor) {
+          // this is to get round Firefox positioning the range in a
+          // different place to Chrome so the commonAncestor is
+          // actually the p not the note like we'd expect
+          var nodeList = buildNodeList(range.commonAncestorContainer, function (node) {
+            return isNote(node);
+          });
+          commonAncestor = nodeList[0];
+        }
+
         var parent = commonAncestor.parentNode;
+
 
         // this is random - but basically the range thinks the
         // span is the common ancestor if we only select a little bit of
@@ -251,7 +268,7 @@ define(function () {
         }
 
 
-        var contents = document.createTextNode(commonAncestor.innerText);
+        var contents = document.createTextNode(commonAncestor.innerHTML);
         parent.replaceChild(contents, commonAncestor);
         selection.selectMarkers();
 
@@ -293,8 +310,8 @@ define(function () {
 
         if(! selection.selection.isCollapsed) {
           if (this.queryState()) {
-
             if (!hasBlockElements(cloned)) {
+              console.log("Unwrapping.");
               basicUnwrap(selection, range);
             } else {
               descentUnwrap(selection, range);
