@@ -5,5 +5,8 @@
     "hugo.gibson@theguardian.com"
   ],
   "description": "Adds notes to scribe",
-  "main": "src/scribe-plugin-noting"
+  "main": "src/scribe-plugin-noting",
+  "dependencies" : {
+    "scribe-common": "~0.0.5"
+  }
 }
