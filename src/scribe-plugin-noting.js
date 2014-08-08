@@ -254,12 +254,7 @@ define([
           parent = note.previousSibling.parentNode;
         }
 
-        debugger;
-        selection.selectMarkers();
-        elementHelper.unwrapSingle(parent);
-        for(var i = 0, len = note.childNodes[0]; i < len; i++) {
-          parent.insertBefore(note, note.childNodes[i]);
-        }
+        elementHelper.unwrap(parent, note);
         selection.selectMarkers();
 
       }
