@@ -229,14 +229,6 @@ define([
       }
 
       function basicUnwrap(selection, range) {
-        // this is a seriously flaky way of doing it at the moment
-        // I think there are much better alternatives
-        // TODO: Investigate if it's even worth doing this on an undo
-        // might just be able to use unwrap in the same way as it works
-        // when there are block elements.
-
-
-        // drop markers to play with the sibling
         selection.placeMarkers();
         selection.selectMarkers(true);
 
@@ -245,9 +237,6 @@ define([
         var parent = note.parentNode;
 
 
-        // this is random - but basically the range thinks the
-        // span is the common ancestor if we only select a little bit of
-        // the note
         if (note.nextSibling) {
           parent = note.nextSibling.parentNode;
         } else if (note.previousSibling) {
