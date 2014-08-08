@@ -36,7 +36,7 @@ define([
         //wrap the contents of a text node
         // they behave diffent
         var wrap = createWrap();
-        content.textContent = " " + content.textContent + " ";
+        content.textContent = content.textContent;
         wrap.appendChild(content);
         return wrap;
       }
@@ -49,7 +49,7 @@ define([
         // there are some issues with LIs and Bs at the moment
         var wrap = createWrap();
         var temp = block.cloneNode(true);
-        wrap.innerHTML = " " + temp.innerHTML + " ";
+        wrap.innerHTML = temp.innerHTML;
         temp.appendChild(wrap);
         return temp;
       }
@@ -240,8 +240,10 @@ define([
         selection.placeMarkers();
         selection.selectMarkers(true);
 
-        var note = range.noteContainer;
+
+        var note = range.commonAncestorContainer;
         var parent = note.parentNode;
+
 
         // this is random - but basically the range thinks the
         // span is the common ancestor if we only select a little bit of
@@ -252,12 +254,13 @@ define([
           parent = note.previousSibling.parentNode;
         }
 
-
-//        var contents = document.createTextNode(note.innerText);
-//        parent.replaceChild(contents, note);
-        elementHelper.unwrap(note);
+        debugger;
         selection.selectMarkers();
-
+        elementHelper.unwrapSingle(parent);
+        for(var i = 0, len = note.childNodes[0]; i < len; i++) {
+          parent.insertBefore(note, note.childNodes[i]);
+        }
+        selection.selectMarkers();
 
       }
 
@@ -296,7 +299,6 @@ define([
 
         if(! selection.selection.isCollapsed) {
           if (this.queryState()) {
-
             if (!hasBlockElements(cloned)) {
               basicUnwrap(selection, range);
             } else {
