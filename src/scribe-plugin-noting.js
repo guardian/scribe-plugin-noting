@@ -1,4 +1,6 @@
-define(function () {
+define([
+ 'scribe-common/src/element'
+], function (elementHelper) {
 
   /*
    * Plugin for adding a <note> elements around
@@ -227,52 +229,22 @@ define(function () {
       }
 
       function basicUnwrap(selection, range) {
-        // this is a seriously flaky way of doing it at the moment
-        // I think there are much better alternatives
-        // TODO: Investigate if it's even worth doing this on an undo
-        // might just be able to use unwrap in the same way as it works
-        // when there are block elements.
-
-
-        // drop markers to play with the sibling
         selection.placeMarkers();
         selection.selectMarkers(true);
 
-        // this is the note - or at least it's meant to be
-        // in Firefore it's not so we just get the
-        // containing note
-        var commonAncestor = selection.getContaining(function (node) {
-          return isNote(node);
-        });
 
-        if (!commonAncestor) {
-          // this is to get round Firefox positioning the range in a
-          // different place to Chrome so the commonAncestor is
-          // actually the p not the note like we'd expect
-          var nodeList = buildNodeList(range.commonAncestorContainer, function (node) {
-            return isNote(node);
-          });
-          commonAncestor = nodeList[0];
+        var note = range.commonAncestorContainer;
+        var parent = note.parentNode;
+
+
+        if (note.nextSibling) {
+          parent = note.nextSibling.parentNode;
+        } else if (note.previousSibling) {
+          parent = note.previousSibling.parentNode;
         }
 
+        elementHelper.unwrap(parent, note);
         selection.selectMarkers();
-        var parent = commonAncestor.parentNode;
-
-
-        // this is random - but basically the range thinks the
-        // span is the common ancestor if we only select a little bit of
-        // the note
-        if (commonAncestor.nextSibling) {
-          parent = commonAncestor.nextSibling.parentNode;
-        } else if (commonAncestor.previousSibling) {
-          parent = commonAncestor.previousSibling.parentNode;
-        }
-
-
-        var contents = document.createTextNode(commonAncestor.innerHTML);
-        parent.replaceChild(contents, commonAncestor);
-        selection.selectMarkers();
-
 
       }
 
