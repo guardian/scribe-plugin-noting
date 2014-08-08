@@ -34,7 +34,7 @@ define(function () {
         //wrap the contents of a text node
         // they behave diffent
         var wrap = createWrap();
-        content.textContent = " " + content.textContent + " ";
+        content.textContent = content.textContent;
         wrap.appendChild(content);
         return wrap;
       }
@@ -47,7 +47,7 @@ define(function () {
         // there are some issues with LIs and Bs at the moment
         var wrap = createWrap();
         var temp = block.cloneNode(true);
-        wrap.innerHTML = " " + temp.innerHTML + " ";
+        wrap.innerHTML = temp.innerHTML;
         temp.appendChild(wrap);
         return temp;
       }
