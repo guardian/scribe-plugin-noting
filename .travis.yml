@@ -1,0 +1,31 @@
+language: node_js
+node_js:
+  - 0.10
+
+addons:
+  sauce_connect:
+    username: scribe-ci
+    access_key: 4be9eeed-61de-4948-b18d-f7f655e9e4b0
+env:
+  matrix:
+    - BROWSER_NAME='firefox' BROWSER_VERSION='21' PLATFORM='Windows XP'
+    - BROWSER_NAME='firefox' BROWSER_VERSION='22' PLATFORM='Windows XP'
+    - BROWSER_NAME='firefox' BROWSER_VERSION='23' PLATFORM='Windows XP'
+    - BROWSER_NAME='firefox' BROWSER_VERSION='24' PLATFORM='Windows XP'
+    - BROWSER_NAME='firefox' BROWSER_VERSION='25' PLATFORM='Windows XP'
+    - BROWSER_NAME='firefox' BROWSER_VERSION='26' PLATFORM='Windows XP'
+    - BROWSER_NAME='firefox' BROWSER_VERSION='27' PLATFORM='Windows XP'
+    - BROWSER_NAME='firefox' BROWSER_VERSION='28' PLATFORM='Windows XP'
+    - BROWSER_NAME='chrome' BROWSER_VERSION='27' PLATFORM='Windows XP'
+    - BROWSER_NAME='chrome' BROWSER_VERSION='28' PLATFORM='Windows XP'
+    - BROWSER_NAME='chrome' BROWSER_VERSION='29' PLATFORM='Windows XP'
+    - BROWSER_NAME='chrome' BROWSER_VERSION='30' PLATFORM='Windows XP'
+    - BROWSER_NAME='chrome' BROWSER_VERSION='31' PLATFORM='Windows XP'
+    - BROWSER_NAME='chrome' BROWSER_VERSION='32' PLATFORM='Windows XP'
+    - BROWSER_NAME='chrome' BROWSER_VERSION='33' PLATFORM='Windows XP'
+    - BROWSER_NAME='chrome' BROWSER_VERSION='34' PLATFORM='Windows XP'
+
+before_script:
+  - npm install -g bower
+  - bower install
+script: npm test

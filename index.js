@@ -37,40 +37,46 @@ module.exports = function(user) {
     //     return tree;
     // }
 
+    function isNote (node) {
+      return node.tagName === nodeName;
+    }
+
     noteCommand.execute = function () {
-        var selection = new scribe.api.Selection();
-        var range = selection.range;
-        var cloned = range.cloneContents();
-        // if the selection is the whole line, then we need to note the whole line
-        // if it isn't then we just do the bit selected and nothing else.
-        // selection.selection.data currently will duplicate things if there is no
-        // actual selection
+      console.log('noteCommand.execute')
+      var selection = new scribe.api.Selection();
+      var range = selection.range;
+      var cloned = range.cloneContents();
+      // if the selection is the whole line, then we need to note the whole line
+      // if it isn't then we just do the bit selected and nothing else.
+      // selection.selection.data currently will duplicate things if there is no
+      // actual selection
 
-        if(! selection.selection.isCollapsed) {
-          if (this.queryState()) {
-            if (!hasBlockElements(cloned)) {
-              basicUnwrap(selection, range);
-            } else {
-              descentUnwrap(selection, range);
-            }
-          } else {
-            // check if the selection has block elements.
-            // if it does do the complex version,
-            // otherwise do the simple version
-            if (!hasBlockElements(cloned)) {
-              var wrapped = wrapRange(cloned);
-              range.deleteContents();
-              range.insertNode(wrapped);
-            } else {
-              wrapBlocks(selection, range);
-            }
-          }
-        }
+      // if(! selection.selection.isCollapsed) {
+      //   if (this.queryState()) {
+      //     if (!hasBlockElements(cloned)) {
+      //       basicUnwrap(selection, range);
+      //     } else {
+      //       descentUnwrap(selection, range);
+      //     }
+      //   } else {
+      //     // check if the selection has block elements.
+      //     // if it does do the complex version,
+      //     // otherwise do the simple version
+      //     if (!hasBlockElements(cloned)) {
+      //       var wrapped = wrapRange(cloned);
+      //       range.deleteContents();
+      //       range.insertNode(wrapped);
+      //     } else {
+      //       wrapBlocks(selection, range);
+      //     }
+      //   }
+      // }
 
-      };
+    };
 
 
       noteCommand.queryState = function () {
+        console.log('noteCommand.queryState')
         // TODO: The instance in which there are more scribe nodes
         // clone the range and see if there are spans in it
         var selection = new scribe.api.Selection();

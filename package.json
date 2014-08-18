@@ -3,6 +3,11 @@
     "version": "0.1.0",
     "main": "src/scribe-plugin-noting.js",
     "devDependencies": {
+        "chai": "~1.9.1",
+        "http-server": "~0.6.1",
+        "mocha": "~1.18.2",
+        "selenium-webdriver": "~2.41.0",
+        "scribe-test-harness": "~0.0.6",
         "plumber": "~0.3.0",
         "plumber-all": "~0.3.0",
         "plumber-glob": "~0.3.0",
@@ -13,6 +18,9 @@
         "vdom-virtualize": "0.0.3",
         "virtual-dom": "0.0.16",
         "vtree": "0.0.19"
+    },
+    "scripts": {
+        "test": "./run-tests.sh"
     },
     "repository": {
     "type": "git",
