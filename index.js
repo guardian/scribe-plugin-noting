@@ -9,6 +9,9 @@ module.exports = function(user) {
     var diff = require('virtual-dom/diff');
     var patch = require('virtual-dom/patch');
     var virtualize = require('vdom-virtualize');
+    var h = require('virtual-dom/h');
+    var createElement = require('virtual-dom/create-element');
+
 
     var isVNode = require('vtree/is-vnode');
     var isVText = require('vtree/is-vtext');
@@ -41,11 +44,21 @@ module.exports = function(user) {
       return node.tagName === nodeName;
     }
 
+    function noteWrap(content) {
+      content = content || '';
+      return h('gu:note', [content]);
+    }
+
     noteCommand.execute = function () {
       console.log('noteCommand.execute')
-      var selection = new scribe.api.Selection();
-      var range = selection.range;
-      var cloned = range.cloneContents();
+      // var selection = new scribe.api.Selection();
+      // var range = selection.range;
+      // var cloned = range.cloneContents();
+      // var tree = virtualize(scribe.el);
+
+      var note = noteWrap();
+      scribe.el.appendChild(createElement(note));
+
       // if the selection is the whole line, then we need to note the whole line
       // if it isn't then we just do the bit selected and nothing else.
       // selection.selection.data currently will duplicate things if there is no

@@ -20,6 +20,7 @@ function loadPlugin() {
   });
 }
 
+// Press the noting key. Returns promise.
 function note() {
   return scribeNode.sendKeys(webdriver.Key.F10);
 }
@@ -43,15 +44,21 @@ describe('noting plugin', function () {
 
     beforeEach(loadPlugin);
 
-    when('we press the noting key', function() {
-      it('creates a note', function() {
-        scribeNode.sendKeys('|').then(function (n) {
-          note().then(function() {
-            scribeNode.getInnerHTML().then(function (innerHTML) {
-              expect(innerHTML).to.include('</gu:note>');
-            });
+    when('when we haven\'t pressed any key', function () {
+      it('won\'t have any note', function () {
+        scribeNode.getInnerHTML().then(function (innerHTML) {
+          expect(innerHTML).to.not.include('</gu:note>');
+        });
+      });
+    });
+
+    when('we press the noting key', function () {
+      it('creates a note', function () {
+        note().then(function () {
+          scribeNode.getInnerHTML().then(function (innerHTML) {
+            expect(innerHTML).to.include('</gu:note>');
           });
-        })
+        });
       });
     });
 
