@@ -20,6 +20,10 @@ function loadPlugin() {
   });
 }
 
+function note() {
+  return scribeNode.sendKeys(webdriver.Key.F10);
+}
+
 // Get new references each time a new instance is created
 var driver;
 before(function () {
@@ -31,7 +35,6 @@ beforeEach(function () {
   scribeNode = helpers.scribeNode;
 });
 
-
 describe('noting plugin', function () {
   given('we are in a text area', function () {
     beforeEach(function () {
@@ -42,10 +45,17 @@ describe('noting plugin', function () {
 
     when('we press the noting key', function() {
       it('creates a note', function() {
-        console.log("INSIDE")
-        expect(0).to.equal(0);
+        scribeNode.sendKeys('|').then(function (n) {
+          note().then(function() {
+            scribeNode.getInnerHTML().then(function (innerHTML) {
+              expect(innerHTML).to.include('</gu:note>');
+            });
+          });
+        })
       });
     });
+
+
   });
 
 });
