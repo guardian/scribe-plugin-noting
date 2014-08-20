@@ -9,6 +9,7 @@ var given = helpers.given;
 var initializeScribe = helpers.initializeScribe.bind(null, '../../bower_components/scribe/src/scribe');
 var seleniumBugs = helpers.seleniumBugs;
 var givenContentOf = helpers.givenContentOf;
+var givenContentAsHTMLOf = helpers.givenContentAsHTMLOf;
 var browserName = helpers.browserName;
 
 function loadPlugin() {
@@ -63,22 +64,17 @@ describe('noting plugin', function () {
     });
 
     when('we select a bit of text within a paragraph', function() {
-      beforeEach(function() {
-        return scribeNode.sendKeys();
-      });
-
-      givenContentOf('On the 24th of February, 1815, |the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna', function() {
+      givenContentOf('<p>On the 24th of |February, 1815, |the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
         when('we press the noting key', function() {
           it('wraps the text in a note', function () {
             note().then(function () {
               scribeNode.getInnerHTML().then(function (innerHTML) {
-                expect(innerHTML).to.include('On the 24th of February, 1815, </gu:note>');
+                expect(innerHTML).to.include('February, 1815, </gu:note>');
               });
             });
           });
         });
       });
-
 
 
     });
