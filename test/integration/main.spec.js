@@ -62,6 +62,27 @@ describe('noting plugin', function () {
       });
     });
 
+    when('we select a bit of text within a paragraph', function() {
+      beforeEach(function() {
+        return scribeNode.sendKeys();
+      });
+
+      givenContentOf('On the 24th of February, 1815, |the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna', function() {
+        when('we press the noting key', function() {
+          it('wraps the text in a note', function () {
+            note().then(function () {
+              scribeNode.getInnerHTML().then(function (innerHTML) {
+                expect(innerHTML).to.include('On the 24th of February, 1815, </gu:note>');
+              });
+            });
+          });
+        });
+      });
+
+
+
+    });
+
 
   });
 

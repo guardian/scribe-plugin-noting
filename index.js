@@ -26,38 +26,112 @@ module.exports = function(user) {
     var noteCommand = new scribe.api.Command('insertHTML');
 
 
-    // function traverse(tree, fn) {
-    //     // Do not traverse text nodes
-    //     if (isVNode(tree)) {
-    //         var child = tree.children[0];
-    //         while (child) {
-    //             traverse(child, fn);
-    //             fn(child);
-    //             child = tree.children[tree.children.indexOf(child) + 1];
-    //         }
-    //     }
+    function traverse(tree, fn) {
+        // Do not traverse text nodes
+        if (isVNode(tree)) {
+            var child = tree.children[0];
+            while (child) {
+                traverse(child, fn);
+                fn(child);
+                child = tree.children[tree.children.indexOf(child) + 1];
+            }
+        } //else {
+          //console.log('not vnode, is:', tree);
+        //}
 
-    //     return tree;
-    // }
+        return tree;
+    }
 
-    function isNote (node) {
+    function isScribeMarker(node) {
+       return hasClass(node, "scribe-marker");
+    }
+
+    // Check if VNode has class
+    function hasClass(vnode, value) {
+      return (vnode.properties &&
+        vnode.properties.className &&
+        vnode.properties.className === value);
+    }
+
+    function isNote(node) {
       return node.tagName === nodeName;
     }
 
     function noteWrap(content) {
-      content = content || '';
-      return h('gu:note', [content]);
+      content = content || 'Note text here';
+      return h('gu:note.note', [content]);
     }
+
+    function wrapText(content) {
+      //wrap the contents of a text node
+      // they behave diffent
+      var wrap = createWrap();
+      content.textContent = content.textContent;
+      wrap.appendChild(content);
+      return wrap;
+    }
+
+    function wrapRange(range) {
+      var temp = document.createDocumentFragment();
+      var childNodes = range.childNodes;
+
+      childNodes = Array.prototype.slice.call(childNodes);
+
+      childNodes.forEach(function (item) {
+        var tempNode;
+
+        if(item.nodeType === Node.TEXT_NODE) {
+          // this is for a basic selection
+          tempNode = wrapText(item);
+        } else {
+          tempNode = wrapBlock(item);
+        }
+
+        temp.appendChild(tempNode);
+      });
+
+      return temp;
+    }
+
+
 
     noteCommand.execute = function () {
       console.log('noteCommand.execute')
-      // var selection = new scribe.api.Selection();
-      // var range = selection.range;
-      // var cloned = range.cloneContents();
-      // var tree = virtualize(scribe.el);
+      var selection = new scribe.api.Selection();
+      var range = selection.range;
+      var cloned = range.cloneContents();
 
-      var note = noteWrap();
-      scribe.el.appendChild(createElement(note));
+      // selection.placeMarkers();
+
+      var tree = virtualize(scribe.el);
+      // console.log(tree);
+      // traverse(tree, function(item) {
+      //   if (isScribeMarker(item)) {
+      //     console.log('marker!', item);
+      //   }
+      // });
+
+      // var aElement = document.createElement('a');
+      // aElement.setAttribute('href', 'value here');
+      // aElement.textContent = 'value here';
+      // selection.range.insertNode(aElement);
+
+      console.log('selection', selection)
+      console.log('range', selection.range)
+      console.log('cloned',cloned)
+
+      var vNote = h('gu:note.note', []);
+
+      var virtualClonedRange = virtualize(cloned);
+      console.log('virtualClonedRange', virtualClonedRange)
+      var note = noteWrap(selection.range);
+      // var note = noteWrap();
+      // selection.range.insertNode(createElement(note));
+      selection.range.insertNode(range.surroundContents(createElement(vNote)));
+      // var wrapped = wrapRange(cloned);
+      // range.deleteContents();
+      // range.insertNode(wrapped);
+
 
       // if the selection is the whole line, then we need to note the whole line
       // if it isn't then we just do the bit selected and nothing else.
@@ -111,7 +185,6 @@ module.exports = function(user) {
 
       };
 
-      console.log('here we are');
       scribe.commands.note = noteCommand;
 
       scribe.el.addEventListener('keydown', function (event) {
