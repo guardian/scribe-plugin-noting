@@ -11,7 +11,7 @@ module.exports = function(user) {
     var virtualize = require('vdom-virtualize');
     var h = require('virtual-dom/h');
     var createElement = require('virtual-dom/create-element');
-
+    var _ = require('lodash');
 
     var isVNode = require('vtree/is-vnode');
     var isVText = require('vtree/is-vtext');
@@ -24,7 +24,6 @@ module.exports = function(user) {
     var dataDate = "data-edited-date";
     var blocks = ["P", "LI", "UL"];
     var noteCommand = new scribe.api.Command('insertHTML');
-
 
     function traverse(tree, fn) {
         // Do not traverse text nodes
@@ -42,8 +41,34 @@ module.exports = function(user) {
         return tree;
     }
 
+    function walk(vnode, fn) {
+      // this is a semi-recursive tree descent
+      // although it's a shame it uses a loop
+      // this could be trivially rewritten to be
+      // fully recursive
+      // this is far simpler than doing rubbish
+      // with do whiles
+      vnode.children && vnode.children.forEach(function(child) {
+        walk(child, fn);
+      });
+
+      fn(vnode);
+    }
+
+    function getChildren(tree) {
+      var children = [];
+      walk(tree, function(el) {
+        children.push(el);
+      });
+      return children;
+    }
+
     function isScribeMarker(node) {
        return hasClass(node, "scribe-marker");
+    }
+
+    function unlessScribeMarker(node) {
+      return ! isScribeMarker(node);
     }
 
     // Check if VNode has class
@@ -71,66 +96,73 @@ module.exports = function(user) {
       return wrap;
     }
 
-    function wrapRange(range) {
-      var temp = document.createDocumentFragment();
-      var childNodes = range.childNodes;
-
-      childNodes = Array.prototype.slice.call(childNodes);
-
-      childNodes.forEach(function (item) {
-        var tempNode;
-
-        if(item.nodeType === Node.TEXT_NODE) {
-          // this is for a basic selection
-          tempNode = wrapText(item);
-        } else {
-          tempNode = wrapBlock(item);
-        }
-
-        temp.appendChild(tempNode);
-      });
-
-      return temp;
-    }
 
 
+    // Add start/end classes to markers.
+    // function transformMarkers() {
+    //   traverse(tree, function(el) {
+    //     if (isScribeMarker(el)) {
+    //       el.properties.class;
+    //     }
+    // }
 
     noteCommand.execute = function () {
       console.log('noteCommand.execute')
       var selection = new scribe.api.Selection();
       var range = selection.range;
-      var cloned = range.cloneContents();
+      // console.log('selection', selection)
+      // console.log('range', selection.range)
 
-      // selection.placeMarkers();
+      selection.placeMarkers();
+      // transformMarkers();
+      // var tree = virtualize(scribe.el);
+      console.log(tree);
 
-      var tree = virtualize(scribe.el);
-      // console.log(tree);
-      // traverse(tree, function(item) {
-      //   if (isScribeMarker(item)) {
-      //     console.log('marker!', item);
-      //   }
-      // });
+      // tree.children.map(function(el) {
+      //   if (el.)
+      // })
+      // var firstNoteText = _(tree).flatten().rest(isScribeMarker).value();
+      // console.log(firstNoteText);
+      // window.tree = tree;
+      // window._ = _;
 
-      // var aElement = document.createElement('a');
-      // aElement.setAttribute('href', 'value here');
-      // aElement.textContent = 'value here';
-      // selection.range.insertNode(aElement);
+      function dropBeforeMarker (vNodes) {
+        return _.rest(vNodes, function (vNode) { return isScribeMarker(vNode); });
+      }
+      function takeBeforeMarker (vNodes) {
+         return _.first(vNodes, function (vNode) { return isScribeMarker(vNode); });
+      }
 
-      console.log('selection', selection)
-      console.log('range', selection.range)
-      console.log('cloned',cloned)
+      function onlyTextNodes (vNodes) {
+        function isVNodeTag (vNode) { return vNode.tagName === 'VNode'; }
 
-      var vNote = h('gu:note.note', []);
+        return vNodes.filter(isVNodeTag);
+      }
 
-      var virtualClonedRange = virtualize(cloned);
-      console.log('virtualClonedRange', virtualClonedRange)
-      var note = noteWrap(selection.range);
-      // var note = noteWrap();
-      // selection.range.insertNode(createElement(note));
-      selection.range.insertNode(range.surroundContents(createElement(vNote)));
-      // var wrapped = wrapRange(cloned);
-      // range.deleteContents();
-      // range.insertNode(wrapped);
+      function findVTextNodesToWrap(vNodes) {
+        var results;
+        results = dropBeforeMarker(vNodes);
+        results = _.rest(results); // remove first marker
+        results = takeBeforeMarker(results); // take until end marker
+        results = onlyTextNodes(results);
+        return results;
+      }
+
+      // We mutate references in this tree.
+      var vNodes = getChildren(tree);
+      var vTextNodesToWrap = findVTextNodesToWrap(vNodes);
+      var wrappedTextNodes = vTextNodesToWrap.map(function (vTextNode) { wrap(vTextNode); });
+      // Now walk the tree to find the references to the nodes we wrapped,
+      // and replace the references to point to our wrapped versions.
+      walk(tree, function (vNode) {
+        if (vNode === )
+      });
+
+      // Then patch the DOM. And we're done.
+
+      // var vNote = h('gu:note.note', []);
+      // var note = noteWrap(selection.range);
+      // selection.range.insertNode(range.surroundContents(createElement(vNote)));
 
 
       // if the selection is the whole line, then we need to note the whole line
