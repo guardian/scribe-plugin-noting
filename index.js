@@ -89,10 +89,10 @@ module.exports = function(user) {
       return results;
     }
 
-    // Wrap node in a note.
-    // node can be vNode or DOM node.
-    function wrapInNote(node) {
-      return h('gu:note.note', [node]);
+    // Wrap in a note.
+    // nodeOrText can be a vNode , DOM node or a string.
+    function wrapInNote(nodeOrText) {
+      return h('gu:note.note', [nodeOrText]);
     }
 
     // Find wrapped version of vNode
@@ -101,17 +101,27 @@ module.exports = function(user) {
       return wrappedTextNodes[index];
     }
 
-    noteCommand.execute = function () {
-      var selection = new scribe.api.Selection();
-      var range = selection.range;
+    function replaceMarkerInVTree(tree, replacementNode) {
+      walk(tree, function (vNode) {
+        if (! vNode.children) { return; }
 
+        for (var i = vNode.children.length - 1; i >= 0; i--) {
+          if (isScribeMarker(vNode.children[i])) {
+            vNode.children[i] = replacementNode;
+          }
+        }
+      });
+    }
 
-      // Place markers and create virtual trees.
-      // We'll use the markers to determine where a selection starts and ends.
-      selection.placeMarkers();
-      var originalTree = virtualize(scribe.el);
-      var tree = virtualize(scribe.el); // we'll mutate this one
+    /**
+    * Note creation
+    */
 
+    function createEmptyNoteAtCaret(tree) {
+      replaceMarkerInVTree(tree, wrapInNote(''));
+    }
+
+    function createNoteFromSelection(tree) {
       // Let's operate on arrays rather than trees when we can.
       var vNodes = flattenVTree(tree);
 
@@ -132,6 +142,22 @@ module.exports = function(user) {
           }
         }
       });
+    }
+
+    noteCommand.execute = function () {
+      var selection = new scribe.api.Selection();
+
+      // Place markers and create virtual trees.
+      // We'll use the markers to determine where a selection starts and ends.
+      selection.placeMarkers();
+      var originalTree = virtualize(scribe.el);
+      var tree = virtualize(scribe.el); // we'll mutate this one
+
+      if (selection.selection.isCollapsed) {
+        createEmptyNoteAtCaret(tree);
+      } else {
+        createNoteFromSelection(tree);
+      }
 
       // Then diff with the original tree and patch the DOM. And we're done.
       var patches = diff(originalTree, tree);
