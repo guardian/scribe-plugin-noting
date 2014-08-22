@@ -82,10 +82,10 @@ module.exports = function(user) {
       return node.tagName === nodeName;
     }
 
-    function noteWrap(content) {
-      content = content || 'Note text here';
-      return h('gu:note.note', [content]);
-    }
+    // function noteWrap(content) {
+    //   content = content || 'Note text here';
+    //   return h('gu:note.note', [content]);
+    // }
 
     function wrapText(content) {
       //wrap the contents of a text node
@@ -113,52 +113,98 @@ module.exports = function(user) {
       // console.log('selection', selection)
       // console.log('range', selection.range)
 
-      selection.placeMarkers();
-      // transformMarkers();
-      // var tree = virtualize(scribe.el);
-      console.log(tree);
+
 
       // tree.children.map(function(el) {
       //   if (el.)
       // })
       // var firstNoteText = _(tree).flatten().rest(isScribeMarker).value();
       // console.log(firstNoteText);
-      // window.tree = tree;
-      // window._ = _;
+
 
       function dropBeforeMarker (vNodes) {
-        return _.rest(vNodes, function (vNode) { return isScribeMarker(vNode); });
+        return _.rest(vNodes, function (vNode) { return ! isScribeMarker(vNode); });
       }
       function takeBeforeMarker (vNodes) {
-         return _.first(vNodes, function (vNode) { return isScribeMarker(vNode); });
+         return _.first(vNodes, function (vNode) { return ! isScribeMarker(vNode); });
       }
 
       function onlyTextNodes (vNodes) {
-        function isVNodeTag (vNode) { return vNode.tagName === 'VNode'; }
+        function isVTextNode (vNode) { return vNode.type === 'VirtualText'; }
 
-        return vNodes.filter(isVNodeTag);
+        return vNodes.filter(isVTextNode);
       }
 
       function findVTextNodesToWrap(vNodes) {
         var results;
         results = dropBeforeMarker(vNodes);
+        console.log('dropBeforeMarker', results)
         results = _.rest(results); // remove first marker
+        console.log('remove first marker', results)
         results = takeBeforeMarker(results); // take until end marker
+        console.log('take until end marker', results)
         results = onlyTextNodes(results);
+        console.log('onlyTextNodes', results)
         return results;
       }
 
+      // Wrap node in a note.
+      // node can be vNode or DOM node.
+      function wrapInNote(node) {
+        return h('gu:note.note', [node]);
+      }
+
+      // Place markers and create virtual trees
+      selection.placeMarkers();
+      var originalTree = virtualize(scribe.el);
+      var tree = virtualize(scribe.el); // we'll mutate this one
+      console.log('tree', tree);
+
+
       // We mutate references in this tree.
       var vNodes = getChildren(tree);
+      console.log('vNodes', vNodes);
       var vTextNodesToWrap = findVTextNodesToWrap(vNodes);
-      var wrappedTextNodes = vTextNodesToWrap.map(function (vTextNode) { wrap(vTextNode); });
+      var wrappedTextNodes = vTextNodesToWrap.map(function (vTextNode) { return wrapInNote(vTextNode); });
+
+      console.log('vTextNodesToWrap', vTextNodesToWrap);
+      console.log('wrappedTextNodes', wrappedTextNodes);
+
+      // DEBUG:
+      window.tree = tree;
+      window._ = _;
+      window.vNodes = vNodes;
+      //////////
+
+      // Find wrapped version of vNode
+      function locateWrapped(vNode, vTextNodesToWrap, wrappedTextNodes) {
+        var index = vTextNodesToWrap.indexOf(vNode);
+        return wrappedTextNodes[index];
+      }
+
       // Now walk the tree to find the references to the nodes we wrapped,
       // and replace the references to point to our wrapped versions.
-      walk(tree, function (vNode) {
-        if (vNode === )
-      });
+      // Note: If we could rewrite the code to use a zipper we might be able
+      // to avoid this step.
 
-      // Then patch the DOM. And we're done.
+      walk(tree, function (vNode) {
+        if (vNode.children) {
+          for (var i = vNode.children.length - 1; i >= 0; i--) {
+              if (_.contains(vTextNodesToWrap, vNode.children[i])) {
+                vNode.children[i] = locateWrapped(vNode.children[i], vTextNodesToWrap, wrappedTextNodes);
+              }
+          }
+        }
+      });
+      console.log('modified tree', tree);
+      // Then diff with the original tree and patch the DOM. And we're done.
+      var patches = diff(originalTree, tree);
+      console.log('patches', patches)
+      patch(scribe.el, patches);
+      console.log('scribe.el', scribe.el);
+
+      // TODO: Remove markers and place caret at appropriate place
+      // TODO 2: IDs to identify nodes
 
       // var vNote = h('gu:note.note', []);
       // var note = noteWrap(selection.range);

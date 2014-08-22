@@ -45,37 +45,37 @@ describe('noting plugin', function () {
 
     beforeEach(loadPlugin);
 
-    when('when we haven\'t pressed any key', function () {
-      it('won\'t have any note', function () {
-        scribeNode.getInnerHTML().then(function (innerHTML) {
-          expect(innerHTML).to.not.include('</gu:note>');
-        });
-      });
-    });
+    // when('when we haven\'t pressed any key', function () {
+    //   it('won\'t have any note', function () {
+    //     scribeNode.getInnerHTML().then(function (innerHTML) {
+    //       expect(innerHTML).to.not.include('</gu:note>');
+    //     });
+    //   });
+    // });
 
-    when('we press the noting key', function () {
-      it('creates a note', function () {
-        note().then(function () {
-          scribeNode.getInnerHTML().then(function (innerHTML) {
-            expect(innerHTML).to.include('</gu:note>');
-          });
-        });
-      });
-    });
+    // when('we press the noting key', function () {
+    //   it('creates a note', function () {
+    //     note().then(function () {
+    //       scribeNode.getInnerHTML().then(function (innerHTML) {
+    //         expect(innerHTML).to.include('</gu:note>');
+    //       });
+    //     });
+    //   });
+    // });
 
-    when('we select a bit of text within a paragraph', function() {
-      givenContentOf('<p>On the 24th of |February, 1815, |the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
-        when('we press the noting key', function() {
-          it('wraps the text in a note', function () {
-            note().then(function () {
-              scribeNode.getInnerHTML().then(function (innerHTML) {
-                expect(innerHTML).to.include('February, 1815, </gu:note>');
-              });
-            });
-          });
-        });
-      });
-    });
+    // when('we select a bit of text within a paragraph', function() {
+    //   givenContentOf('<p>On the 24th of |February, 1815, |the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+    //     when('we press the noting key', function() {
+    //       it('wraps the text in a note', function () {
+    //         note().then(function () {
+    //           scribeNode.getInnerHTML().then(function (innerHTML) {
+    //             expect(innerHTML).to.include('February, 1815, </gu:note>');
+    //           });
+    //         });
+    //       });
+    //     });
+    //   });
+    // });
 
     when('we select a bit of text that crosses another tag', function() {
       givenContentOf('<p>On the <b>24th of |February</b>The look-out at |Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
