@@ -117,10 +117,14 @@ module.exports = function(user) {
     * Note creation
     */
 
+    // tree - tree containing a marker.
+    // Note that we will mutate the tree.
     function createEmptyNoteAtCaret(tree) {
       replaceMarkerInVTree(tree, wrapInNote(''));
     }
 
+    // tree -- tree containing two scribe markers
+    // Note that we will mutate the tree.
     function createNoteFromSelection(tree) {
       // Let's operate on arrays rather than trees when we can.
       var vNodes = flattenVTree(tree);
