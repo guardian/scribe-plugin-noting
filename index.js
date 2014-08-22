@@ -113,6 +113,22 @@ module.exports = function(user) {
       });
     }
 
+    // Walk the tree to find the references to the nodes we wrapped,
+    // and replace the references to point to our wrapped versions.
+    // Note: If we could rewrite the code to use a zipper we might be able
+    // to avoid this step.
+    function replaceWithWrappedVersions(tree, vTextNodesToWrap, wrappedTextNodes) {
+      walk(tree, function (vNode) {
+        if (! vNode.children) { return; }
+
+        for (var i = vNode.children.length - 1; i >= 0; i--) {
+            if (_.contains(vTextNodesToWrap, vNode.children[i])) {
+              vNode.children[i] = locateWrapped(vNode.children[i], vTextNodesToWrap, wrappedTextNodes);
+            }
+        }
+      });
+    }
+
     /**
     * Note creation
     */
@@ -134,22 +150,14 @@ module.exports = function(user) {
 
       // Wrap wrap
       var vTextNodesToWrap = findVTextNodesToWrap(vNodes);
-      var wrappedTextNodes = vTextNodesToWrap.map(function (vTextNode) { return wrapInNote(vTextNode); });
-
-      // Now walk the tree to find the references to the nodes we wrapped,
-      // and replace the references to point to our wrapped versions.
-      // Note: If we could rewrite the code to use a zipper we might be able
-      // to avoid this step.
-      walk(tree, function (vNode) {
-        if (vNode.children) {
-          for (var i = vNode.children.length - 1; i >= 0; i--) {
-              if (_.contains(vTextNodesToWrap, vNode.children[i])) {
-                vNode.children[i] = locateWrapped(vNode.children[i], vTextNodesToWrap, wrappedTextNodes);
-              }
-          }
-        }
+      var wrappedTextNodes = vTextNodesToWrap.map(function (vTextNode) {
+        return wrapInNote(vTextNode);
       });
+
+      replaceWithWrappedVersions(tree, vTextNodesToWrap, wrappedTextNodes);
     }
+
+
 
     noteCommand.execute = function () {
       var selection = new scribe.api.Selection();
