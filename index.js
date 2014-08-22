@@ -39,12 +39,12 @@ module.exports = function(user) {
       fn(vnode);
     }
 
-    function getChildren(tree) {
-      var children = [];
-      walk(tree, function(el) {
-        children.push(el);
+    function flattenVTree(tree) {
+      var vNodes = [];
+      walk(tree, function(vNode) {
+        vNodes.push(vNode);
       });
-      return children;
+      return vNodes;
     }
 
     function isScribeMarker(node) {
@@ -66,43 +66,45 @@ module.exports = function(user) {
       return node.tagName === nodeName;
     }
 
+    function dropBeforeMarker (vNodes) {
+      return _.rest(vNodes, function (vNode) { return unlessScribeMarker(vNode); });
+    }
+
+    function takeBeforeMarker (vNodes) {
+       return _.first(vNodes, function (vNode) { return unlessScribeMarker(vNode); });
+    }
+
+    function onlyTextNodes (vNodes) {
+      function isVTextNode (vNode) { return vNode.type === 'VirtualText'; }
+
+      return vNodes.filter(isVTextNode);
+    }
+
+    function findVTextNodesToWrap(vNodes) {
+      var results;
+      results = dropBeforeMarker(vNodes);
+      results = _.rest(results); // remove first marker
+      results = takeBeforeMarker(results); // take until end marker
+      results = onlyTextNodes(results);
+      return results;
+    }
+
+    // Wrap node in a note.
+    // node can be vNode or DOM node.
+    function wrapInNote(node) {
+      return h('gu:note.note', [node]);
+    }
+
+    // Find wrapped version of vNode
+    function locateWrapped(vNode, vTextNodesToWrap, wrappedTextNodes) {
+      var index = vTextNodesToWrap.indexOf(vNode);
+      return wrappedTextNodes[index];
+    }
+
     noteCommand.execute = function () {
       var selection = new scribe.api.Selection();
       var range = selection.range;
 
-      function dropBeforeMarker (vNodes) {
-        return _.rest(vNodes, function (vNode) { return unlessScribeMarker(vNode); });
-      }
-      function takeBeforeMarker (vNodes) {
-         return _.first(vNodes, function (vNode) { return unlessScribeMarker(vNode); });
-      }
-
-      function onlyTextNodes (vNodes) {
-        function isVTextNode (vNode) { return vNode.type === 'VirtualText'; }
-
-        return vNodes.filter(isVTextNode);
-      }
-
-      function findVTextNodesToWrap(vNodes) {
-        var results;
-        results = dropBeforeMarker(vNodes);
-        results = _.rest(results); // remove first marker
-        results = takeBeforeMarker(results); // take until end marker
-        results = onlyTextNodes(results);
-        return results;
-      }
-
-      // Wrap node in a note.
-      // node can be vNode or DOM node.
-      function wrapInNote(node) {
-        return h('gu:note.note', [node]);
-      }
-
-      // Find wrapped version of vNode
-      function locateWrapped(vNode, vTextNodesToWrap, wrappedTextNodes) {
-        var index = vTextNodesToWrap.indexOf(vNode);
-        return wrappedTextNodes[index];
-      }
 
       // Place markers and create virtual trees
       selection.placeMarkers();
@@ -110,7 +112,7 @@ module.exports = function(user) {
       var tree = virtualize(scribe.el); // we'll mutate this one
 
       // Let's operate on arrays rather than trees when we can.
-      var vNodes = getChildren(tree);
+      var vNodes = flattenVTree(tree);
 
       // Wrap wrap
       var vTextNodesToWrap = findVTextNodesToWrap(vNodes);
