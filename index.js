@@ -81,12 +81,15 @@ module.exports = function(user) {
     }
 
     function findVTextNodesToWrap(vNodes) {
-      var results;
-      results = dropBeforeMarker(vNodes);
-      results = _.rest(results); // remove first marker
-      results = takeBeforeMarker(results); // take until end marker
-      results = onlyTextNodes(results);
-      return results;
+      function selectBetweenMarkers() {
+        var results;
+        results = dropBeforeMarker(vNodes);
+        results = _.rest(results); // remove first marker
+        results = takeBeforeMarker(results); // take until end marker
+        return results;
+      }
+
+      return onlyTextNodes(selectBetweenMarkers());
     }
 
     // Wrap in a note.
