@@ -106,7 +106,8 @@ module.exports = function(user) {
       var range = selection.range;
 
 
-      // Place markers and create virtual trees
+      // Place markers and create virtual trees.
+      // We'll use the markers to determine where a selection starts and ends.
       selection.placeMarkers();
       var originalTree = virtualize(scribe.el);
       var tree = virtualize(scribe.el); // we'll mutate this one
