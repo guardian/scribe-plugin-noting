@@ -77,14 +77,16 @@ describe('noting plugin', function () {
       });
     });
 
-    when('we select a bit of text that crosses another tag', function() {
-      givenContentOf('<p>On the <b>24th of |February</b>The look-out at |Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+    when('we select a bit of text that spans several tags', function() {
+      givenContentOf('<p>On the <b>24th of |February</b>The <b><i>look-out</i></b> at |Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
         when('we press the noting key', function() {
           it('wraps the text in a note', function () {
             note().then(function () {
               scribeNode.getInnerHTML().then(function (innerHTML) {
                 expect(innerHTML).to.include('February</gu:note></b>');
-                expect(innerHTML).to.include('The look-out at </gu:note>');
+                expect(innerHTML).to.include('The </gu:note><b><i>');
+                expect(innerHTML).to.include('look-out</gu:note></i></b>');
+                expect(innerHTML).to.include(' at </gu:note>');
               });
             });
           });
