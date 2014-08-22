@@ -120,7 +120,10 @@ module.exports = function(user) {
     // tree - tree containing a marker.
     // Note that we will mutate the tree.
     function createEmptyNoteAtCaret(tree) {
-      replaceMarkerInVTree(tree, wrapInNote(''));
+      // We need a zero width space character to make the note selectable.
+      var zeroWidthSpace = '\u200B';
+
+      replaceMarkerInVTree(tree, wrapInNote(zeroWidthSpace));
     }
 
     // tree -- tree containing two scribe markers
