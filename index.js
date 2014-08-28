@@ -104,13 +104,13 @@ module.exports = function(user) {
       return wrappedTextNodes[index];
     }
 
-    function replaceMarkerInVTree(tree, replacementNode) {
-      walk(tree, function (vNode) {
+    function insertBeforeMarker(vTree, newVNode) {
+      walk(vTree, function (vNode) {
         if (! vNode.children) { return; }
 
         for (var i = vNode.children.length - 1; i >= 0; i--) {
           if (isScribeMarker(vNode.children[i])) {
-            vNode.children[i] = replacementNode;
+            vNode.children.splice(i, 0, newVNode);
           }
         }
       });
@@ -142,7 +142,7 @@ module.exports = function(user) {
       // We need a zero width space character to make the note selectable.
       var zeroWidthSpace = '\u200B';
 
-      replaceMarkerInVTree(tree, wrapInNote(zeroWidthSpace));
+      insertBeforeMarker(tree, wrapInNote(zeroWidthSpace));
     }
 
     // tree -- tree containing two scribe markers

@@ -58,6 +58,8 @@ describe('noting plugin', function () {
         note().then(function () {
           scribeNode.getInnerHTML().then(function (innerHTML) {
             expect(innerHTML).to.include('</gu:note>');
+            // We also expect the caret to be placed within the note.
+            // Add expectation if you can figure out how to test that.
           });
         });
       });
