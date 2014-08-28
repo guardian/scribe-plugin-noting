@@ -104,6 +104,7 @@ module.exports = function(user) {
       return wrappedTextNodes[index];
     }
 
+    // Assumes there's only one marker.
     function insertBeforeMarker(vTree, newVNode) {
       walk(vTree, function (vNode) {
         if (! vNode.children) { return; }
