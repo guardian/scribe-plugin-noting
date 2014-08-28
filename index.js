@@ -9,12 +9,12 @@ module.exports = function(user) {
     var diff = require('virtual-dom/diff');
     var patch = require('virtual-dom/patch');
     var virtualize = require('vdom-virtualize');
-    var h = require('virtual-dom/h');
+    var h = require('virtual-hyperscript');
     var createElement = require('virtual-dom/create-element');
-    var _ = require('lodash');
-
     var isVNode = require('vtree/is-vnode');
     var isVText = require('vtree/is-vtext');
+
+    var _ = require('lodash');
 
     //currently
     var tag = "gu:note";
@@ -92,10 +92,21 @@ module.exports = function(user) {
       return onlyTextNodes(selectBetweenMarkers());
     }
 
+    function generateUUID(){
+      var d = new Date().getTime();
+      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = (d + Math.random()*16)%16 | 0;
+          d = Math.floor(d/16);
+          return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+      });
+      return uuid;
+    };
+
     // Wrap in a note.
     // nodeOrText can be a vNode , DOM node or a string.
-    function wrapInNote(nodeOrText) {
-      return h('gu:note.note', [nodeOrText]);
+    function wrapInNote(nodeOrText, noteIdValue) {
+      var note = h('gu:note.note', {dataset: {noteId: noteIdValue}}, [nodeOrText]);
+      return note;
     }
 
     // Find wrapped version of vNode
@@ -143,7 +154,7 @@ module.exports = function(user) {
       // We need a zero width space character to make the note selectable.
       var zeroWidthSpace = '\u200B';
 
-      insertBeforeMarker(tree, wrapInNote(zeroWidthSpace));
+      insertBeforeMarker(tree, wrapInNote(zeroWidthSpace, generateUUID()));
     }
 
     // tree -- tree containing two scribe markers
@@ -152,10 +163,12 @@ module.exports = function(user) {
       // Let's operate on arrays rather than trees when we can.
       var vNodes = flattenVTree(tree);
 
+      var noteId = generateUUID();
+
       // Wrap wrap
       var vTextNodesToWrap = findVTextNodesToWrap(vNodes);
       var wrappedTextNodes = vTextNodesToWrap.map(function (vTextNode) {
-        return wrapInNote(vTextNode);
+        return wrapInNote(vTextNode, noteId);
       });
 
       replaceWithWrappedVersions(tree, vTextNodesToWrap, wrappedTextNodes);

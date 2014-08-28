@@ -12,6 +12,8 @@ var givenContentOf = helpers.givenContentOf;
 var givenContentAsHTMLOf = helpers.givenContentAsHTMLOf;
 var browserName = helpers.browserName;
 
+var _ = require('lodash');
+
 function loadPlugin() {
   return driver.executeAsyncScript(function (done) {
     require(['../../src/scribe-plugin-noting'], function (scribePluginNoting) {
@@ -60,6 +62,12 @@ describe('noting plugin', function () {
             expect(innerHTML).to.include('</gu:note>');
             // We also expect the caret to be placed within the note.
             // Add expectation if you can figure out how to test that.
+
+            // Note id specs
+            expect(innerHTML).to.include('data-note-id=');
+
+            var noteIds = innerHTML.match(/data-note-id="(.*?)"/g);
+            expect(noteIds).to.have.length(1);
           });
         });
       });
@@ -72,6 +80,12 @@ describe('noting plugin', function () {
             note().then(function () {
               scribeNode.getInnerHTML().then(function (innerHTML) {
                 expect(innerHTML).to.include('February, 1815, </gu:note>');
+
+                // Note id specs
+                expect(innerHTML).to.include('data-note-id=');
+
+                var noteIds = innerHTML.match(/data-note-id="(.*?)"/g);
+                expect(noteIds).to.have.length(1);
               });
             });
           });
@@ -89,13 +103,20 @@ describe('noting plugin', function () {
                 expect(innerHTML).to.include('The </gu:note><b><i>');
                 expect(innerHTML).to.include('look-out</gu:note></i></b>');
                 expect(innerHTML).to.include(' at </gu:note>');
+
+                // Note id specs
+                expect(innerHTML).to.include('data-note-id=');
+                var noteIds = innerHTML.match(/data-note-id="(.*?)"/g);
+                var allHaveSameId = _.uniq(noteIds).length === 1;
+
+                expect(noteIds).to.have.length(4);
+                expect(allHaveSameId).to.be.true;
               });
             });
           });
         });
       });
     });
-
 
   });
 
