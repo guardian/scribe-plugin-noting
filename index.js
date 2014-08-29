@@ -178,6 +178,22 @@ module.exports = function(user) {
       replaceWithWrappedVersions(tree, vTextNodesToWrap, wrappedTextNodes);
     }
 
+    function domWalkUpCheck(node, predicate) {
+      if (!node.parentNode) { return false; }
+
+      return predicate(node) ? true : domWalkUpCheck(node.parentNode, predicate);
+    }
+
+    // Checks whether our selection is within another note.
+    function insideNote(selection) {
+      var selection = new scribe.api.Selection();
+      var containerNode = selection.selection.getRangeAt(0).startContainer;
+
+      return domWalkUpCheck(containerNode, function(node) {
+        return node.tagName === 'GU:NOTE';
+      });
+    }
+
 
 
     noteCommand.execute = function () {
@@ -189,7 +205,9 @@ module.exports = function(user) {
       var originalTree = virtualize(scribe.el);
       var tree = virtualize(scribe.el); // we'll mutate this one
 
-      if (selection.selection.isCollapsed) {
+      if (selection.selection.isCollapsed && insideNote(selection)) {
+        // Do nothing.
+      } else if (selection.selection.isCollapsed) {
         createEmptyNoteAtCaret(tree);
 
         // Then diff with the original tree and patch the DOM. And we're done.
