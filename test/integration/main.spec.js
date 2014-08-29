@@ -101,6 +101,7 @@ describe('noting plugin', function () {
               expect(result).to.be.true;
             });
 
+
             // Note id specs
             expect(innerHTML).to.include('data-note-id=');
 
@@ -163,7 +164,7 @@ describe('noting plugin', function () {
             note().then(function () {
               scribeNode.getInnerHTML().then(function (innerHTML) {
                 var noteIds = innerHTML.match(/data-note-id="(.*?)"/g);
-                expect(noteIds).to.have.length(1);
+                expect(noteIds).to.not.have.length(1);
               });
             });
           });

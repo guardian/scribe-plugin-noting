@@ -32,7 +32,7 @@ module.exports = function(user) {
       // fully recursive
       // this is far simpler than doing rubbish
       // with do whiles
-      vnode.children && vnode.children.forEach(function(child) {
+      vnode && vnode.children && vnode.children.forEach(function(child) {
         walk(child, fn);
       });
 
@@ -176,6 +176,10 @@ module.exports = function(user) {
       });
 
       replaceWithWrappedVersions(tree, vTextNodesToWrap, wrappedTextNodes);
+      // removeVirtualScribeMarkers(tree);
+      // placeCaretAfterNote(tree, noteId);
+
+      return noteId;
     }
 
     function domWalkUpCheck(node, predicate) {
@@ -193,7 +197,49 @@ module.exports = function(user) {
       });
     }
 
+    function removeVirtualScribeMarkers(tree) {
+      walk(tree, function (vNode) {
+        if (! vNode.children) { return; }
 
+        for (var i = vNode.children.length - 1; i >= 0; i--) {
+            if (isScribeMarker(vNode.children[i])) {
+              vNode.children.splice(i, 1);
+            }
+        }
+      });
+    }
+
+    // Assumes note has been placed in the tree
+    function placeCaretAfterNote(tree, noteId) {
+      function findVNodeAfterNote(tree, noteId) {
+        var vNodeAfterNote;
+        var noteFound;
+        var done;
+        console.log(tree)
+        walk(tree, function(vNode) {
+          if (done) { return; }
+          console.log('not done, got node', vNode);
+          // && vNode.properties.dataset.noteId === noteId
+          if (isNote(vNode)) {
+            console.log('note found');
+            noteFound = true;
+          }
+
+          if (noteFound && !isNote(vNode)) {
+            console.log('note found and no note')
+            done = true;
+            vNodeAfterNote = vNode;
+          }
+
+          return vNodeAfterNote;
+        });
+      }
+
+      var virtualScribeMarker = h('em.scribe-marker', []);
+      var vNodeAfterNote = findVNodeAfterNote(tree, noteId);
+      console.log('vNodeAfterNote', vNodeAfterNote);
+      vNodeAfterNote.children.push(virtualScribeMarker);
+    }
 
     noteCommand.execute = function () {
       var selection = new scribe.api.Selection();
@@ -221,6 +267,9 @@ module.exports = function(user) {
         // Then diff with the original tree and patch the DOM. And we're done.
         var patches = diff(originalTree, tree);
         patch(scribe.el, patches);
+
+        // Place caret
+        // selection.selectMarkers();
 
         // TODO: Remove markers and place caret at appropriate place
       }
