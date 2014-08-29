@@ -116,13 +116,17 @@ module.exports = function(user) {
     }
 
     // Assumes there's only one marker.
-    function insertBeforeMarker(vTree, newVNode) {
+    // Replaces marker with newVNode, and then inserts the marker
+    // inside newVNode.
+    function insertAtMarker(vTree, newVNode) {
       walk(vTree, function (vNode) {
         if (! vNode.children) { return; }
 
         for (var i = vNode.children.length - 1; i >= 0; i--) {
           if (isScribeMarker(vNode.children[i])) {
-            vNode.children.splice(i, 0, newVNode);
+            var marker = vNode.children[i];
+            vNode.children[i] = newVNode;
+            newVNode.children.push(marker);
           }
         }
       });
@@ -154,13 +158,13 @@ module.exports = function(user) {
       // We need a zero width space character to make the note selectable.
       var zeroWidthSpace = '\u200B';
 
-      insertBeforeMarker(tree, wrapInNote(zeroWidthSpace, generateUUID()));
+      insertAtMarker(tree, wrapInNote(zeroWidthSpace, generateUUID()));
     }
 
     // tree -- tree containing two scribe markers
     // Note that we will mutate the tree.
     function createNoteFromSelection(tree) {
-      // Let's operate on arrays rather than trees when we can.
+      // Let's operate on arather than trees when we can.
       var vNodes = flattenVTree(tree);
 
       var noteId = generateUUID();
@@ -187,17 +191,22 @@ module.exports = function(user) {
 
       if (selection.selection.isCollapsed) {
         createEmptyNoteAtCaret(tree);
+
+        // Then diff with the original tree and patch the DOM. And we're done.
+        var patches = diff(originalTree, tree);
+        patch(scribe.el, patches);
+
+        // Place caret (necessary to do this explicitly for FF).
+        selection.selectMarkers();
       } else {
         createNoteFromSelection(tree);
+
+        // Then diff with the original tree and patch the DOM. And we're done.
+        var patches = diff(originalTree, tree);
+        patch(scribe.el, patches);
+
+        // TODO: Remove markers and place caret at appropriate place
       }
-
-      // Then diff with the original tree and patch the DOM. And we're done.
-      var patches = diff(originalTree, tree);
-      patch(scribe.el, patches);
-
-      // TODO: Remove markers and place caret at appropriate place
-      // TODO 2: IDs to identify nodes
-
     };
 
 
