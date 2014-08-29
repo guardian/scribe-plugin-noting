@@ -185,11 +185,10 @@ module.exports = function(user) {
     }
 
     // Checks whether our selection is within another note.
-    function insideNote(selection) {
-      var selection = new scribe.api.Selection();
-      var containerNode = selection.selection.getRangeAt(0).startContainer;
+    function insideNote() {
+      var node = window.getSelection().getRangeAt(0).startContainer;
 
-      return domWalkUpCheck(containerNode, function(node) {
+      return domWalkUpCheck(node, function(node) {
         return node.tagName === 'GU:NOTE';
       });
     }

@@ -28,6 +28,37 @@ function note() {
   return scribeNode.sendKeys(webdriver.Key.F10);
 }
 
+
+/**
+ *  Helpers
+ */
+
+function selectionIsInsideNote() {
+  return driver.executeScript(function () {
+    function domWalkUpCheck(node, predicate) {
+     if (!node.parentNode) { return false; }
+
+     return predicate(node) ? true : domWalkUpCheck(node.parentNode, predicate);
+    }
+
+    // Checks whether our selection is within another note.
+    function insideNote() {
+     var node = window.getSelection().getRangeAt(0).startContainer;
+
+     return domWalkUpCheck(node, function(node) {
+       return node.tagName === 'GU:NOTE';
+     });
+    }
+
+    return insideNote();
+  });
+}
+
+
+
+
+
+
 // Get new references each time a new instance is created
 var driver;
 before(function () {
@@ -64,8 +95,11 @@ describe('noting plugin', function () {
         note().then(function () {
           scribeNode.getInnerHTML().then(function (innerHTML) {
             expect(innerHTML).to.include('</gu:note>');
-            // We also expect the caret to be placed within the note.
-            // Add expectation if you can figure out how to test that.
+
+            // Check that the caret has been placed inside the note.
+            selectionIsInsideNote().then(function(result) {
+              expect(result).to.be.true;
+            });
 
             // Note id specs
             expect(innerHTML).to.include('data-note-id=');
