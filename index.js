@@ -176,7 +176,7 @@ module.exports = function(user) {
       });
 
       replaceWithWrappedVersions(tree, vTextNodesToWrap, wrappedTextNodes);
-      // removeVirtualScribeMarkers(tree);
+      removeVirtualScribeMarkers(tree);
       // placeCaretAfterNote(tree, noteId);
 
       return noteId;
@@ -251,7 +251,6 @@ module.exports = function(user) {
       var tree = virtualize(scribe.el); // we'll mutate this one
 
       if (selection.selection.isCollapsed && insideNote(selection)) {
-        // Do nothing.
       } else if (selection.selection.isCollapsed) {
         createEmptyNoteAtCaret(tree);
 
@@ -269,10 +268,12 @@ module.exports = function(user) {
         patch(scribe.el, patches);
 
         // Place caret
-        // selection.selectMarkers();
-
         // TODO: Remove markers and place caret at appropriate place
       }
+
+      // We need to make sure we remove markers when we're done,
+      // as our functions assume there's either one or two markers present.
+      selection.removeMarkers();
     };
 
 
