@@ -182,17 +182,18 @@ module.exports = function(user) {
       return noteId;
     }
 
-    function domWalkUpCheck(node, predicate) {
+    // Walk up the dom checking isTargetNode.
+    function domWalkUpFind(node, isTargetNode) {
       if (!node.parentNode) { return false; }
 
-      return predicate(node) ? true : domWalkUpCheck(node.parentNode, predicate);
+      return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
     }
 
     // Checks whether our selection is within another note.
     function insideNote() {
       var node = window.getSelection().getRangeAt(0).startContainer;
 
-      return domWalkUpCheck(node, function(node) {
+      return domWalkUpFind(node, function(node) {
         return node.tagName === 'GU:NOTE';
       });
     }
@@ -241,6 +242,22 @@ module.exports = function(user) {
       vNodeAfterNote.children.push(virtualScribeMarker);
     }
 
+    // Unnote a note by replacing it with its unwrapped contents.
+    function unnote(tree, noteId) {
+      walk(tree, function (vNode) {
+        if (! vNode.children) { return; }
+
+        for (var i = vNode.children.length - 1; i >= 0; i--) {
+            if (isNote(vNode.children[i])) {
+              var note = vNode.children[i];
+              var noteContents = note.children;
+              vNode.children.splice(i, 1, noteContents); // replace note
+              vNode.children = _.flatten(vNode.children);
+            }
+        }
+      });
+    }
+
     noteCommand.execute = function () {
       var selection = new scribe.api.Selection();
 
@@ -249,8 +266,16 @@ module.exports = function(user) {
       selection.placeMarkers();
       var originalTree = virtualize(scribe.el);
       var tree = virtualize(scribe.el); // we'll mutate this one
+      var note = insideNote(selection); // if we're inside of a note we want to know
 
-      if (selection.selection.isCollapsed && insideNote(selection)) {
+      if (selection.selection.isCollapsed && note) {
+        unnote(tree, note.dataset.noteId);
+
+        // Then diff with the original tree and patch the DOM. And we're done.
+        var patches = diff(originalTree, tree);
+        patch(scribe.el, patches);
+
+
       } else if (selection.selection.isCollapsed) {
         createEmptyNoteAtCaret(tree);
 
@@ -271,8 +296,8 @@ module.exports = function(user) {
         // TODO: Remove markers and place caret at appropriate place
       }
 
-      // We need to make sure we remove markers when we're done,
-      // as our functions assume there's either one or two markers present.
+      // We need to make sure we remove markers when we're done, as our functions assume there's
+      // either one or two markers present.
       selection.removeMarkers();
     };
 
