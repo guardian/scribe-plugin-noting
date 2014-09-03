@@ -287,29 +287,26 @@ module.exports = function(user) {
     };
 
     // Wrap in a note.
-    // nodeOrText can be a vNode, DOM node or a string.
-    function wrapInNote(nodeOrText, noteIdValue) {
-      var note = h('gu:note.note', {dataset: {noteId: noteIdValue}}, [nodeOrText]);
+    // toWrap can be a vNode, DOM node or a string. One or an array with several.
+    function wrapInNote(toWrap, noteIdValue) {
+      var nodes = toWrap instanceof Array ? toWrap : [toWrap];
+
+      var note = h('gu:note.note', {dataset: {noteId: noteIdValue}}, nodes);
       return note;
     }
 
-    // Assumes there's only one marker.
-    // Replaces marker with newVNode, and then inserts the marker
-    // inside newVNode.
-    function insertAtMarker(vTree, newVNode) {
-      walk(vTree, function (vNode) {
-        if (! vNode.children) { return; }
-
-        for (var i = vNode.children.length - 1; i >= 0; i--) {
-          if (isScribeMarker(vNode.children[i])) {
-            var marker = vNode.children[i];
-            vNode.children[i] = newVNode;
-            newVNode.children.push(marker);
-          }
-        }
-      });
+    function createScribeMarker() {
+      return h('em.scribe-marker', []);
     }
 
+    function findMarkers(treeFocus) {
+      var markers = [];
+      treeFocus.forEach(function(focus) {
+        if (isScribeMarker(focus.vNode)) markers.push(focus);
+      });
+
+      return markers;
+    }
 
     /**
     * Note creation
@@ -317,11 +314,18 @@ module.exports = function(user) {
 
     // tree - tree containing a marker.
     // Note that we will mutate the tree.
-    function createEmptyNoteAtCaret(tree) {
+    function createEmptyNoteAtCaret(treeFocus) {
       // We need a zero width space character to make the note selectable.
       var zeroWidthSpace = '\u200B';
 
-      insertAtMarker(tree, wrapInNote(zeroWidthSpace, generateUUID()));
+      // To make sure the caret is placed within the note we place a scribe
+      // maker within it.
+      var replacementVNode = wrapInNote([createScribeMarker(), zeroWidthSpace], generateUUID());
+
+      // We assume there's only one marker.
+      var marker = findMarkers(treeFocus)[0];
+
+      marker.replace(replacementVNode);
     }
 
     // treeFocus -- tree focus of tree containing two scribe markers
@@ -434,7 +438,7 @@ module.exports = function(user) {
 
 
       } else if (selection.selection.isCollapsed) {
-        createEmptyNoteAtCaret(tree);
+        createEmptyNoteAtCaret(treeFocus);
 
         // Then diff with the original tree and patch the DOM. And we're done.
         var patches = diff(originalTree, tree);
