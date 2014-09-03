@@ -29,10 +29,14 @@ module.exports = function(user) {
     * VFocus: Wrap virtual node in a Focus node.
 
       Makes it possible to move around as you wish in the tree.
+
+      vNode: the vNode to focus on
+      parent: parent vFocus
     */
     function VFocus(vNode, parent) {
       // Don't change these references pretty please
       this.vNode = vNode;
+
       this.parent = parent;
     }
 
@@ -83,13 +87,38 @@ module.exports = function(user) {
 
     // Focus next (pre-order)
     VFocus.prototype.next = function() {
-      return this.down() || this.right() || this.up().right();
+      function upThenRightWhenPossible(vFocus) {
+        // Terminate if we've visited all nodes.
+        if (vFocus === null) return null;
+
+        return vFocus.right() || upThenRightWhenPossible(vFocus.up());
+      }
+
+      return this.down() || this.right() || upThenRightWhenPossible(this.up());
     };
 
     // Focus previous (pre-order)
     VFocus.prototype.prev = function() {
-      var leftDown = this.left() && this.left().down();
-      return leftDown || this.left() || this.up();
+      function downFurthestRight(vFocus) {
+        function furthestRight(vFocus) {
+          var focus = vFocus;
+          while (focus.canRight()) { focus = focus.right(); }
+          return focus;
+        }
+
+        return vFocus.canDown() ? downFurthestRight(vFocus.down()) : furthestRight(vFocus);
+      }
+
+      var focus;
+      if (this.left() && this.left().down()) {
+        focus = downFurthestRight(this.left());
+      } else if (this.left()) {
+        focus = this.left();
+      } else {
+        focus = this.up();
+      }
+
+      return focus;
     };
 
     // Focus first child
