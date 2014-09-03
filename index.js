@@ -36,7 +36,6 @@ module.exports = function(user) {
     function VFocus(vNode, parent) {
       // Don't change these references pretty please
       this.vNode = vNode;
-
       this.parent = parent;
     }
 
@@ -149,9 +148,11 @@ module.exports = function(user) {
       return new VFocus(this.leftVNode(), this.parent);
     };
 
+
     /**
     * Traverse
     */
+
     VFocus.prototype.forEach = function(fn) {
       var node = this;
       while (node) {
@@ -160,6 +161,23 @@ module.exports = function(user) {
       }
     };
 
+
+    /**
+    * Replace
+    */
+
+    // Replace `this.vNode` and return `this` to enable chaining.
+    // Note that this mutates the tree.
+    VFocus.prototype.replace = function(replacementVNode) {
+      if (this.isRoot()) {
+        this.vNode = replacementVNode;
+      } else {
+        var vNodeIndex = this.parent.vNode.children.indexOf(this.vNode);
+        this.parent.vNode.children.splice(vNodeIndex, 1, replacementVNode);
+      }
+
+      return this;
+    };
 
     function walk(vnode, fn) {
       // this is a semi-recursive tree descent
@@ -239,7 +257,7 @@ module.exports = function(user) {
     };
 
     // Wrap in a note.
-    // nodeOrText can be a vNode , DOM node or a string.
+    // nodeOrText can be a vNode, DOM node or a string.
     function wrapInNote(nodeOrText, noteIdValue) {
       var note = h('gu:note.note', {dataset: {noteId: noteIdValue}}, [nodeOrText]);
       return note;
@@ -430,6 +448,8 @@ module.exports = function(user) {
 
         // Place caret
         // TODO: Remove markers and place caret at appropriate place
+        window.focus = new VFocus(tree);
+        window.befFocus = new VFocus(originalTree);
       }
 
       // We need to make sure we remove markers when we're done, as our functions assume there's
