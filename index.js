@@ -167,7 +167,7 @@ module.exports = function(user) {
 
 
     /**
-    * Replace
+    * Mutable operations
     */
 
     // Replace `this.vNode` and return `this` to enable chaining.
@@ -182,6 +182,32 @@ module.exports = function(user) {
 
       return this;
     };
+
+    // Remove `this.vNode`, i.e. remove the reference from the tree.
+    VFocus.prototype.remove = function() {
+      if (this.isRoot()) {
+        // No can do. Should maybe raise an exception.
+      } else {
+        var vNodeIndex = this.parent.vNode.children.indexOf(this.vNode);
+        this.parent.vNode.children.splice(vNodeIndex, 1);
+      }
+
+      return this;
+    };
+
+    /**
+    * Immutable transformations
+    */
+
+    // Flatten `this` and all nodes after, returning a list
+    VFocus.prototype.flatten = function(replacementVNode) {
+      var focuses = [];
+      this.forEach(function(focus) { focuses.push(focus); });
+
+      return focuses;
+    };
+
+
 
     function walk(vnode, fn) {
       // this is a semi-recursive tree descent
@@ -224,24 +250,24 @@ module.exports = function(user) {
       return node.tagName === nodeName;
     }
 
-    function dropBeforeMarker (vNodes) {
-      return _.rest(vNodes, function (vNode) { return unlessScribeMarker(vNode); });
+    function dropBeforeMarker (focuses) {
+      return _.rest(focuses, function (focus) { return unlessScribeMarker(focus.vNode); });
     }
 
-    function takeBeforeMarker (vNodes) {
-       return _.first(vNodes, function (vNode) { return unlessScribeMarker(vNode); });
+    function takeBeforeMarker (focuses) {
+       return _.first(focuses, function (focus) { return unlessScribeMarker(focus.vNode); });
     }
 
-    function onlyTextNodes (vNodes) {
-      function isVTextNode (vNode) { return vNode.type === 'VirtualText'; }
+    function onlyTextNodes (focuses) {
+      function isVTextNode (focus) { return focus.vNode.type === 'VirtualText'; }
 
-      return vNodes.filter(isVTextNode);
+      return focuses.filter(isVTextNode);
     }
 
-    function findVTextNodesToWrap(vNodes) {
+    function findVTextNodesToWrap(focuses) {
       function selectBetweenMarkers() {
         var results;
-        results = dropBeforeMarker(vNodes);
+        results = dropBeforeMarker(focuses);
         results = _.rest(results); // remove first marker
         results = takeBeforeMarker(results); // take until end marker
         return results;
@@ -267,12 +293,6 @@ module.exports = function(user) {
       return note;
     }
 
-    // Find wrapped version of vNode
-    function locateWrapped(vNode, vTextNodesToWrap, wrappedTextNodes) {
-      var index = vTextNodesToWrap.indexOf(vNode);
-      return wrappedTextNodes[index];
-    }
-
     // Assumes there's only one marker.
     // Replaces marker with newVNode, and then inserts the marker
     // inside newVNode.
@@ -290,21 +310,6 @@ module.exports = function(user) {
       });
     }
 
-    // Walk the tree to find the references to the nodes we wrapped,
-    // and replace the references to point to our wrapped versions.
-    // Note: If we could rewrite the code to use a zipper we might be able
-    // to avoid this step.
-    function replaceWithWrappedVersions(tree, vTextNodesToWrap, wrappedTextNodes) {
-      walk(tree, function (vNode) {
-        if (! vNode.children) { return; }
-
-        for (var i = vNode.children.length - 1; i >= 0; i--) {
-            if (_.contains(vTextNodesToWrap, vNode.children[i])) {
-              vNode.children[i] = locateWrapped(vNode.children[i], vTextNodesToWrap, wrappedTextNodes);
-            }
-        }
-      });
-    }
 
     /**
     * Note creation
@@ -319,22 +324,21 @@ module.exports = function(user) {
       insertAtMarker(tree, wrapInNote(zeroWidthSpace, generateUUID()));
     }
 
-    // tree -- tree containing two scribe markers
+    // treeFocus -- tree focus of tree containing two scribe markers
     // Note that we will mutate the tree.
-    function createNoteFromSelection(tree) {
-      // Let's operate on arather than trees when we can.
-      var vNodes = flattenVTree(tree);
+    function createNoteFromSelection(treeFocus) {
+      var fNodes = treeFocus.flatten();
 
       var noteId = generateUUID();
 
       // Wrap wrap
-      var vTextNodesToWrap = findVTextNodesToWrap(vNodes);
-      var wrappedTextNodes = vTextNodesToWrap.map(function (vTextNode) {
-        return wrapInNote(vTextNode, noteId);
+      var vTextNodesToWrap = findVTextNodesToWrap(fNodes);
+      var wrappedTextNodes = vTextNodesToWrap.map(function (focus) {
+        var wrappedVNode = wrapInNote(focus.vNode, noteId);
+        return focus.replace(wrappedVNode);
       });
 
-      replaceWithWrappedVersions(tree, vTextNodesToWrap, wrappedTextNodes);
-      removeVirtualScribeMarkers(tree);
+      removeVirtualScribeMarkers(treeFocus);
       // placeCaretAfterNote(tree, noteId);
 
       return noteId;
@@ -356,15 +360,9 @@ module.exports = function(user) {
       });
     }
 
-    function removeVirtualScribeMarkers(tree) {
-      walk(tree, function (vNode) {
-        if (! vNode.children) { return; }
-
-        for (var i = vNode.children.length - 1; i >= 0; i--) {
-            if (isScribeMarker(vNode.children[i])) {
-              vNode.children.splice(i, 1);
-            }
-        }
+    function removeVirtualScribeMarkers(treeFocus) {
+      treeFocus.forEach(function(focus) {
+        if (isScribeMarker(focus.vNode)) focus.remove();
       });
     }
 
@@ -445,7 +443,7 @@ module.exports = function(user) {
         // Place caret (necessary to do this explicitly for FF).
         selection.selectMarkers();
       } else {
-        createNoteFromSelection(tree);
+        createNoteFromSelection(treeFocus);
 
         // Then diff with the original tree and patch the DOM. And we're done.
         var patches = diff(originalTree, tree);
