@@ -25,6 +25,113 @@ module.exports = function(user) {
     var blocks = ["P", "LI", "UL"];
     var noteCommand = new scribe.api.Command('insertHTML');
 
+    /**
+    * VFocus: Wrap virtual node in a Focus node.
+
+      Makes it possible to move around as you wish in the tree.
+    */
+    function VFocus(vNode, parent) {
+      // Don't change these references pretty please
+      this.vNode = vNode;
+      this.parent = parent;
+    }
+
+    /**
+    * Internally useful
+    */
+    VFocus.prototype.rightVNode = function() {
+      if (this.isRoot()) return null;
+
+      var rightVNodeIndex = this.parent.vNode.children.indexOf(this.vNode) + 1;
+      return this.parent.vNode.children[rightVNodeIndex];
+    };
+
+    VFocus.prototype.leftVNode = function() {
+      if (this.isRoot()) return null;
+
+      var leftVNodeIndex = this.parent.vNode.children.indexOf(this.vNode) - 1;
+      return leftVNodeIndex >= 0 ? this.parent.vNode.children[leftVNodeIndex] : null;
+    };
+
+    /**
+    * Checks
+    */
+
+    VFocus.prototype.isRoot = function() {
+      return ! !!this.parent;
+    };
+
+    VFocus.prototype.canRight = function() {
+      return !!this.rightVNode();
+    };
+
+    VFocus.prototype.canLeft = function() {
+      return !!this.leftVNode();
+    };
+
+    VFocus.prototype.canUp = function() {
+      return ! this.isRoot();
+    };
+
+    VFocus.prototype.canDown = function() {
+      return this.vNode.children && this.vNode.children.length ? true : false;
+    };
+
+    /**
+    * Step
+    */
+
+    // Focus next (pre-order)
+    VFocus.prototype.next = function() {
+      return this.down() || this.right() || this.up().right();
+    };
+
+    // Focus previous (pre-order)
+    VFocus.prototype.prev = function() {
+      var leftDown = this.left() && this.left().down();
+      return leftDown || this.left() || this.up();
+    };
+
+    // Focus first child
+    VFocus.prototype.down = function() {
+      if (! this.canDown()) return null;
+
+      return new VFocus(this.vNode.children[0], this);
+    };
+
+    // Focus parent
+    VFocus.prototype.up = function() {
+      if (! this.canUp()) return null;
+
+      return this.parent;
+    };
+
+    // Focus node to the right (on the same level)
+    VFocus.prototype.right = function() {
+      if (! this.canRight()) return null;
+
+      return new VFocus(this.rightVNode(), this.parent);
+    };
+
+    // Focus node to the left (on the same level)
+    VFocus.prototype.left = function() {
+      if (! this.canLeft()) return null;
+
+      return new VFocus(this.leftVNode(), this.parent);
+    };
+
+    /**
+    * Traverse
+    */
+    VFocus.prototype.forEach = function(fn) {
+      var node = this;
+      while (node) {
+        fn(node);
+        node = node.next();
+      }
+    };
+
+
     function walk(vnode, fn) {
       // this is a semi-recursive tree descent
       // although it's a shame it uses a loop
