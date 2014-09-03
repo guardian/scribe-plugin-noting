@@ -81,7 +81,7 @@ module.exports = function(user) {
     };
 
     /**
-    * Step
+    * Movements
     */
 
     // Focus next (pre-order)
@@ -146,6 +146,10 @@ module.exports = function(user) {
       if (! this.canLeft()) return null;
 
       return new VFocus(this.leftVNode(), this.parent);
+    };
+
+    VFocus.prototype.top = function() {
+      return this.canUp() ? this.parent.top() : this;
     };
 
 
@@ -420,6 +424,7 @@ module.exports = function(user) {
       selection.placeMarkers();
       var originalTree = virtualize(scribe.el);
       var tree = virtualize(scribe.el); // we'll mutate this one
+      var treeFocus = new VFocus(tree);
       var note = insideNote(selection); // if we're inside of a note we want to know
 
       if (selection.selection.isCollapsed && note) {
