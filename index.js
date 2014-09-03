@@ -402,18 +402,21 @@ module.exports = function(user) {
       vNodeAfterNote.children.push(virtualScribeMarker);
     }
 
-    // Unnote a note by replacing it with its unwrapped contents.
-    function unnote(tree, noteId) {
-      walk(tree, function (vNode) {
-        if (! vNode.children) { return; }
-
-        for (var i = vNode.children.length - 1; i >= 0; i--) {
-            if (isNote(vNode.children[i])) {
-              var note = vNode.children[i];
-              var noteContents = note.children;
-              vNode.children.splice(i, 1, noteContents); // replace note
-              vNode.children = _.flatten(vNode.children);
-            }
+    // NOTE: currently relying on manually changed vdom-virtualize where "dataset" has
+    // been added to list of allowed properties. PR submitted upstream.
+    // So ATM it's "works on my machine" but not on anyone else's...
+    //
+    // TODO: Identity should be based on adjacency rather than id. To prevent issues
+    // when people move parts of notes around and then unnote them.
+    function unnote(treeFocus, noteId) {
+      treeFocus.forEach(function(focus) {
+        if (isNote(focus.vNode) && focus.vNode.properties.dataset.noteId === noteId) {
+          console.log(focus);
+          var note = focus.vNode;
+          var noteContents = note.children;
+          var indexOfNode = focus.parent.vNode.children.indexOf(note);
+          focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
+          focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
         }
       });
     }
@@ -430,7 +433,7 @@ module.exports = function(user) {
       var note = insideNote(selection); // if we're inside of a note we want to know
 
       if (selection.selection.isCollapsed && note) {
-        unnote(tree, note.dataset.noteId);
+        unnote(treeFocus, note.dataset.noteId);
 
         // Then diff with the original tree and patch the DOM. And we're done.
         var patches = diff(originalTree, tree);
