@@ -196,7 +196,7 @@ module.exports = function(user) {
     };
 
     /**
-    * Immutable transformations
+    * Immutable operations
     */
 
     // Flatten `this` and all nodes after, returning a list
@@ -207,6 +207,35 @@ module.exports = function(user) {
       return focuses;
     };
 
+    // Take while condition is true. Return list.
+    // predicate: function that receives the current item
+    //       and returns true/false.
+    VFocus.prototype.takeWhile = function(predicate, movement) {
+      var movement = movement || 'next';
+      var focus = this;
+      var acc = [];
+      while (predicate(focus)) {
+        acc.push(focus);
+        focus = focus[movement]();
+        if (! focus[movement]()) break;
+      }
+      return acc;
+    }
+
+    // Find focus satisfying predicate.
+    // predicate: function that takes a focus and returns true/false.
+    // movement: string name of one of the movement functions, e.g. 'up' or 'prev'.
+    VFocus.prototype.find = function(predicate, movement) {
+      var movement = movement || 'next';
+      var focus = this;
+
+      while (focus) {
+        if (predicate(focus)) break;
+        focus = focus[movement]();
+      }
+
+      return focus;
+    }
 
 
     function walk(vnode, fn) {
@@ -246,8 +275,13 @@ module.exports = function(user) {
         vnode.properties.className === value);
     }
 
+    function focusOnVTextNode (focus) { return focus.vNode.type === 'VirtualText'; }
+
+    // Answers whether a DOM node or vNode is a note.
+    // Case insensitive to work with both DOM nodes and vNodes
+    // (which can be lowercase).
     function isNote(node) {
-      return node.tagName === nodeName;
+      return node.tagName && node.tagName.toLowerCase() === nodeName.toLowerCase();
     }
 
     function dropBeforeMarker (focuses) {
@@ -259,9 +293,7 @@ module.exports = function(user) {
     }
 
     function onlyTextNodes (focuses) {
-      function isVTextNode (focus) { return focus.vNode.type === 'VirtualText'; }
-
-      return focuses.filter(isVTextNode);
+      return focuses.filter(focusOnVTextNode);
     }
 
     function findVTextNodesToWrap(focuses) {
@@ -364,6 +396,10 @@ module.exports = function(user) {
       });
     }
 
+    function focusInsideVNote(fNote) {
+      return fNote.find(focusOnNote, 'up');
+    }
+
     function removeVirtualScribeMarkers(treeFocus) {
       treeFocus.forEach(function(focus) {
         if (isScribeMarker(focus.vNode)) focus.remove();
@@ -402,6 +438,10 @@ module.exports = function(user) {
       vNodeAfterNote.children.push(virtualScribeMarker);
     }
 
+    function focusOnNote(fNote) {
+      return isNote(fNote.vNode);
+    }
+
     // NOTE: currently relying on manually changed vdom-virtualize where "dataset" has
     // been added to list of allowed properties. PR submitted upstream.
     // So ATM it's "works on my machine" but not on anyone else's...
@@ -419,6 +459,34 @@ module.exports = function(user) {
           focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
         }
       });
+    }
+
+    function findFirstNoteSegment(fNote) {
+      function stillWithinNote(focus) {
+        return !focusOnVTextNode(focus) || focusInsideVNote(focus);
+      }
+
+      var result;
+      result = fNote.takeWhile(stillWithinNote, 'prev');
+      console.log('stillWithinNote', result);
+      result = onlyTextNodes(result);
+      console.log('onlyTextNodes', result);
+      result = _.last(result);
+
+      return result;
+    }
+
+    // Find the rest of a note.
+    // We identify notes based on 'adjacency' rather than giving them an id.
+    // This is because people may copy and paste part of a note. We don't want
+    // that to keep being the same note.
+    // fNote: focus on note
+    function findEntireNote(fNote) {
+      function stillWithinNote(focus) {
+        return !focusOnVTextNode(focus) || focusInsideVNote(focus);
+      }
+
+      return findFirstNoteSegment(fNote).takeWhile(stillWithinNote);
     }
 
     noteCommand.execute = function () {
