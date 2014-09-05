@@ -5,18 +5,22 @@
 
 module.exports = function(user) {
   return function(scribe) {
-    /* global window, require */
     var diff = require('virtual-dom/diff');
     var patch = require('virtual-dom/patch');
+
+    // There was a bug in vdom-virtualize that caused data attributes not
+    // to be virtualized. Have fixed this and got it merged upstream.
+    // No new release yet, however, so have specified the specific commit as
+    // dependency. Feel free to update to future versions when they're released.
     var virtualize = require('vdom-virtualize');
+
     var h = require('virtual-hyperscript');
     var createElement = require('virtual-dom/create-element');
     var isVNode = require('vtree/is-vnode');
     var isVText = require('vtree/is-vtext');
-
     var _ = require('lodash');
 
-    //currently
+
     var tag = "gu:note";
     var nodeName = "GU:NOTE";
     var className = "note";
@@ -212,6 +216,7 @@ module.exports = function(user) {
     //       and returns true/false.
     VFocus.prototype.takeWhile = function(predicate, movement) {
       var movement = movement || 'next';
+
       var focus = this;
       var acc = [];
       while (predicate(focus)) {
@@ -220,11 +225,23 @@ module.exports = function(user) {
         if (! focus[movement]()) break;
       }
       return acc;
-    }
+    };
+
+    VFocus.prototype.filter = function(predicate, movement) {
+      var movement = movement || 'next';
+
+      var results = [];
+      this.forEach(function(focus) {
+        if (predicate(focus)) results.push(focus);
+      }, movement);
+
+      return results;
+    };
 
     // Find focus satisfying predicate.
     // predicate: function that takes a focus and returns true/false.
     // movement: string name of one of the movement functions, e.g. 'up' or 'prev'.
+    // If nothing is found null is returned (as we step off the tree).
     VFocus.prototype.find = function(predicate, movement) {
       var movement = movement || 'next';
       var focus = this;
@@ -237,45 +254,24 @@ module.exports = function(user) {
       return focus;
     }
 
-
-    function walk(vnode, fn) {
-      // this is a semi-recursive tree descent
-      // although it's a shame it uses a loop
-      // this could be trivially rewritten to be
-      // fully recursive
-      // this is far simpler than doing rubbish
-      // with do whiles
-      vnode && vnode.children && vnode.children.forEach(function(child) {
-        walk(child, fn);
-      });
-
-      fn(vnode);
-    }
-
-    function flattenVTree(tree) {
-      var vNodes = [];
-      walk(tree, function(vNode) {
-        vNodes.push(vNode);
-      });
-      return vNodes;
-    }
-
-    function isScribeMarker(node) {
-       return hasClass(node, "scribe-marker");
-    }
-
-    function unlessScribeMarker(node) {
-      return ! isScribeMarker(node);
+    function isScribeMarker(vNode) {
+       return hasClass(vNode, "scribe-marker");
     }
 
     // Check if VNode has class
-    function hasClass(vnode, value) {
-      return (vnode.properties &&
-        vnode.properties.className &&
-        vnode.properties.className === value);
+    function hasClass(vNode, value) {
+      return (vNode.properties &&
+        vNode.properties.className &&
+        vNode.properties.className === value);
     }
 
-    function focusOnVTextNode (focus) { return focus.vNode.type === 'VirtualText'; }
+    function focusOnMarker(focus) {
+      return isScribeMarker(focus.vNode);
+    }
+
+    function focusOnVTextNode (focus) {
+      return focus.vNode.type === 'VirtualText';
+    }
 
     // Answers whether a DOM node or vNode is a note.
     // Case insensitive to work with both DOM nodes and vNodes
@@ -284,28 +280,18 @@ module.exports = function(user) {
       return node.tagName && node.tagName.toLowerCase() === nodeName.toLowerCase();
     }
 
-    function dropBeforeMarker (focuses) {
-      return _.rest(focuses, function (focus) { return unlessScribeMarker(focus.vNode); });
-    }
-
-    function takeBeforeMarker (focuses) {
-       return _.first(focuses, function (focus) { return unlessScribeMarker(focus.vNode); });
-    }
-
     function onlyTextNodes (focuses) {
       return focuses.filter(focusOnVTextNode);
     }
 
-    function findVTextNodesToWrap(focuses) {
-      function selectBetweenMarkers() {
-        var results;
-        results = dropBeforeMarker(focuses);
-        results = _.rest(results); // remove first marker
-        results = takeBeforeMarker(results); // take until end marker
-        return results;
+    function findVTextNodesBetweenMarkers(focusTree) {
+      function focusNotOnMarker(focus) {
+        return ! focusOnMarker(focus);
       }
 
-      return onlyTextNodes(selectBetweenMarkers());
+      return onlyTextNodes(
+        focusTree.find(focusOnMarker).next().takeWhile(focusNotOnMarker)
+      );
     }
 
     function generateUUID(){
@@ -332,12 +318,7 @@ module.exports = function(user) {
     }
 
     function findMarkers(treeFocus) {
-      var markers = [];
-      treeFocus.forEach(function(focus) {
-        if (isScribeMarker(focus.vNode)) markers.push(focus);
-      });
-
-      return markers;
+      return treeFocus.filter(focusOnMarker);
     }
 
     /**
@@ -363,19 +344,16 @@ module.exports = function(user) {
     // treeFocus -- tree focus of tree containing two scribe markers
     // Note that we will mutate the tree.
     function createNoteFromSelection(treeFocus) {
-      var fNodes = treeFocus.flatten();
-
       var noteId = generateUUID();
 
       // Wrap wrap
-      var vTextNodesToWrap = findVTextNodesToWrap(fNodes);
+      var vTextNodesToWrap = findVTextNodesBetweenMarkers(treeFocus);
       var wrappedTextNodes = vTextNodesToWrap.map(function (focus) {
         var wrappedVNode = wrapInNote(focus.vNode, noteId);
         return focus.replace(wrappedVNode);
       });
 
       removeVirtualScribeMarkers(treeFocus);
-      // placeCaretAfterNote(tree, noteId);
 
       return noteId;
     }
@@ -406,51 +384,15 @@ module.exports = function(user) {
       });
     }
 
-    // Assumes note has been placed in the tree
-    function placeCaretAfterNote(tree, noteId) {
-      function findVNodeAfterNote(tree, noteId) {
-        var vNodeAfterNote;
-        var noteFound;
-        var done;
-        console.log(tree)
-        walk(tree, function(vNode) {
-          if (done) { return; }
-          console.log('not done, got node', vNode);
-          // && vNode.properties.dataset.noteId === noteId
-          if (isNote(vNode)) {
-            console.log('note found');
-            noteFound = true;
-          }
-
-          if (noteFound && !isNote(vNode)) {
-            console.log('note found and no note')
-            done = true;
-            vNodeAfterNote = vNode;
-          }
-
-          return vNodeAfterNote;
-        });
-      }
-
-      var virtualScribeMarker = h('em.scribe-marker', []);
-      var vNodeAfterNote = findVNodeAfterNote(tree, noteId);
-      console.log('vNodeAfterNote', vNodeAfterNote);
-      vNodeAfterNote.children.push(virtualScribeMarker);
-    }
-
     function focusOnNote(fNote) {
       return isNote(fNote.vNode);
     }
 
-    // NOTE: currently relying on manually changed vdom-virtualize where "dataset" has
-    // been added to list of allowed properties. PR submitted upstream.
-    // So ATM it's "works on my machine" but not on anyone else's...
-    //
     // TODO: Identity should be based on adjacency rather than id. To prevent issues
     // when people move parts of notes around and then unnote them.
     function unnote(treeFocus, noteId) {
       treeFocus.forEach(function(focus) {
-        if (isNote(focus.vNode) && focus.vNode.properties.dataset.noteId === noteId) {
+        if (focusOnNote(focus) && focus.vNode.properties.dataset.noteId === noteId) {
           console.log(focus);
           var note = focus.vNode;
           var noteContents = note.children;
@@ -468,9 +410,7 @@ module.exports = function(user) {
 
       var result;
       result = fNote.takeWhile(stillWithinNote, 'prev');
-      console.log('stillWithinNote', result);
       result = onlyTextNodes(result);
-      console.log('onlyTextNodes', result);
       result = _.last(result);
 
       return result;
@@ -486,7 +426,8 @@ module.exports = function(user) {
         return !focusOnVTextNode(focus) || focusInsideVNote(focus);
       }
 
-      return findFirstNoteSegment(fNote).takeWhile(stillWithinNote);
+      return onlyTextNodes(findFirstNoteSegment(fNote)
+        .takeWhile(stillWithinNote)).map(focusInsideVNote);
     }
 
     noteCommand.execute = function () {
@@ -526,11 +467,15 @@ module.exports = function(user) {
 
         // Place caret
         // TODO: Remove markers and place caret at appropriate place
-        window.focus = new VFocus(tree);
+        window.fTree = new VFocus(tree);
         window.befFocus = new VFocus(originalTree);
-      }
+        window.findEntireNote = findEntireNote;
+        window.findVTextNodesBetweenMarkers = findVTextNodesBetweenMarkers;
+        window.foc = function() { return fTree.next().next().next().next().next().next(); };
+        window.focusOnMarker = focusOnMarker;
+      }//
 
-      // We need to make sure we remove markers when we're done, as our functions assume there's
+      //// We need to make sure we remove markers when we're done, as our functions assume there's
       // either one or two markers present.
       selection.removeMarkers();
     };
@@ -568,6 +513,6 @@ module.exports = function(user) {
           var noteCommand = scribe.getCommand("note");
           noteCommand.execute();
         }
-      });
+      ;});
   }
 }
