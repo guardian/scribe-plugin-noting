@@ -299,7 +299,7 @@ module.exports = function(user) {
     * Noting: Finders and filters
     */
 
-    function findAncestorVNote(fNote) {
+    function findAncestorVNoteSegment(fNote) {
       return fNote.find(focusOnNote, 'up');
     }
 
@@ -317,31 +317,29 @@ module.exports = function(user) {
       return treeFocus.filter(focusOnMarker);
     }
 
-    function findFirstNoteSegment(fNote) {
+    function findFirstNoteSegment(fNoteSegment) {
       function stillWithinNote(focus) {
-        return !focusOnVTextNode(focus) || findAncestorVNote(focus);
+        console.log('got focus on', focus.vNode)
+        return !focusOnVTextNode(focus) || findAncestorVNoteSegment(focus);
       }
 
-      var result;
-      result = fNote.takeWhile(stillWithinNote, 'prev');
-      result = onlyTextNodes(result);
-      result = _.last(result);
-
-      return result;
+      return _.last(
+        fNoteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
+      );
     }
 
     // Find the rest of a note.
     // We identify notes based on 'adjacency' rather than giving them an id.
     // This is because people may copy and paste part of a note. We don't want
     // that to keep being the same note.
-    // fNote: focus on note
-    function findEntireNote(fNote) {
+    // fNoteSegment: focus on note
+    function findEntireNote(fNoteSegment) {
       function stillWithinNote(focus) {
-        return !focusOnVTextNode(focus) || findAncestorVNote(focus);
+        return !focusOnVTextNode(focus) || findAncestorVNoteSegment(focus);
       }
 
-      return onlyTextNodes(findFirstNoteSegment(fNote)
-        .takeWhile(stillWithinNote)).map(findAncestorVNote);
+      return findFirstNoteSegment(fNoteSegment)
+        .takeWhile(stillWithinNote).filter(focusOnNote);
     }
 
     function onlyTextNodes (focuses) {
@@ -451,19 +449,22 @@ module.exports = function(user) {
       return noteId;
     }
 
-    // TODO: Identity should be based on adjacency rather than id. To prevent issues
-    // when people move parts of notes around and then unnote them.
-    function unnote(treeFocus, noteId) {
-      treeFocus.forEach(function(focus) {
-        if (focusOnNote(focus) && focus.vNode.properties.dataset.noteId === noteId) {
-          console.log(focus);
-          var note = focus.vNode;
-          var noteContents = note.children;
-          var indexOfNode = focus.parent.vNode.children.indexOf(note);
-          focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
-          focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
-        }
-      });
+    function unnote(treeFocus) {
+      function unwrap(focus) {
+        var note = focus.vNode;
+        var noteContents = note.children;
+        var indexOfNode = focus.parent.vNode.children.indexOf(note);
+        focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
+        focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
+      }
+
+      // We assume the caller knows there's only one marker.
+      var marker = findMarkers(treeFocus)[0];
+
+      var noteSegment = findAncestorVNoteSegment(marker);
+      var noteSegments = findEntireNote(noteSegment);
+
+      noteSegments.forEach(unwrap);
     }
 
 
