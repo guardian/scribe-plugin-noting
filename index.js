@@ -421,7 +421,9 @@ module.exports = function(user) {
 
       // To make sure the caret is placed within the note we place a scribe
       // maker within it.
-      var replacementVNode = wrapInNote([createVirtualScribeMarker(), zeroWidthSpace], generateUUID());
+      // Chrome is picky about needing the space to be before the marker
+      // (otherwise the caret won't be placed within the note).
+      var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], generateUUID());
 
       // We assume there's only one marker.
       var marker = findMarkers(treeFocus)[0];
