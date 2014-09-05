@@ -83,12 +83,12 @@ module.exports = function(user) {
       return !!this.leftVNode();
     };
 
-    VFocus.prototype.canUp = function() {
-      return ! this.isRoot();
-    };
-
     VFocus.prototype.canDown = function() {
       return this.vNode.children && this.vNode.children.length ? true : false;
+    };
+
+    VFocus.prototype.canUp = function() {
+      return ! this.isRoot();
     };
 
 
@@ -257,30 +257,12 @@ module.exports = function(user) {
       return focus;
     }
 
-
+    /* ***** End VFocus ***** /*
 
 
     /**
-    * Noting: Identity
+    * Noting: Checks
     */
-
-    function isScribeMarker(vNode) {
-       return hasClass(vNode, "scribe-marker");
-    }
-
-    // Answers whether a DOM node or vNode is a note.
-    // Case insensitive to work with both DOM nodes and vNodes
-    // (which can be lowercase).
-    function isNote(node) {
-      return node.tagName && node.tagName.toLowerCase() === nodeName.toLowerCase();
-    }
-
-    // Check if VNode has class
-    function hasClass(vNode, value) {
-      return (vNode.properties &&
-        vNode.properties.className &&
-        vNode.properties.className === value);
-    }
 
     function focusOnMarker(focus) {
       return isScribeMarker(focus.vNode);
@@ -292,6 +274,24 @@ module.exports = function(user) {
 
     function focusOnNote(fNote) {
       return isNote(fNote.vNode);
+    }
+
+    // Whether a DOM node or vNode is a note.
+    // Case insensitive to work with both DOM nodes and vNodes
+    // (which can be lowercase).
+    function isNote(node) {
+      return node.tagName && node.tagName.toLowerCase() === nodeName.toLowerCase();
+    }
+
+    function isScribeMarker(vNode) {
+       return hasClass(vNode, "scribe-marker");
+    }
+
+    // Check if VNode has class
+    function hasClass(vNode, value) {
+      return (vNode.properties &&
+        vNode.properties.className &&
+        vNode.properties.className === value);
     }
 
 
@@ -504,19 +504,15 @@ module.exports = function(user) {
         var patches = diff(originalTree, tree);
         patch(scribe.el, patches);
 
-        // Place caret
-        // TODO: Remove markers and place caret at appropriate place
-        window.fTree = new VFocus(tree);
-        window.befFocus = new VFocus(originalTree);
-        window.findEntireNote = findEntireNote;
-        window.findVTextNodesBetweenMarkers = findVTextNodesBetweenMarkers;
-        window.foc = function() { return fTree.next().next().next().next().next().next(); };
-        window.focusOnMarker = focusOnMarker;
+        // TODO: Place caret at appropriate place
       }
 
       // We need to make sure we remove markers when we're done, as our functions assume there's
       // either one or two markers present.
       selection.removeMarkers();
+
+      // Keeping for debugging for the moment
+      window.ftree = new VFocus(tree);
     };
 
 
