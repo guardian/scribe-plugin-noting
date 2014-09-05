@@ -5,6 +5,10 @@
 
 module.exports = function(user) {
   return function(scribe) {
+    /**
+    * Imports and config
+    */
+
     var diff = require('virtual-dom/diff');
     var patch = require('virtual-dom/patch');
 
@@ -29,6 +33,7 @@ module.exports = function(user) {
     var blocks = ["P", "LI", "UL"];
     var noteCommand = new scribe.api.Command('insertHTML');
 
+
     /**
     * VFocus: Wrap virtual node in a Focus node.
 
@@ -46,6 +51,7 @@ module.exports = function(user) {
     /**
     * Internally useful
     */
+
     VFocus.prototype.rightVNode = function() {
       if (this.isRoot()) return null;
 
@@ -59,6 +65,7 @@ module.exports = function(user) {
       var leftVNodeIndex = this.parent.vNode.children.indexOf(this.vNode) - 1;
       return leftVNodeIndex >= 0 ? this.parent.vNode.children[leftVNodeIndex] : null;
     };
+
 
     /**
     * Checks
@@ -83,6 +90,7 @@ module.exports = function(user) {
     VFocus.prototype.canDown = function() {
       return this.vNode.children && this.vNode.children.length ? true : false;
     };
+
 
     /**
     * Movements
@@ -158,20 +166,7 @@ module.exports = function(user) {
 
 
     /**
-    * Traverse
-    */
-
-    VFocus.prototype.forEach = function(fn) {
-      var node = this;
-      while (node) {
-        fn(node);
-        node = node.next();
-      }
-    };
-
-
-    /**
-    * Mutable operations
+    * Mutating operations
     */
 
     // Replace `this.vNode` and return `this` to enable chaining.
@@ -200,8 +195,16 @@ module.exports = function(user) {
     };
 
     /**
-    * Immutable operations
+    * Iteration methods
     */
+
+    VFocus.prototype.forEach = function(fn) {
+      var node = this;
+      while (node) {
+        fn(node);
+        node = node.next();
+      }
+    };
 
     // Flatten `this` and all nodes after, returning a list
     VFocus.prototype.flatten = function(replacementVNode) {
@@ -254,8 +257,22 @@ module.exports = function(user) {
       return focus;
     }
 
+
+
+
+    /**
+    * Noting: Identity
+    */
+
     function isScribeMarker(vNode) {
        return hasClass(vNode, "scribe-marker");
+    }
+
+    // Answers whether a DOM node or vNode is a note.
+    // Case insensitive to work with both DOM nodes and vNodes
+    // (which can be lowercase).
+    function isNote(node) {
+      return node.tagName && node.tagName.toLowerCase() === nodeName.toLowerCase();
     }
 
     // Check if VNode has class
@@ -273,15 +290,17 @@ module.exports = function(user) {
       return focus.vNode.type === 'VirtualText';
     }
 
-    // Answers whether a DOM node or vNode is a note.
-    // Case insensitive to work with both DOM nodes and vNodes
-    // (which can be lowercase).
-    function isNote(node) {
-      return node.tagName && node.tagName.toLowerCase() === nodeName.toLowerCase();
+    function focusOnNote(fNote) {
+      return isNote(fNote.vNode);
     }
 
-    function onlyTextNodes (focuses) {
-      return focuses.filter(focusOnVTextNode);
+
+    /**
+    * Noting: Finders and filters
+    */
+
+    function findAncestorVNote(fNote) {
+      return fNote.find(focusOnNote, 'up');
     }
 
     function findVTextNodesBetweenMarkers(focusTree) {
@@ -294,118 +313,13 @@ module.exports = function(user) {
       );
     }
 
-    function generateUUID(){
-      var d = new Date().getTime();
-      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-          var r = (d + Math.random()*16)%16 | 0;
-          d = Math.floor(d/16);
-          return (c=='x' ? r : (r&0x7|0x8)).toString(16);
-      });
-      return uuid;
-    };
-
-    // Wrap in a note.
-    // toWrap can be a vNode, DOM node or a string. One or an array with several.
-    function wrapInNote(toWrap, noteIdValue) {
-      var nodes = toWrap instanceof Array ? toWrap : [toWrap];
-
-      var note = h('gu:note.note', {dataset: {noteId: noteIdValue}}, nodes);
-      return note;
-    }
-
-    function createScribeMarker() {
-      return h('em.scribe-marker', []);
-    }
-
     function findMarkers(treeFocus) {
       return treeFocus.filter(focusOnMarker);
     }
 
-    /**
-    * Note creation
-    */
-
-    // tree - tree containing a marker.
-    // Note that we will mutate the tree.
-    function createEmptyNoteAtCaret(treeFocus) {
-      // We need a zero width space character to make the note selectable.
-      var zeroWidthSpace = '\u200B';
-
-      // To make sure the caret is placed within the note we place a scribe
-      // maker within it.
-      var replacementVNode = wrapInNote([createScribeMarker(), zeroWidthSpace], generateUUID());
-
-      // We assume there's only one marker.
-      var marker = findMarkers(treeFocus)[0];
-
-      marker.replace(replacementVNode);
-    }
-
-    // treeFocus -- tree focus of tree containing two scribe markers
-    // Note that we will mutate the tree.
-    function createNoteFromSelection(treeFocus) {
-      var noteId = generateUUID();
-
-      // Wrap wrap
-      var vTextNodesToWrap = findVTextNodesBetweenMarkers(treeFocus);
-      var wrappedTextNodes = vTextNodesToWrap.map(function (focus) {
-        var wrappedVNode = wrapInNote(focus.vNode, noteId);
-        return focus.replace(wrappedVNode);
-      });
-
-      removeVirtualScribeMarkers(treeFocus);
-
-      return noteId;
-    }
-
-    // Walk up the dom checking isTargetNode.
-    function domWalkUpFind(node, isTargetNode) {
-      if (!node.parentNode) { return false; }
-
-      return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
-    }
-
-    // Checks whether our selection is within another note.
-    function insideNote() {
-      var node = window.getSelection().getRangeAt(0).startContainer;
-
-      return domWalkUpFind(node, function(node) {
-        return node.tagName === 'GU:NOTE';
-      });
-    }
-
-    function focusInsideVNote(fNote) {
-      return fNote.find(focusOnNote, 'up');
-    }
-
-    function removeVirtualScribeMarkers(treeFocus) {
-      treeFocus.forEach(function(focus) {
-        if (isScribeMarker(focus.vNode)) focus.remove();
-      });
-    }
-
-    function focusOnNote(fNote) {
-      return isNote(fNote.vNode);
-    }
-
-    // TODO: Identity should be based on adjacency rather than id. To prevent issues
-    // when people move parts of notes around and then unnote them.
-    function unnote(treeFocus, noteId) {
-      treeFocus.forEach(function(focus) {
-        if (focusOnNote(focus) && focus.vNode.properties.dataset.noteId === noteId) {
-          console.log(focus);
-          var note = focus.vNode;
-          var noteContents = note.children;
-          var indexOfNode = focus.parent.vNode.children.indexOf(note);
-          focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
-          focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
-        }
-      });
-    }
-
     function findFirstNoteSegment(fNote) {
       function stillWithinNote(focus) {
-        return !focusOnVTextNode(focus) || focusInsideVNote(focus);
+        return !focusOnVTextNode(focus) || findAncestorVNote(focus);
       }
 
       var result;
@@ -423,12 +337,137 @@ module.exports = function(user) {
     // fNote: focus on note
     function findEntireNote(fNote) {
       function stillWithinNote(focus) {
-        return !focusOnVTextNode(focus) || focusInsideVNote(focus);
+        return !focusOnVTextNode(focus) || findAncestorVNote(focus);
       }
 
       return onlyTextNodes(findFirstNoteSegment(fNote)
-        .takeWhile(stillWithinNote)).map(focusInsideVNote);
+        .takeWhile(stillWithinNote)).map(findAncestorVNote);
     }
+
+    function onlyTextNodes (focuses) {
+      return focuses.filter(focusOnVTextNode);
+    }
+
+
+    /**
+    * Noting: Create, remove, wrap etc.
+    */
+
+    // Wrap in a note.
+    // toWrap can be a vNode, DOM node or a string. One or an array with several.
+    function wrapInNote(toWrap, noteIdValue) {
+      var nodes = toWrap instanceof Array ? toWrap : [toWrap];
+
+      var note = h('gu:note.note', {dataset: {noteId: noteIdValue}}, nodes);
+      return note;
+    }
+
+    function createVirtualScribeMarker() {
+      return h('em.scribe-marker', []);
+    }
+
+    function removeVirtualScribeMarkers(treeFocus) {
+      treeFocus.forEach(function(focus) {
+        if (isScribeMarker(focus.vNode)) focus.remove();
+      });
+    }
+
+
+    /**
+     * Noting: Operations on the real DOM
+     */
+
+    // Walk up the (real) DOM checking isTargetNode.
+    function domWalkUpFind(node, isTargetNode) {
+      if (!node.parentNode) { return false; }
+
+      return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
+    }
+
+    // Return the note our selection is inside of, if we are inside one.
+    function domFindAncestorNote() {
+      var node = window.getSelection().getRangeAt(0).startContainer;
+
+      return domWalkUpFind(node, function(node) {
+        return node.tagName === 'GU:NOTE';
+      });
+    }
+
+
+    /**
+    * Noting: Other helpers
+    */
+
+    function generateUUID(){
+      var d = new Date().getTime();
+      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = (d + Math.random()*16)%16 | 0;
+          d = Math.floor(d/16);
+          return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+      });
+      return uuid;
+    };
+
+
+    /**
+    * Noting: User initiated actions
+    */
+
+    // tree - tree containing a marker.
+    // Note that we will mutate the tree.
+    function createEmptyNoteAtCaret(treeFocus) {
+      // We need a zero width space character to make the note selectable.
+      var zeroWidthSpace = '\u200B';
+
+      // To make sure the caret is placed within the note we place a scribe
+      // maker within it.
+      var replacementVNode = wrapInNote([createVirtualScribeMarker(), zeroWidthSpace], generateUUID());
+
+      // We assume there's only one marker.
+      var marker = findMarkers(treeFocus)[0];
+
+      marker.replace(replacementVNode);
+    }
+
+    // treeFocus: tree focus of tree containing two scribe markers
+    // Note that we will mutate the tree.
+    function createNoteFromSelection(treeFocus) {
+      // Leaning towards not using ids for identification and instead define a note
+      // as: note segments adjacent to each other. Or we'll have to reset ids
+      // frequently. But keeping the ids for now.
+      var noteId = generateUUID();
+
+      // Wrap wrap
+      var vTextNodesToWrap = findVTextNodesBetweenMarkers(treeFocus);
+      var wrappedTextNodes = vTextNodesToWrap.map(function (focus) {
+        var wrappedVNode = wrapInNote(focus.vNode, noteId);
+        return focus.replace(wrappedVNode);
+      });
+
+      removeVirtualScribeMarkers(treeFocus);
+
+      return noteId;
+    }
+
+    // TODO: Identity should be based on adjacency rather than id. To prevent issues
+    // when people move parts of notes around and then unnote them.
+    function unnote(treeFocus, noteId) {
+      treeFocus.forEach(function(focus) {
+        if (focusOnNote(focus) && focus.vNode.properties.dataset.noteId === noteId) {
+          console.log(focus);
+          var note = focus.vNode;
+          var noteContents = note.children;
+          var indexOfNode = focus.parent.vNode.children.indexOf(note);
+          focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
+          focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
+        }
+      });
+    }
+
+
+    /**
+    * The note command
+    */
 
     noteCommand.execute = function () {
       var selection = new scribe.api.Selection();
@@ -439,7 +478,7 @@ module.exports = function(user) {
       var originalTree = virtualize(scribe.el);
       var tree = virtualize(scribe.el); // we'll mutate this one
       var treeFocus = new VFocus(tree);
-      var note = insideNote(selection); // if we're inside of a note we want to know
+      var note = domFindAncestorNote(selection); // if we're inside of a note we want to know
 
       if (selection.selection.isCollapsed && note) {
         unnote(treeFocus, note.dataset.noteId);
@@ -473,36 +512,17 @@ module.exports = function(user) {
         window.findVTextNodesBetweenMarkers = findVTextNodesBetweenMarkers;
         window.foc = function() { return fTree.next().next().next().next().next().next(); };
         window.focusOnMarker = focusOnMarker;
-      }//
+      }
 
-      //// We need to make sure we remove markers when we're done, as our functions assume there's
+      // We need to make sure we remove markers when we're done, as our functions assume there's
       // either one or two markers present.
       selection.removeMarkers();
     };
 
 
-      // noteCommand.queryState = function () {
-      //   console.log('noteCommand.queryState')
-      //   // TODO: The instance in which there are more scribe nodes
-      //   // clone the range and see if there are spans in it
-      //   var selection = new scribe.api.Selection();
-      //   var scribeEls = selection.range.cloneContents().querySelectorAll('.note');
-      //   var containsNote = function (scribeEls) {
-      //     for (var i = 0, len = scribeEls.length; i < len; i++) {
-      //       if (isNote(scribeEls[i])) {
-      //         return true;
-      //       }
-      //     }
-      //   };
-
-      //   // check if there is a note in the selection
-      //   var isNode = !!selection.getContaining(function (node) {
-      //     return isNote(node);
-      //   });
-
-      //   return isNode || containsNote(scribeEls);
-
-      // };
+      noteCommand.queryState = function () {
+        // NOT IMPLEMENTED: Return true if selection is inside note or contains a note.
+      };
 
       scribe.commands.note = noteCommand;
 
