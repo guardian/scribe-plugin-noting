@@ -330,8 +330,8 @@ module.exports = function(user) {
 
     // Find the rest of a note.
     // We identify notes based on 'adjacency' rather than giving them an id.
-    // This is because people may copy and paste part of a note. We don't want
-    // that to keep being the same note.
+    // This is because people may press RETURN or copy and paste part of a note.
+    // In such cases we don't want that to keep being the same note.
     // fNoteSegment: focus on note
     function findEntireNote(fNoteSegment) {
       function stillWithinNote(focus) {
@@ -353,10 +353,10 @@ module.exports = function(user) {
 
     // Wrap in a note.
     // toWrap can be a vNode, DOM node or a string. One or an array with several.
-    function wrapInNote(toWrap, noteIdValue) {
+    function wrapInNote(toWrap) {
       var nodes = toWrap instanceof Array ? toWrap : [toWrap];
 
-      var note = h('gu:note.note', {dataset: {noteId: noteIdValue}}, nodes);
+      var note = h('gu:note.note', {dataset: {}}, nodes);
       return note;
     }
 
@@ -393,21 +393,6 @@ module.exports = function(user) {
 
 
     /**
-    * Noting: Other helpers
-    */
-
-    function generateUUID(){
-      var d = new Date().getTime();
-      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-          var r = (d + Math.random()*16)%16 | 0;
-          d = Math.floor(d/16);
-          return (c=='x' ? r : (r&0x7|0x8)).toString(16);
-      });
-      return uuid;
-    };
-
-
-    /**
     * Noting: User initiated actions
     */
 
@@ -421,7 +406,7 @@ module.exports = function(user) {
       // maker within it.
       // Chrome is picky about needing the space to be before the marker
       // (otherwise the caret won't be placed within the note).
-      var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], generateUUID());
+      var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()]);
 
       // We assume there's only one marker.
       var marker = findMarkers(treeFocus)[0];
@@ -432,21 +417,13 @@ module.exports = function(user) {
     // treeFocus: tree focus of tree containing two scribe markers
     // Note that we will mutate the tree.
     function createNoteFromSelection(treeFocus) {
-      // Leaning towards not using ids for identification and instead define a note
-      // as: note segments adjacent to each other. Or we'll have to reset ids
-      // frequently. But keeping the ids for now.
-      var noteId = generateUUID();
-
-      // Wrap wrap
       var vTextNodesToWrap = findVTextNodesBetweenMarkers(treeFocus);
       var wrappedTextNodes = vTextNodesToWrap.map(function (focus) {
-        var wrappedVNode = wrapInNote(focus.vNode, noteId);
+        var wrappedVNode = wrapInNote(focus.vNode);
         return focus.replace(wrappedVNode);
       });
 
       removeVirtualScribeMarkers(treeFocus);
-
-      return noteId;
     }
 
     function unnote(treeFocus) {
@@ -484,7 +461,7 @@ module.exports = function(user) {
       var note = domFindAncestorNote(selection); // if we're inside of a note we want to know
 
       if (selection.selection.isCollapsed && note) {
-        unnote(treeFocus, note.dataset.noteId);
+        unnote(treeFocus);
 
         // Then diff with the original tree and patch the DOM. And we're done.
         var patches = diff(originalTree, tree);

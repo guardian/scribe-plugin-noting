@@ -100,13 +100,6 @@ describe('noting plugin', function () {
             selectionIsInsideNote().then(function(result) {
               expect(result).to.be.true;
             });
-
-
-            // Note id specs
-            expect(innerHTML).to.include('data-note-id=');
-
-            var noteIds = innerHTML.match(/data-note-id="(.*?)"/g);
-            expect(noteIds).to.have.length(1);
           });
         });
       });
@@ -119,12 +112,6 @@ describe('noting plugin', function () {
             note().then(function () {
               scribeNode.getInnerHTML().then(function (innerHTML) {
                 expect(innerHTML).to.include('February, 1815, </gu:note>');
-
-                // Note id specs
-                expect(innerHTML).to.include('data-note-id=');
-
-                var noteIds = innerHTML.match(/data-note-id="(.*?)"/g);
-                expect(noteIds).to.have.length(1);
               });
             });
           });
@@ -142,14 +129,6 @@ describe('noting plugin', function () {
                 expect(innerHTML).to.include('The </gu:note><b><i>');
                 expect(innerHTML).to.include('look-out</gu:note></i></b>');
                 expect(innerHTML).to.include(' at </gu:note>');
-
-                // Note id specs
-                expect(innerHTML).to.include('data-note-id=');
-                var noteIds = innerHTML.match(/data-note-id="(.*?)"/g);
-                var allHaveSameId = _.uniq(noteIds).length === 1;
-
-                expect(noteIds).to.have.length(4);
-                expect(allHaveSameId).to.be.true;
               });
             });
           });
@@ -158,7 +137,7 @@ describe('noting plugin', function () {
     });
 
     when('we are inside a note and haven\'t selected anything', function() {
-      givenContentOf('<p>On the 24th of <gu:note data-note-id="ba641e61-069c-423b-eeaa-b8ef2f54d1c1" class="note">Febr|uary, 1815, </gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+      givenContentOf('<p>On the 24th of <gu:note class="note">Febr|uary, 1815, </gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
         when('we press the noting key', function() {
           it('the note is unnoted', function () {
             note().then(function () {
@@ -173,7 +152,7 @@ describe('noting plugin', function () {
     });
 
     // when('we select the contents of a note', function() {
-    //   givenContentOf('<p>On the 24th of <gu:note data-note-id="ba641e61-069c-423b-eeaa-b8ef2f54d1c1" class="note">|February, 1815, |</gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+    //   givenContentOf('<p>On the 24th of <gu:note class="note">|February, 1815, |</gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
     //     when('we press the noting key', function() {
     //       it('unnotes the note', function () {
     //         note().then(function () {
