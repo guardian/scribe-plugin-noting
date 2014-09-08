@@ -360,6 +360,11 @@ module.exports = function(user) {
       return note;
     }
 
+    function addStartAndEndAttributes(vNodes) {
+      vNodes[0].properties.dataset['noteStart'] = '';
+      vNodes[vNodes.length - 1].properties.dataset['noteEnd'] = '';
+    }
+
     function createVirtualScribeMarker() {
       return h('em.scribe-marker', []);
     }
@@ -408,6 +413,9 @@ module.exports = function(user) {
       // (otherwise the caret won't be placed within the note).
       var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()]);
 
+      // Start and end attributes (both on the same tag in this case).
+      addStartAndEndAttributes([replacementVNode]);
+
       // We assume there's only one marker.
       var marker = findMarkers(treeFocus)[0];
 
@@ -417,10 +425,18 @@ module.exports = function(user) {
     // treeFocus: tree focus of tree containing two scribe markers
     // Note that we will mutate the tree.
     function createNoteFromSelection(treeFocus) {
-      var vTextNodesToWrap = findVTextNodesBetweenMarkers(treeFocus);
-      var wrappedTextNodes = vTextNodesToWrap.map(function (focus) {
-        var wrappedVNode = wrapInNote(focus.vNode);
-        return focus.replace(wrappedVNode);
+      var toWrapAndReplace = findVTextNodesBetweenMarkers(treeFocus);
+      var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
+        return wrapInNote(focus.vNode);
+      });
+
+      addStartAndEndAttributes(wrappedTextNodes);
+
+      _.zip(toWrapAndReplace, wrappedTextNodes).forEach(function(focusAndReplacementVNode) {
+        var focus = focusAndReplacementVNode[0];
+        var replacementVNode = focusAndReplacementVNode[1];
+
+        focus.replace(replacementVNode);
       });
 
       removeVirtualScribeMarkers(treeFocus);
