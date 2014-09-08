@@ -201,6 +201,25 @@ module.exports = function(user) {
       return this;
     };
 
+    VFocus.prototype.insertAfter = function(newVNode) {
+      if (this.isRoot()) {
+        // No can do. Should maybe raise an exception.
+      } else {
+        var siblings = this.parent.vNode.children;
+        var vNodeIndex = siblings.indexOf(this.vNode);
+
+        if (siblings.length === vNodeIndex + 1) {
+          // Last element of array, so just push to it.
+          siblings.push(newVNode);
+        } else {
+          // Insert before the next sibling.
+          siblings.splice(vNodeIndex + 1, 0, newVNode);
+        }
+      }
+
+      return this;
+    };
+
     /**
     * Iteration methods
     */
@@ -326,12 +345,21 @@ module.exports = function(user) {
 
     function findFirstNoteSegment(fNoteSegment) {
       function stillWithinNote(focus) {
-        console.log('got focus on', focus.vNode)
         return !focusOnVTextNode(focus) || findAncestorVNoteSegment(focus);
       }
 
       return _.last(
         fNoteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
+      );
+    }
+
+    function findLastNoteSegment(fNoteSegment) {
+      function stillWithinNote(focus) {
+        return !focusOnVTextNode(focus) || findAncestorVNoteSegment(focus);
+      }
+
+      return _.last(
+        fNoteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
       );
     }
 
@@ -412,6 +440,18 @@ module.exports = function(user) {
       });
     }
 
+    // Remove all scribe markers from the DOM.
+    //
+    // Note: It's not enough to use selection.removeMarkers since we place
+    // markers outside of the selection to achieve correct caret positioning.
+    function domRemoveMarkers() {
+      var markers = _.toArray(document.querySelectorAll('.scribe-marker'));
+
+      markers.forEach(function (marker) {
+        marker.parentNode.removeChild(marker);
+      });
+    }
+
 
     /**
     * Noting: User initiated actions
@@ -457,6 +497,9 @@ module.exports = function(user) {
       });
 
       removeVirtualScribeMarkers(treeFocus);
+
+      // Place marker so the caret will be after the note.
+      findLastNoteSegment(toWrapAndReplace[0]).insertAfter(createVirtualScribeMarker());
     }
 
     function unnote(treeFocus) {
@@ -475,6 +518,9 @@ module.exports = function(user) {
       var noteSegments = findEntireNote(noteSegment);
 
       noteSegments.forEach(unwrap);
+
+      // The marker is where we want it to be (the same position) so we'll
+      // just leave it.
     }
 
 
@@ -500,7 +546,8 @@ module.exports = function(user) {
         var patches = diff(originalTree, tree);
         patch(scribe.el, patches);
 
-
+        // Place caret (necessary to do this explicitly for FF).
+        selection.selectMarkers();
       } else if (selection.selection.isCollapsed) {
         createEmptyNoteAtCaret(treeFocus);
 
@@ -517,15 +564,17 @@ module.exports = function(user) {
         var patches = diff(originalTree, tree);
         patch(scribe.el, patches);
 
-        // TODO: Place caret at appropriate place
+        // Place caret (necessary to do this explicitly for FF).
+        selection.selectMarkers();
       }
 
       // We need to make sure we remove markers when we're done, as our functions assume there's
       // either one or two markers present.
-      selection.removeMarkers();
+      domRemoveMarkers();
 
       // Keeping for debugging for the moment
       window.ftree = new VFocus(tree);
+      window.findMarkers = findMarkers;
     };
 
 
