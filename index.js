@@ -28,8 +28,10 @@ module.exports = function(user) {
     var tag = "gu:note";
     var nodeName = "GU:NOTE";
     var className = "note";
-    var dataName = "data-edited-by";
-    var dataDate = "data-edited-date";
+    var dataName = "data-node-edited-by";
+    var dataNameCamel = "noteEditedBy";
+    var dataDate = "data-note-edited-date";
+    var dataDateCamel = "noteEditedDate";
     var blocks = ["P", "LI", "UL"];
     var noteCommand = new scribe.api.Command('insertHTML');
 
@@ -353,16 +355,25 @@ module.exports = function(user) {
 
     // Wrap in a note.
     // toWrap can be a vNode, DOM node or a string. One or an array with several.
-    function wrapInNote(toWrap) {
+    function wrapInNote(toWrap, dataAttrs) {
       var nodes = toWrap instanceof Array ? toWrap : [toWrap];
+      var dataAttrs = dataAttrs || {};
 
-      var note = h('gu:note.note', {dataset: {}}, nodes);
+      var note = h('gu:note.note', {dataset: dataAttrs}, nodes);
       return note;
     }
 
     function addStartAndEndAttributes(vNodes) {
       vNodes[0].properties.dataset['noteStart'] = '';
       vNodes[vNodes.length - 1].properties.dataset['noteEnd'] = '';
+    }
+
+    function userAndTimeAsDatasetAttrs() {
+      var dataset = {}
+      dataset[dataNameCamel] = user;
+      dataset[dataDateCamel] = new Date().toISOString(); // how deal with timezone?
+
+      return dataset;
     }
 
     function createVirtualScribeMarker() {
@@ -411,7 +422,7 @@ module.exports = function(user) {
       // maker within it.
       // Chrome is picky about needing the space to be before the marker
       // (otherwise the caret won't be placed within the note).
-      var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()]);
+      var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], userAndTimeAsDatasetAttrs());
 
       // Start and end attributes (both on the same tag in this case).
       addStartAndEndAttributes([replacementVNode]);
@@ -426,8 +437,9 @@ module.exports = function(user) {
     // Note that we will mutate the tree.
     function createNoteFromSelection(treeFocus) {
       var toWrapAndReplace = findVTextNodesBetweenMarkers(treeFocus);
+      var userAndTime = userAndTimeAsDatasetAttrs();
       var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
-        return wrapInNote(focus.vNode);
+        return wrapInNote(focus.vNode, userAndTime);
       });
 
       addStartAndEndAttributes(wrappedTextNodes);

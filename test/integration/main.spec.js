@@ -102,6 +102,9 @@ describe('noting plugin', function () {
             expect(numberOfNoteStartAttributes).to.equal(1);
             expect(numberOfNoteEndAttributes).to.equal(1);
 
+            expect(innerHTML).to.include('data-note-edited-by');
+            expect(innerHTML).to.include('data-note-edited-date');
+
             // Check that the caret has been placed inside the note.
             selectionIsInsideNote().then(function(result) {
               expect(result).to.be.true;
@@ -124,6 +127,9 @@ describe('noting plugin', function () {
                 var numberOfNoteEndAttributes = innerHTML.match(/data-note-end/).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
+
+                expect(innerHTML).to.include('data-note-edited-by');
+                expect(innerHTML).to.include('data-note-edited-date');
               });
             });
           });
@@ -147,6 +153,9 @@ describe('noting plugin', function () {
                 var numberOfNoteEndAttributes = innerHTML.match(/data-note-end/).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
+
+                expect(innerHTML).to.include('data-note-edited-by');
+                expect(innerHTML).to.include('data-note-edited-date');
               });
             });
           });
