@@ -175,10 +175,15 @@ module.exports = function(user) {
     // Note that this mutates the tree.
     VFocus.prototype.replace = function(replacementVNode) {
       if (this.isRoot()) {
+        // Replace and focus on the replacement.
         this.vNode = replacementVNode;
       } else {
+        // Replace the object in the tree we're focusing on.
         var vNodeIndex = this.parent.vNode.children.indexOf(this.vNode);
         this.parent.vNode.children.splice(vNodeIndex, 1, replacementVNode);
+
+        // And focus on the replacement.
+        this.vNode = replacementVNode;
       }
 
       return this;
