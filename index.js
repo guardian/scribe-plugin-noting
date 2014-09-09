@@ -303,8 +303,17 @@ module.exports = function(user) {
       return focus.vNode.type === 'VirtualText';
     }
 
-    function focusOnNote(fNote) {
-      return isNote(fNote.vNode);
+    function focusOnNote(focus) {
+      return isNote(focus.vNode);
+    }
+
+    function focusOnEmptyTextNode(focus) {
+      // We consider zero width spaces as empty.
+      function consideredEmpty(s) {
+        return s === '' || s === '\u200B';
+      }
+      var vNode = focus.vNode;
+      return isVText(vNode) && consideredEmpty(vNode.text);
     }
 
     // Whether a DOM node or vNode is a note.
@@ -323,6 +332,10 @@ module.exports = function(user) {
       return (vNode.properties &&
         vNode.properties.className &&
         vNode.properties.className === value);
+    }
+
+    function stillWithinNote(focus) {
+        return !focusOnVTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorVNoteSegment(focus);
     }
 
 
@@ -349,20 +362,12 @@ module.exports = function(user) {
     }
 
     function findFirstNoteSegment(fNoteSegment) {
-      function stillWithinNote(focus) {
-        return !focusOnVTextNode(focus) || findAncestorVNoteSegment(focus);
-      }
-
       return _.last(
         fNoteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
       );
     }
 
     function findLastNoteSegment(fNoteSegment) {
-      function stillWithinNote(focus) {
-        return !focusOnVTextNode(focus) || findAncestorVNoteSegment(focus);
-      }
-
       return _.last(
         fNoteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
       );
@@ -374,12 +379,26 @@ module.exports = function(user) {
     // In such cases we don't want that to keep being the same note.
     // fNoteSegment: focus on note
     function findEntireNote(fNoteSegment) {
-      function stillWithinNote(focus) {
-        return !focusOnVTextNode(focus) || findAncestorVNoteSegment(focus);
-      }
-
       return findFirstNoteSegment(fNoteSegment)
         .takeWhile(stillWithinNote).filter(focusOnNote);
+    }
+
+    // Regurns an array of arrays of note segments
+    function findAllNotes(focus) {
+      var treeFocus = focus.top();
+
+      var notes = [];
+
+      var focus = treeFocus;
+      var firstNoteSegment;
+      while (firstNoteSegment = focus.find(focusOnNote)) {
+        var note = findEntireNote(firstNoteSegment);
+        notes.push(note);
+
+        focus = note[note.length - 1].next();
+      }
+
+      return notes;
     }
 
     function onlyTextNodes (focuses) {
@@ -421,10 +440,20 @@ module.exports = function(user) {
       return h('em.scribe-marker', []);
     }
 
+    function createNoteBarrier() {
+      return h('span.note-barrier', '\u200B');
+    }
+
     function removeVirtualScribeMarkers(treeFocus) {
       treeFocus.forEach(function(focus) {
         if (isScribeMarker(focus.vNode)) focus.remove();
       });
+    }
+
+    function updateEditedBy(noteSegment) {
+      var dataset = userAndTimeAsDatasetAttrs();
+      noteSegment.vNode.properties.dataset[dataNameCamel] = dataset[dataNameCamel];
+      noteSegment.vNode.properties.dataset[dataDateCamel] = dataset[dataDateCamel];
     }
 
 
@@ -484,6 +513,9 @@ module.exports = function(user) {
       var marker = findMarkers(treeFocus)[0];
 
       marker.replace(replacementVNode);
+
+      // "Merge" with any adjacent note (really just update attributes)
+      findEntireNote(marker).forEach(updateEditedBy);
     }
 
     // treeFocus: tree focus of tree containing two scribe markers
@@ -514,7 +546,11 @@ module.exports = function(user) {
       //       Also, being able to step in and out of notes might need a solution
       //       like this, but where we somehow always maintain one zero-space
       //       element at the beginning and end of each note.
-      findLastNoteSegment(toWrapAndReplace[0]).insertAfter([new VText('\u200B'), createVirtualScribeMarker()]);
+      var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0]);
+      lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
+
+      // "Merge" with any adjacent note (really just update attributes)
+      findEntireNote(lastNoteSegment).forEach(updateEditedBy);
     }
 
     function unnote(treeFocus) {
@@ -573,6 +609,9 @@ module.exports = function(user) {
       // when we're done, as our functions assume there's either one or two
       // markers present.
       domRemoveMarkers();
+
+      window.ftree = treeFocus;
+      window.findAllNotes = findAllNotes;
     };
 
 
