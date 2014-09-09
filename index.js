@@ -395,7 +395,10 @@ module.exports = function(user) {
     // toWrap can be a vNode, DOM node or a string. One or an array with several.
     function wrapInNote(toWrap, dataAttrs) {
       var nodes = toWrap instanceof Array ? toWrap : [toWrap];
-      var dataAttrs = dataAttrs || {};
+
+      // Note that we have to clone dataAttrs or several notes might end up
+      // sharing the same dataset object.
+      var dataAttrs = dataAttrs ? _.clone(dataAttrs) : {};
 
       var note = h('gu:note.note', {dataset: dataAttrs}, nodes);
       return note;
