@@ -22,6 +22,7 @@ module.exports = function(user) {
     var createElement = require('virtual-dom/create-element');
     var isVNode = require('vtree/is-vnode');
     var isVText = require('vtree/is-vtext');
+    var VText = require('vtree/vtext');
     var _ = require('lodash');
 
 
@@ -201,7 +202,9 @@ module.exports = function(user) {
       return this;
     };
 
-    VFocus.prototype.insertAfter = function(newVNode) {
+    VFocus.prototype.insertAfter = function(newVNodes) {
+      var newVNodes = newVNodes instanceof Array ? newVNodes : [newVNodes];
+
       if (this.isRoot()) {
         // No can do. Should maybe raise an exception.
       } else {
@@ -209,11 +212,13 @@ module.exports = function(user) {
         var vNodeIndex = siblings.indexOf(this.vNode);
 
         if (siblings.length === vNodeIndex + 1) {
-          // Last element of array, so just push to it.
-          siblings.push(newVNode);
+          // Last element of array
+          siblings = siblings.concat(newVNodes);
         } else {
           // Insert before the next sibling.
-          siblings.splice(vNodeIndex + 1, 0, newVNode);
+          newVNodes.reverse().forEach(function (vNode) {
+            siblings.splice(vNodeIndex + 1, 0, vNode);
+          });
         }
       }
 
@@ -499,7 +504,14 @@ module.exports = function(user) {
       removeVirtualScribeMarkers(treeFocus);
 
       // Place marker so the caret will be after the note.
-      findLastNoteSegment(toWrapAndReplace[0]).insertAfter(createVirtualScribeMarker());
+      // TODO: Think of a proper solution instead of using this "element in between" hack.
+      //       Chrome has a bug which means it doesn't place the caret
+      //       outside the note.
+      //
+      //       Also, being able to step in and out of notes might need a solution
+      //       like this, but where we somehow always maintain one zero-space
+      //       element at the beginning and end of each note.
+      findLastNoteSegment(toWrapAndReplace[0]).insertAfter([new VText('\u200B'), createVirtualScribeMarker()]);
     }
 
     function unnote(treeFocus) {
@@ -541,40 +553,23 @@ module.exports = function(user) {
 
       if (selection.selection.isCollapsed && note) {
         unnote(treeFocus);
-
-        // Then diff with the original tree and patch the DOM. And we're done.
-        var patches = diff(originalTree, tree);
-        patch(scribe.el, patches);
-
-        // Place caret (necessary to do this explicitly for FF).
-        selection.selectMarkers();
       } else if (selection.selection.isCollapsed) {
         createEmptyNoteAtCaret(treeFocus);
-
-        // Then diff with the original tree and patch the DOM. And we're done.
-        var patches = diff(originalTree, tree);
-        patch(scribe.el, patches);
-
-        // Place caret (necessary to do this explicitly for FF).
-        selection.selectMarkers();
       } else {
         createNoteFromSelection(treeFocus);
-
-        // Then diff with the original tree and patch the DOM. And we're done.
-        var patches = diff(originalTree, tree);
-        patch(scribe.el, patches);
-
-        // Place caret (necessary to do this explicitly for FF).
-        selection.selectMarkers();
       }
 
-      // We need to make sure we remove markers when we're done, as our functions assume there's
-      // either one or two markers present.
-      domRemoveMarkers();
+      // Then diff with the original tree and patch the DOM.
+      var patches = diff(originalTree, tree);
+      patch(scribe.el, patches);
 
-      // Keeping for debugging for the moment
-      window.ftree = new VFocus(tree);
-      window.findMarkers = findMarkers;
+      // Place caret (necessary to do this explicitly for FF).
+      selection.selectMarkers();
+
+      // We need to make sure we clean up after ourselves by removing markers
+      // when we're done, as our functions assume there's either one or two
+      // markers present.
+      domRemoveMarkers();
     };
 
 
