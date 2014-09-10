@@ -255,18 +255,6 @@ module.exports = function(user) {
       });
     }
 
-    // Remove all scribe markers from the DOM.
-    //
-    // Note: It's not enough to use selection.removeMarkers since we place
-    // markers outside of the selection to achieve correct caret positioning.
-    function domRemoveMarkers() {
-      var markers = _.toArray(document.querySelectorAll('.scribe-marker'));
-
-      markers.forEach(function (marker) {
-        marker.parentNode.removeChild(marker);
-      });
-    }
-
 
     /**
     * Noting: User initiated actions
@@ -385,7 +373,7 @@ module.exports = function(user) {
       // We need to make sure we clean up after ourselves by removing markers
       // when we're done, as our functions assume there's either one or two
       // markers present.
-      domRemoveMarkers();
+      scribe.removeMarkers();
     };
 
 
