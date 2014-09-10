@@ -652,8 +652,11 @@ module.exports = function(user) {
       scribe.commands.note = noteCommand;
 
       scribe.el.addEventListener('keydown', function (event) {
-        //that's F10 and F8 and alt+del
-        if (event.keyCode === 121 ||event.keyCode === 119) {
+        var f8 = event.keyCode === 119;
+        var f10 = event.keyCode === 121;
+        var altDelete = event.altKey && event.keyCode === 46;
+
+        if (f8 || f10 || altDelete) {
           event.preventDefault();
           var noteCommand = scribe.getCommand("note");
           noteCommand.execute();
