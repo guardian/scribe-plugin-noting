@@ -247,7 +247,8 @@ module.exports = function(user) {
 
     // Return the note our selection is inside of, if we are inside one.
     function domFindAncestorNote() {
-      var node = window.getSelection().getRangeAt(0).startContainer;
+      var selection = new scribe.api.Selection();
+      var node = selection.selection.getRangeAt(0).startContainer;
 
       return domWalkUpFind(node, function(node) {
         return node.tagName === NODE_NAME;
