@@ -76,7 +76,7 @@ module.exports = function(user) {
     */
 
     VFocus.prototype.isRoot = function() {
-      return ! !!this.parent;
+      return ! this.parent;
     };
 
     VFocus.prototype.canRight = function() {
