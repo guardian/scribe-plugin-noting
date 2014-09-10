@@ -26,15 +26,14 @@ module.exports = function(user) {
     var _ = require('lodash');
 
 
-    var TAG = "gu:note";
-    var NODE_NAME = "GU:NOTE";
-    var CLASS_NAME = "note";
-    var DATA_NAME = "data-node-edited-by";
-    var DATA_NAME_CAMEL = "noteEditedBy";
-    var DATA_DATE = "data-note-edited-date";
-    var DATA_DATE_CAMEL = "noteEditedDate";
+    var TAG = 'gu:note';
+    var NODE_NAME = 'GU:NOTE';
+    var CLASS_NAME = 'note';
+    var DATA_NAME = 'data-node-edited-by';
+    var DATA_NAME_CAMEL = 'noteEditedBy';
+    var DATA_DATE = 'data-note-edited-date';
+    var DATA_DATE_CAMEL = 'noteEditedDate';
 
-    var blocks = ["P", "LI", "UL"];
     var noteCommand = new scribe.api.Command('insertHTML');
 
 
@@ -325,7 +324,7 @@ module.exports = function(user) {
     }
 
     function isScribeMarker(vNode) {
-       return hasClass(vNode, "scribe-marker");
+       return hasClass(vNode, 'scribe-marker');
     }
 
     // Check if VNode has class
@@ -639,9 +638,6 @@ module.exports = function(user) {
       // when we're done, as our functions assume there's either one or two
       // markers present.
       domRemoveMarkers();
-
-      window.ftree = treeFocus;
-      window.findAllNotes = findAllNotes;
     };
 
 
@@ -658,7 +654,7 @@ module.exports = function(user) {
 
         if (f8 || f10 || altDelete) {
           event.preventDefault();
-          var noteCommand = scribe.getCommand("note");
+          var noteCommand = scribe.getCommand('note');
           noteCommand.execute();
         }
       ;});
