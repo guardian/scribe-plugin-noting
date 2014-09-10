@@ -26,13 +26,14 @@ module.exports = function(user) {
     var _ = require('lodash');
 
 
-    var tag = "gu:note";
-    var nodeName = "GU:NOTE";
-    var className = "note";
-    var dataName = "data-node-edited-by";
-    var dataNameCamel = "noteEditedBy";
-    var dataDate = "data-note-edited-date";
-    var dataDateCamel = "noteEditedDate";
+    var TAG = "gu:note";
+    var NODE_NAME = "GU:NOTE";
+    var CLASS_NAME = "note";
+    var DATA_NAME = "data-node-edited-by";
+    var DATA_NAME_CAMEL = "noteEditedBy";
+    var DATA_DATE = "data-note-edited-date";
+    var DATA_DATE_CAMEL = "noteEditedDate";
+
     var blocks = ["P", "LI", "UL"];
     var noteCommand = new scribe.api.Command('insertHTML');
 
@@ -320,7 +321,7 @@ module.exports = function(user) {
     // Case insensitive to work with both DOM nodes and vNodes
     // (which can be lowercase).
     function isNote(node) {
-      return node.tagName && node.tagName.toLowerCase() === nodeName.toLowerCase();
+      return node.tagName && node.tagName.toLowerCase() === TAG;
     }
 
     function isScribeMarker(vNode) {
@@ -419,7 +420,7 @@ module.exports = function(user) {
       // sharing the same dataset object.
       var dataAttrs = dataAttrs ? _.clone(dataAttrs) : {};
 
-      var note = h('gu:note.note', {dataset: dataAttrs}, nodes);
+      var note = h(TAG + '.' + CLASS_NAME, {dataset: dataAttrs}, nodes);
       return note;
     }
 
@@ -462,8 +463,8 @@ module.exports = function(user) {
 
     function userAndTimeAsDatasetAttrs() {
       var dataset = {}
-      dataset[dataNameCamel] = user;
-      dataset[dataDateCamel] = new Date().toISOString(); // how deal with timezone?
+      dataset[DATA_NAME_CAMEL] = user;
+      dataset[DATA_DATE_CAMEL] = new Date().toISOString(); // how deal with timezone?
 
       return dataset;
     }
@@ -484,8 +485,8 @@ module.exports = function(user) {
 
     function updateEditedBy(noteSegment) {
       var dataset = userAndTimeAsDatasetAttrs();
-      noteSegment.vNode.properties.dataset[dataNameCamel] = dataset[dataNameCamel];
-      noteSegment.vNode.properties.dataset[dataDateCamel] = dataset[dataDateCamel];
+      noteSegment.vNode.properties.dataset[DATA_NAME_CAMEL] = dataset[DATA_NAME_CAMEL];
+      noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL] = dataset[DATA_DATE_CAMEL];
     }
 
 
@@ -505,7 +506,7 @@ module.exports = function(user) {
       var node = window.getSelection().getRangeAt(0).startContainer;
 
       return domWalkUpFind(node, function(node) {
-        return node.tagName === 'GU:NOTE';
+        return node.tagName === NODE_NAME;
       });
     }
 
