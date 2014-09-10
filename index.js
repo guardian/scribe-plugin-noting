@@ -423,9 +423,41 @@ module.exports = function(user) {
       return note;
     }
 
-    function addStartAndEndAttributes(vNodes) {
-      vNodes[0].properties.dataset['noteStart'] = '';
-      vNodes[vNodes.length - 1].properties.dataset['noteEnd'] = '';
+    // Ensure the first (and only the first) note segment has a
+    // `data-note-start` attribute and that the last (and only the last)
+    // note segment has a `data-note-end` attribute.
+    function updateStartAndEndAttributes(noteSegments) {
+      function addStartAndEndAttributes(noteSegments) {
+        noteSegments[0].vNode.properties.dataset['noteStart'] = '';
+        noteSegments[noteSegments.length - 1].vNode.properties.dataset['noteEnd'] = '';
+      }
+
+      function removeStartAndEndAttributes(noteSegments) {
+        noteSegments.forEach(function(noteSegment) {
+          var vNode = noteSegment.vNode;
+
+          // What we'd like to do...
+          // delete vNode.properties.dataset['noteStart'];
+          // delete vNode.properties.dataset['noteEnd'];
+
+          // What we hackily have to do...
+          noteSegments[0].vNode.properties.dataset = {};
+          noteSegments[noteSegments.length - 1].vNode.properties.dataset = {};
+
+          // When we use `delete` we end up with an HTML attribute with
+          // `data-note-start="undefined" data-note-end="undefined"`.
+          // I suspect a bug in `virtual-dom/patch`.
+          //
+          // The workaround is obviously not ideal since it makes the code
+          // more dependent on which order we add attributes.
+          //
+          // TODO: Investigate the cause of this.
+        });
+      }
+      // Actually removes all attributes atm. See comment within.
+      removeStartAndEndAttributes(noteSegments);
+
+      addStartAndEndAttributes(noteSegments);
     }
 
     function userAndTimeAsDatasetAttrs() {
@@ -506,16 +538,15 @@ module.exports = function(user) {
       // (otherwise the caret won't be placed within the note).
       var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], userAndTimeAsDatasetAttrs());
 
-      // Start and end attributes (both on the same tag in this case).
-      addStartAndEndAttributes([replacementVNode]);
-
       // We assume there's only one marker.
       var marker = findMarkers(treeFocus)[0];
 
       marker.replace(replacementVNode);
 
-      // "Merge" with any adjacent note (really just update attributes)
-      findEntireNote(marker).forEach(updateEditedBy);
+      // "Merge" with any adjacent note (update edited by and update start and end attributes)
+      var noteSegments = findEntireNote(marker);
+      updateStartAndEndAttributes(noteSegments);
+      noteSegments.forEach(updateEditedBy);
     }
 
     // treeFocus: tree focus of tree containing two scribe markers
@@ -526,8 +557,6 @@ module.exports = function(user) {
       var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
         return wrapInNote(focus.vNode, userAndTime);
       });
-
-      addStartAndEndAttributes(wrappedTextNodes);
 
       _.zip(toWrapAndReplace, wrappedTextNodes).forEach(function(focusAndReplacementVNode) {
         var focus = focusAndReplacementVNode[0];
@@ -549,8 +578,10 @@ module.exports = function(user) {
       var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0]);
       lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
 
-      // "Merge" with any adjacent note (really just update attributes)
-      findEntireNote(lastNoteSegment).forEach(updateEditedBy);
+      // "Merge" with any adjacent note (update edited by and update start and end attributes)
+      var noteSegments = findEntireNote(lastNoteSegment);
+      updateStartAndEndAttributes(noteSegments);
+      noteSegments.forEach(updateEditedBy);
     }
 
     function unnote(treeFocus) {
