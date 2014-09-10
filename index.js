@@ -240,7 +240,7 @@ module.exports = function(user) {
 
     // Walk up the (real) DOM checking isTargetNode.
     function domWalkUpFind(node, isTargetNode) {
-      if (!node.parentNode) { return false; }
+      if (! node.parentNode) return false;
 
       return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
     }
