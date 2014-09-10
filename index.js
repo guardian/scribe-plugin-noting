@@ -373,7 +373,7 @@ module.exports = function(user) {
       // We need to make sure we clean up after ourselves by removing markers
       // when we're done, as our functions assume there's either one or two
       // markers present.
-      scribe.removeMarkers();
+      selection.removeMarkers();
     };
 
 
