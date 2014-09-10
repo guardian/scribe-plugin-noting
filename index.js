@@ -218,7 +218,7 @@ module.exports = function(user) {
     }
 
     function createNoteBarrier() {
-      return h('span.note-barrier', '\u200B');
+      return new VText('\u200B');
     }
 
     function removeVirtualScribeMarkers(treeFocus) {
