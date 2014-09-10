@@ -330,9 +330,7 @@ module.exports = function(user) {
 
     // Check if VNode has class
     function hasClass(vNode, value) {
-      return (vNode.properties &&
-        vNode.properties.className &&
-        vNode.properties.className === value);
+      return (vNode.properties && vNode.properties.className === value);
     }
 
     function stillWithinNote(focus) {
