@@ -97,8 +97,8 @@ describe('noting plugin', function () {
             expect(innerHTML).to.include('</gu:note>');
 
             // Expect one start and one end attribute
-            var numberOfNoteStartAttributes = innerHTML.match(/data-note-start/).length;
-            var numberOfNoteEndAttributes = innerHTML.match(/data-note-end/).length;
+            var numberOfNoteStartAttributes = innerHTML.match(/note--start/).length;
+            var numberOfNoteEndAttributes = innerHTML.match(/note--end/).length;
             expect(numberOfNoteStartAttributes).to.equal(1);
             expect(numberOfNoteEndAttributes).to.equal(1);
 
@@ -123,8 +123,8 @@ describe('noting plugin', function () {
                 expect(innerHTML).to.include('February, 1815, </gu:note>');
 
                 // Expect one start and one end attribute
-                var numberOfNoteStartAttributes = innerHTML.match(/data-note-start/).length;
-                var numberOfNoteEndAttributes = innerHTML.match(/data-note-end/).length;
+                var numberOfNoteStartAttributes = innerHTML.match(/note--start/).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note--end/).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
 
@@ -149,8 +149,8 @@ describe('noting plugin', function () {
                 expect(innerHTML).to.include(' at </gu:note>');
 
                 // Expect one start and one end attribute
-                var numberOfNoteStartAttributes = innerHTML.match(/data-note-start/).length;
-                var numberOfNoteEndAttributes = innerHTML.match(/data-note-end/).length;
+                var numberOfNoteStartAttributes = innerHTML.match(/note--start/).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note--end/).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
 

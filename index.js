@@ -169,40 +169,24 @@ module.exports = function(user) {
     }
 
     // Ensure the first (and only the first) note segment has a
-    // `data-note-start` attribute and that the last (and only the last)
-    // note segment has a `data-note-end` attribute.
-    function updateStartAndEndAttributes(noteSegments) {
-      function addStartAndEndAttributes(noteSegments) {
-        noteSegments[0].vNode.properties.dataset['noteStart'] = '';
-        noteSegments[noteSegments.length - 1].vNode.properties.dataset['noteEnd'] = '';
+    // `note--start` class and that the last (and only the last)
+    // note segment has a `note--end` class.
+    function updateStartAndEndClasses(noteSegments) {
+      function addStartAndEndClasses(noteSegments) {
+        var firstNoteClasses = noteSegments[0].vNode.properties.className;
+        firstNoteClasses = 'note note--start';
+
+        var lastNoteClasses = noteSegments[noteSegments.length - 1].vNode.properties.className;
+        lastNoteClasses = lastNoteClasses + ' note--end';
       }
 
-      function removeStartAndEndAttributes(noteSegments) {
+      function removeStartAndEndClasses(noteSegments) {
         noteSegments.forEach(function(noteSegment) {
-          var vNode = noteSegment.vNode;
-
-          // What we'd like to do...
-          // delete vNode.properties.dataset['noteStart'];
-          // delete vNode.properties.dataset['noteEnd'];
-
-          // What we hackily have to do...
-          noteSegments[0].vNode.properties.dataset = {};
-          noteSegments[noteSegments.length - 1].vNode.properties.dataset = {};
-
-          // When we use `delete` we end up with an HTML attribute with
-          // `data-note-start="undefined" data-note-end="undefined"`.
-          // I suspect a bug in `virtual-dom/patch`.
-          //
-          // The workaround is obviously not ideal since it makes the code
-          // more dependent on which order we add attributes.
-          //
-          // TODO: Investigate the cause of this.
+          noteSegment.vNode.properties.className = 'note';
         });
       }
-      // Actually removes all attributes atm. See comment within.
-      removeStartAndEndAttributes(noteSegments);
-
-      addStartAndEndAttributes(noteSegments);
+      removeStartAndEndClasses(noteSegments);
+      addStartAndEndClasses(noteSegments);
     }
 
     function userAndTimeAsDatasetAttrs() {
@@ -279,7 +263,7 @@ module.exports = function(user) {
 
       // "Merge" with any adjacent note (update edited by and update start and end attributes)
       var noteSegments = findEntireNote(marker);
-      updateStartAndEndAttributes(noteSegments);
+      updateStartAndEndClasses(noteSegments);
       noteSegments.forEach(updateEditedBy);
     }
 
@@ -314,7 +298,7 @@ module.exports = function(user) {
 
       // "Merge" with any adjacent note (update edited by and update start and end attributes)
       var noteSegments = findEntireNote(lastNoteSegment);
-      updateStartAndEndAttributes(noteSegments);
+      updateStartAndEndClasses(noteSegments);
       noteSegments.forEach(updateEditedBy);
     }
 
