@@ -54,6 +54,10 @@ module.exports = function(user) {
       return isNote(focus.vNode);
     }
 
+    function focusOutsideNote(focus) {
+      return ! findAncestorNoteSegment(focus);
+    }
+
     function focusOnEmptyTextNode(focus) {
       // We consider zero width spaces as empty.
       function consideredEmpty(s) {
@@ -80,7 +84,7 @@ module.exports = function(user) {
     }
 
     function stillWithinNote(focus) {
-        return !focusOnVTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorVNoteSegment(focus);
+        return !focusOnVTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
     }
 
 
@@ -88,8 +92,8 @@ module.exports = function(user) {
     * Noting: Finders and filters
     */
 
-    function findAncestorVNoteSegment(fNote) {
-      return fNote.find(focusOnNote, 'up');
+    function findAncestorNoteSegment(focus) {
+      return focus.find(focusOnNote, 'up');
     }
 
     function findVTextNodesBetweenMarkers(focusTree) {
@@ -286,7 +290,10 @@ module.exports = function(user) {
     // treeFocus: tree focus of tree containing two scribe markers
     // Note that we will mutate the tree.
     function createNoteFromSelection(treeFocus) {
-      var toWrapAndReplace = findVTextNodesBetweenMarkers(treeFocus);
+      // We want to wrap text nodes between the markers. We filter out nodes that have
+      // already been wrapped.
+      var toWrapAndReplace = findVTextNodesBetweenMarkers(treeFocus).filter(focusOutsideNote);
+
       var userAndTime = userAndTimeAsDatasetAttrs();
       var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
         return wrapInNote(focus.vNode, userAndTime);
@@ -330,7 +337,7 @@ module.exports = function(user) {
       // We assume the caller knows there's only one marker.
       var marker = findMarkers(treeFocus)[0];
 
-      var noteSegment = findAncestorVNoteSegment(marker);
+      var noteSegment = findAncestorNoteSegment(marker);
       var noteSegments = findEntireNote(noteSegment);
 
       noteSegments.forEach(unwrap);
