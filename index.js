@@ -250,13 +250,18 @@ module.exports = function(user) {
     }
 
     // Return the note our selection is inside of, if we are inside one.
-    function domFindAncestorNote() {
-      var selection = new scribe.api.Selection();
-      var node = selection.selection.getRangeAt(0).startContainer;
-
+    function domFindAncestorNote(node) {
       return domWalkUpFind(node, function(node) {
         return node.tagName === NODE_NAME;
       });
+    }
+
+    function domSelectionEntirelyWithinNote() {
+      var selection = new scribe.api.Selection();
+      var startNode = selection.selection.getRangeAt(0).startContainer;
+      var endNode = selection.selection.getRangeAt(0).startContainer;
+
+      return domFindAncestorNote(startNode) && domFindAncestorNote(endNode);
     }
 
 
@@ -281,7 +286,8 @@ module.exports = function(user) {
 
       marker.replace(replacementVNode);
 
-      // "Merge" with any adjacent note (update edited by and update start and end attributes)
+      // "Merge" with any adjacent note (update edited by and update start and
+      // end CSS classes)
       var noteSegments = findEntireNote(marker);
       updateStartAndEndClasses(noteSegments);
       noteSegments.forEach(updateEditedBy);
@@ -294,11 +300,13 @@ module.exports = function(user) {
       // already been wrapped.
       var toWrapAndReplace = findVTextNodesBetweenMarkers(treeFocus).filter(focusOutsideNote);
 
+      // Wrap the text nodes.
       var userAndTime = userAndTimeAsDatasetAttrs();
       var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
         return wrapInNote(focus.vNode, userAndTime);
       });
 
+      // Replace the nodes in the tree with the wrapped versions.
       _.zip(toWrapAndReplace, wrappedTextNodes).forEach(function(focusAndReplacementVNode) {
         var focus = focusAndReplacementVNode[0];
         var replacementVNode = focusAndReplacementVNode[1];
@@ -306,9 +314,11 @@ module.exports = function(user) {
         focus.replace(replacementVNode);
       });
 
+      // We want to place the caret after the note. First we have to remove the
+      // existing markers.
       removeVirtualScribeMarkers(treeFocus);
 
-      // Place marker so the caret will be after the note.
+      // Then we place a new marker.
       // TODO: Think of a proper solution instead of using this "element in between" hack.
       //       Chrome has a bug which means it doesn't place the caret
       //       outside the note.
@@ -319,7 +329,8 @@ module.exports = function(user) {
       var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0]);
       lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
 
-      // "Merge" with any adjacent note (update edited by and update start and end attributes)
+      // "Merge" with any adjacent note (update edited by and update start and
+      // end CSS classes)
       var noteSegments = findEntireNote(lastNoteSegment);
       updateStartAndEndClasses(noteSegments);
       noteSegments.forEach(updateEditedBy);
@@ -357,18 +368,20 @@ module.exports = function(user) {
       // Place markers and create virtual trees.
       // We'll use the markers to determine where a selection starts and ends.
       selection.placeMarkers();
+
       var originalTree = virtualize(scribe.el);
       var tree = virtualize(scribe.el); // we'll mutate this one
       var treeFocus = new VFocus(tree);
-      var note = domFindAncestorNote(selection); // if we're inside of a note we want to know
 
-      if (selection.selection.isCollapsed && note) {
-        unnote(treeFocus);
-      } else if (selection.selection.isCollapsed) {
-        createEmptyNoteAtCaret(treeFocus);
-      } else {
-        createNoteFromSelection(treeFocus);
-      }
+      var scenarios = {
+        caretWithinNote: function (treeFocus) { unnote(treeFocus); },
+        selectionWithinNote: function (treeFocus) { /* unnotePartOfNote(treeFocus); */ },
+        caretOutsideNote: function (treeFocus) { createEmptyNoteAtCaret(treeFocus); },
+        selectionOutsideNote: function (treeFocus) { createNoteFromSelection(treeFocus); }
+      };
+
+      // Perform action depending on which state we're in.
+      scenarios[noteCommand.queryState()](treeFocus);
 
       // Then diff with the original tree and patch the DOM.
       var patches = diff(originalTree, tree);
@@ -385,17 +398,21 @@ module.exports = function(user) {
 
 
       noteCommand.queryState = function () {
-        // NOT IMPLEMENTED: Return true if selection is inside note or contains a note.
         var selection = new scribe.api.Selection();
+        var withinNote = domSelectionEntirelyWithinNote();
 
         var state;
-        if (selection.selection.isCollapsed && note) {
-          state = 'collapsedWithinNote';
+        if (selection.selection.isCollapsed && withinNote) {
+          state = 'caretWithinNote';
+        } else if (withinNote) {
+          state = 'selectionWithinNote';
         } else if (selection.selection.isCollapsed) {
-          state = 'collapsedOutsideNote';
+          state = 'caretOutsideNote';
         } else {
-          createNoteFromSelection(treeFocus);
+          state = 'selectionOutsideNote'; // at least partially outside.
         }
+
+        return state;
       };
 
       scribe.commands.note = noteCommand;
