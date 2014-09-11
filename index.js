@@ -173,18 +173,34 @@ module.exports = function(user) {
     // note segment has a `note--end` class.
     function updateStartAndEndClasses(noteSegments) {
       function addStartAndEndClasses(noteSegments) {
-        var firstNoteClasses = noteSegments[0].vNode.properties.className;
-        firstNoteClasses = 'note note--start';
+        function addUniqueVNodeClass(vNode, name) {
+          var classes = vNode.properties.className.split(' ');
+          classes.push(name);
 
-        var lastNoteClasses = noteSegments[noteSegments.length - 1].vNode.properties.className;
-        lastNoteClasses = lastNoteClasses + ' note--end';
+          vNode.properties.className = _.uniq(classes).join(' ');
+        }
+
+        addUniqueVNodeClass(noteSegments[0].vNode, 'note--start');
+        addUniqueVNodeClass(noteSegments[noteSegments.length - 1].vNode, 'note--end');
       }
 
       function removeStartAndEndClasses(noteSegments) {
-        noteSegments.forEach(function(noteSegment) {
-          noteSegment.vNode.properties.className = 'note';
+        function removeVNodeClass(vNode, name) {
+          var classes = vNode.properties.className.split(' ');
+          var classId = classes.indexOf(name);
+
+          if (classId != -1) {
+            classes.splice(classId, 1);
+            vNode.properties.className = classes.join(' ');
+          }
+        }
+
+        noteSegments.forEach(function(segment) {
+          removeVNodeClass(segment.vNode, 'note--start');
+          removeVNodeClass(segment.vNode, 'note--end');
         });
       }
+
       removeStartAndEndClasses(noteSegments);
       addStartAndEndClasses(noteSegments);
     }
