@@ -46,7 +46,7 @@ module.exports = function(user) {
       return isScribeMarker(focus.vNode);
     }
 
-    function focusOnVTextNode (focus) {
+    function focusOnTextNode (focus) {
       return focus.vNode.type === 'VirtualText';
     }
 
@@ -84,7 +84,7 @@ module.exports = function(user) {
     }
 
     function stillWithinNote(focus) {
-        return !focusOnVTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
+      return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
     }
 
 
@@ -96,13 +96,13 @@ module.exports = function(user) {
       return focus.find(focusOnNote, 'up');
     }
 
-    function findVTextNodesBetweenMarkers(focusTree) {
+    function findTextNodeFocusesBetweenMarkers(treeFocus) {
       function focusNotOnMarker(focus) {
         return ! focusOnMarker(focus);
       }
 
-      return onlyTextNodes(
-        focusTree.find(focusOnMarker).next().takeWhile(focusNotOnMarker)
+      return focusOnlyTextNodes(
+        treeFocus.find(focusOnMarker).next().takeWhile(focusNotOnMarker)
       );
     }
 
@@ -126,10 +126,14 @@ module.exports = function(user) {
     // We identify notes based on 'adjacency' rather than giving them an id.
     // This is because people may press RETURN or copy and paste part of a note.
     // In such cases we don't want that to keep being the same note.
-    // fNoteSegment: focus on note
-    function findEntireNote(fNoteSegment) {
-      return findFirstNoteSegment(fNoteSegment)
+    // noteSegment: focus on note
+    function findEntireNote(noteSegment) {
+      return findFirstNoteSegment(noteSegment)
         .takeWhile(stillWithinNote).filter(focusOnNote);
+    }
+
+    function findEntireNoteTextNodeFocuses(noteSegment) {
+      return findFirstNoteSegment(noteSegment).takeWhile(stillWithinNote).filter(focusOnTextNode).filter(function (focus) { return ! focusOnEmptyTextNode(focus); });
     }
 
     // Regurns an array of arrays of note segments
@@ -150,8 +154,8 @@ module.exports = function(user) {
       return notes;
     }
 
-    function onlyTextNodes (focuses) {
-      return focuses.filter(focusOnVTextNode);
+    function focusOnlyTextNodes (focuses) {
+      return focuses.filter(focusOnTextNode);
     }
 
 
@@ -170,6 +174,14 @@ module.exports = function(user) {
 
       var note = h(TAG + '.' + CLASS_NAME, {dataset: dataAttrs}, nodes);
       return note;
+    }
+
+    function unwrap(focus) {
+      var note = focus.vNode;
+      var noteContents = note.children;
+      var indexOfNode = focus.parent.vNode.children.indexOf(note);
+      focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
+      focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
     }
 
     // Ensure the first (and only the first) note segment has a
@@ -298,7 +310,7 @@ module.exports = function(user) {
     function createNoteFromSelection(treeFocus) {
       // We want to wrap text nodes between the markers. We filter out nodes that have
       // already been wrapped.
-      var toWrapAndReplace = findVTextNodesBetweenMarkers(treeFocus).filter(focusOutsideNote);
+      var toWrapAndReplace = findTextNodeFocusesBetweenMarkers(treeFocus).filter(focusOutsideNote);
 
       // Wrap the text nodes.
       var userAndTime = userAndTimeAsDatasetAttrs();
@@ -337,14 +349,6 @@ module.exports = function(user) {
     }
 
     function unnote(treeFocus) {
-      function unwrap(focus) {
-        var note = focus.vNode;
-        var noteContents = note.children;
-        var indexOfNode = focus.parent.vNode.children.indexOf(note);
-        focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
-        focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
-      }
-
       // We assume the caller knows there's only one marker.
       var marker = findMarkers(treeFocus)[0];
 
@@ -355,6 +359,56 @@ module.exports = function(user) {
 
       // The marker is where we want it to be (the same position) so we'll
       // just leave it.
+    }
+
+    // Unnote part of note.
+    // Does this by unnoting the entire note, then noting everything but what
+    // we wanted to unnote.
+    function unnotePartOfNote(treeFocus) {
+      var focusesToUnnote = findTextNodeFocusesBetweenMarkers(treeFocus);
+      var entireNote = findEntireNote(focusesToUnnote[0]);
+      var entireNoteTextNodeFocuses = findEntireNoteTextNodeFocuses(entireNote[0]);
+
+      var entireNoteTextNodes = _(entireNote).map(function (focus) { return focus.vNode.children; }).flatten().filter(isVText).value();
+      var textNodesToUnnote = focusesToUnnote.map(function (focus) { return focus.vNode; });
+
+      removeVirtualScribeMarkers(treeFocus);
+
+      // entireNote.forEach(unwrap);
+
+      function notToBeUnnoted(focus) {
+        var candidateVTextNode = focus.vNode;
+        return textNodesToUnnote.indexOf(candidateVTextNode) === -1;
+      }
+
+      var focusesToNote = entireNoteTextNodeFocuses.filter(notToBeUnnoted);
+      var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
+      var userAndTime = userAndTimeAsDatasetAttrs();
+      var wrappedTextNodes = toWrapAndReplace.map(function (vNode) {
+        return wrapInNote(vNode, userAndTime);
+      });
+
+      // Replace the nodes in the tree with the wrapped versions.
+      _.zip(focusesToNote, wrappedTextNodes).forEach(function(focusAndReplacementVNode) {
+        var focus = focusAndReplacementVNode[0];
+        var replacementVNode = focusAndReplacementVNode[1];
+
+        focus.replace(replacementVNode);
+      });
+
+      removeVirtualScribeMarkers(treeFocus);
+
+
+      var lastNoteSegment = findLastNoteSegment(focusesToNote[0]);
+      lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
+
+      // "Merge" with any adjacent note (update edited by and update start and
+      // end CSS classes)
+      var noteSegments = findEntireNote(lastNoteSegment);
+      updateStartAndEndClasses(noteSegments);
+      noteSegments.forEach(updateEditedBy);
+
+      entireNote.forEach(unwrap);
     }
 
 
@@ -375,7 +429,7 @@ module.exports = function(user) {
 
       var scenarios = {
         caretWithinNote: function (treeFocus) { unnote(treeFocus); },
-        selectionWithinNote: function (treeFocus) { /* unnotePartOfNote(treeFocus); */ },
+        selectionWithinNote: function (treeFocus) {  unnotePartOfNote(treeFocus);  },
         caretOutsideNote: function (treeFocus) { createEmptyNoteAtCaret(treeFocus); },
         selectionOutsideNote: function (treeFocus) { createNoteFromSelection(treeFocus); }
       };
