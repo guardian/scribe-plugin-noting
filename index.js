@@ -361,25 +361,44 @@ module.exports = function(user) {
       // just leave it.
     }
 
-    // Unnote part of note.
-    // Does this by unnoting the entire note, then noting everything but what
-    // we wanted to unnote.
+    /*
+    Unnote part of note, splitting the rest of the original note into new notes.
+
+    Example
+    -------
+    Text within a note has been selected:
+
+      <p>Asked me questions about the vessel<gu:note>|, the time she left Marseilles|, the
+      course she had taken,</gu:note> and what was her cargo. I believe, if she had not
+      been laden, and I had been her master, he would have bought her.</p>
+
+
+    We find the entire note and, within the note, we note everything _but_ what we want to unnote:
+
+      <p>Asked me questions about the vessel<gu:note>, the time she left Marseilles<gu:note>, the
+      course she had taken,</gu:note></gu:note> and what was her cargo. I believe, if she had not
+      been laden, and I had been her master, he would have bought her.</p>
+
+
+    Then we unwrap the previously existing note. The text we selected has been unnoted:
+
+      <p>Asked me questions about the vessel, the time she left Marseilles<gu:note>, the
+      course she had taken,</gu:note> and what was her cargo. I believe, if she had not
+      been laden, and I had been her master, he would have bought her.</p>
+
+    */
     function unnotePartOfNote(treeFocus) {
+      function notToBeUnnoted(focus) {
+        var candidateVTextNode = focus.vNode;
+        return textNodesToUnnote.indexOf(candidateVTextNode) === -1;
+      }
+
       var focusesToUnnote = findTextNodeFocusesBetweenMarkers(treeFocus);
       var entireNote = findEntireNote(focusesToUnnote[0]);
       var entireNoteTextNodeFocuses = findEntireNoteTextNodeFocuses(entireNote[0]);
 
       var entireNoteTextNodes = _(entireNote).map(function (focus) { return focus.vNode.children; }).flatten().filter(isVText).value();
       var textNodesToUnnote = focusesToUnnote.map(function (focus) { return focus.vNode; });
-
-      removeVirtualScribeMarkers(treeFocus);
-
-      // entireNote.forEach(unwrap);
-
-      function notToBeUnnoted(focus) {
-        var candidateVTextNode = focus.vNode;
-        return textNodesToUnnote.indexOf(candidateVTextNode) === -1;
-      }
 
       var focusesToNote = entireNoteTextNodeFocuses.filter(notToBeUnnoted);
       var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
@@ -397,7 +416,6 @@ module.exports = function(user) {
       });
 
       removeVirtualScribeMarkers(treeFocus);
-
 
       var lastNoteSegment = findLastNoteSegment(focusesToNote[0]);
       lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
