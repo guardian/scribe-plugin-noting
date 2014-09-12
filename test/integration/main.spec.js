@@ -178,6 +178,25 @@ describe('noting plugin', function () {
       });
     });
 
+    when('we select some text within a note', function() {
+      givenContentOf('<p>On the 24th of <gu:note class="note">Febr|uary|, 1815, </gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+        when('we press the noting key', function() {
+          it('the selected part within the note is unnoted', function () {
+            note().then(function () {
+              scribeNode.getInnerHTML().then(function (innerHTML) {
+                // Expect two notes with note--start and note--end classes.
+                var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
+                expect(numberOfNoteStartAttributes).to.equal(2);
+                expect(numberOfNoteEndAttributes).to.equal(2);
+
+              });
+            });
+          });
+        });
+      });
+    });
+
     // when('we select the contents of a note', function() {
     //   givenContentOf('<p>On the 24th of <gu:note class="note">|February, 1815, |</gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
     //     when('we press the noting key', function() {
