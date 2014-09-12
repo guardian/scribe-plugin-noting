@@ -404,6 +404,8 @@ module.exports = function(user) {
       var focusesToNote = entireNoteTextNodeFocuses.filter(notToBeUnnoted);
       var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
       var userAndTime = userAndTimeAsDatasetAttrs();
+
+      // Wrap the text nodes
       var wrappedTextNodes = toWrapAndReplace.map(function (vNode) {
         return wrapInNote(vNode, userAndTime);
       });
@@ -421,10 +423,6 @@ module.exports = function(user) {
       // Unwrap previously existing note
       entireNote.forEach(unwrap);
 
-      var lastNoteSegment = findLastNoteSegment(focusesToNote[0]);
-      lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
-
-
       // Notes to the left and right of the selection may have been created.
       // We need to update their attributes and CSS classes.
       var lefty = findEntireNote(
@@ -440,6 +438,10 @@ module.exports = function(user) {
 
       updateStartAndEndClasses(righty);
       righty.forEach(updateEditedBy);
+
+      // Place marker at the end of the unnoted text.
+      var endOfUnnotedText = righty[0].prev();
+      endOfUnnotedText.insertAfter(createVirtualScribeMarker());
     }
 
 
