@@ -271,7 +271,7 @@ module.exports = function(user) {
     function domSelectionEntirelyWithinNote() {
       var selection = new scribe.api.Selection();
       var startNode = selection.selection.getRangeAt(0).startContainer;
-      var endNode = selection.selection.getRangeAt(0).startContainer;
+      var endNode = selection.selection.getRangeAt(0).endContainer;
 
       return domFindAncestorNote(startNode) && domFindAncestorNote(endNode);
     }
@@ -361,6 +361,7 @@ module.exports = function(user) {
       // just leave it.
     }
 
+
     /*
     Unnote part of note, splitting the rest of the original note into new notes.
 
@@ -417,16 +418,28 @@ module.exports = function(user) {
 
       removeVirtualScribeMarkers(treeFocus);
 
+      // Unwrap previously existing note
+      entireNote.forEach(unwrap);
+
       var lastNoteSegment = findLastNoteSegment(focusesToNote[0]);
       lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
 
-      // "Merge" with any adjacent note (update edited by and update start and
-      // end CSS classes)
-      var noteSegments = findEntireNote(lastNoteSegment);
-      updateStartAndEndClasses(noteSegments);
-      noteSegments.forEach(updateEditedBy);
 
-      entireNote.forEach(unwrap);
+      // Notes to the left and right of the selection may have been created.
+      // We need to update their attributes and CSS classes.
+      var lefty = findEntireNote(
+        treeFocus.find(function (focus) { return focus.vNode === focusesToNote[0].vNode; })
+      );
+
+      var righty = findEntireNote(
+        treeFocus.find(function (focus) { return focus.vNode === focusesToNote[focusesToNote.length - 1].vNode; })
+      );
+
+      updateStartAndEndClasses(lefty);
+      lefty.forEach(updateEditedBy);
+
+      updateStartAndEndClasses(righty);
+      righty.forEach(updateEditedBy);
     }
 
 
@@ -471,6 +484,9 @@ module.exports = function(user) {
 
       noteCommand.queryState = function () {
         var selection = new scribe.api.Selection();
+
+        // TODO: Should return false when the start and end is within a note,
+        // but where there is unnoted text inbetween.
         var withinNote = domSelectionEntirelyWithinNote();
 
         var state;
