@@ -180,8 +180,16 @@ module.exports = function(user) {
       var note = focus.vNode;
       var noteContents = note.children;
       var indexOfNode = focus.parent.vNode.children.indexOf(note);
+
+      // Do the unwrapping.
       focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
       focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
+
+      // We want the note contents to now have their grandparent as parent.
+      // The safest way we can ensure this is by changing the VFocus object
+      // that previously focused on the note to instead focus on its parent.
+      focus.vNode = focus.parent.vNode;
+      focus.parent = focus.parent.parent;
     }
 
     // Ensure the first (and only the first) note segment has a
@@ -423,15 +431,11 @@ module.exports = function(user) {
       // Unwrap previously existing note
       entireNote.forEach(unwrap);
 
+
       // Notes to the left and right of the selection may have been created.
       // We need to update their attributes and CSS classes.
-      var lefty = findEntireNote(
-        treeFocus.find(function (focus) { return focus.vNode === focusesToNote[0].vNode; })
-      );
-
-      var righty = findEntireNote(
-        treeFocus.find(function (focus) { return focus.vNode === focusesToNote[focusesToNote.length - 1].vNode; })
-      );
+      var lefty = findEntireNote(focusesToNote[0]);
+      var righty = findEntireNote(focusesToNote[focusesToNote.length - 1]);
 
       updateStartAndEndClasses(lefty);
       lefty.forEach(updateEditedBy);

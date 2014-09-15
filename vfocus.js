@@ -251,4 +251,5 @@ VFocus.prototype.find = function(predicate, movement) {
   }
 
   return focus;
-}
+};
+
