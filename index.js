@@ -486,6 +486,40 @@ module.exports = function(user) {
       selection.removeMarkers();
     };
 
+    /*
+      Example. We have two notes:
+      <p>
+        <gu:note>Some noted text</gu:note>| and some other text inbetween |<gu:note>More noted text</gu:note>
+      </p>
+
+      We press BACKSPACE, deleting the text, and end up with:
+      <p>
+        <gu:note data-note-edited-by="Edmond Dantès" data-note-edited-date="2014-09-15T16:49:20.012Z">Some noted text</gu:note><gu:note data-note-edited-by="Lord Wilmore" data-note-edited-date="2014-09-20T10:00:00.012Z">More noted text</gu:note>
+      </p>
+
+      This function will merge the notes:
+      <p>
+        <gu:note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">Some noted text</gu:note><gu:note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">More noted text</gu:note>
+      </p>
+
+      The last user to edit "wins", the rationale being that they have approved
+      these notes by merging them. In this case all note segments are now
+      listed as being edited by The Count of Monte Cristo and the timestamp
+      shows the time when the notes were merged.
+    */
+    noteCommand.mergeIfNecessary = function () {
+      var originalTree = virtualize(scribe.el);
+      var tree = virtualize(scribe.el); // we'll mutate this one
+      var treeFocus = new VFocus(tree);
+
+      // Merging is simply a matter of updating all the notes' attributes.
+      findAllNotes(treeFocus).forEach(updateNoteProperties);
+
+      // Then diff with the original tree and patch the DOM.
+      var patches = diff(originalTree, tree);
+      patch(scribe.el, patches);
+    };
+
 
       noteCommand.queryState = function () {
         var selection = new scribe.api.Selection();
@@ -511,14 +545,17 @@ module.exports = function(user) {
       scribe.commands.note = noteCommand;
 
       scribe.el.addEventListener('keydown', function (event) {
+        var noteCommand = scribe.getCommand('note');
+
         var f8 = event.keyCode === 119;
         var f10 = event.keyCode === 121;
         var altDelete = event.altKey && event.keyCode === 46;
 
         if (f8 || f10 || altDelete) {
           event.preventDefault();
-          var noteCommand = scribe.getCommand('note');
           noteCommand.execute();
+        } else {
+          noteCommand.mergeIfNecessary();
         }
       ;});
   }
