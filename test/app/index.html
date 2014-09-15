@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style type="text/css">
+      .note {
+        background-color: cyan;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="scribe"></div>
+    <script src="../../bower_components/requirejs/require.js"></script>
+    <script>
+      require.config({
+        paths: {
+          // We have to define a path to Scribe otherwise it will load the file
+          // but will not pass along the 'scribe' AMD module.
+          'scribe-common': '../../bower_components/scribe-common',
+          'lodash-amd': '../../bower_components/lodash-amd'
+        }
+      });
+    </script>
+  </body>
+</html>
