@@ -192,6 +192,15 @@ module.exports = function(user) {
       focus.parent = focus.parent.parent;
     }
 
+    // Update note properties, adding them if they aren't already there.
+    // Note that this is also a way of merging notes, as we update the
+    // start and end classes as well as give the segments the same edited
+    // by information.
+    function updateNoteProperties(noteSegments) {
+      updateStartAndEndClasses(noteSegments);
+      noteSegments.forEach(updateEditedBy);
+    }
+
     // Ensure the first (and only the first) note segment has a
     // `note--start` class and that the last (and only the last)
     // note segment has a `note--end` class.
@@ -229,6 +238,12 @@ module.exports = function(user) {
       addStartAndEndClasses(noteSegments);
     }
 
+    function updateEditedBy(noteSegment) {
+      var dataset = userAndTimeAsDatasetAttrs();
+      noteSegment.vNode.properties.dataset[DATA_NAME_CAMEL] = dataset[DATA_NAME_CAMEL];
+      noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL] = dataset[DATA_DATE_CAMEL];
+    }
+
     function userAndTimeAsDatasetAttrs() {
       var dataset = {}
       dataset[DATA_NAME_CAMEL] = user;
@@ -249,12 +264,6 @@ module.exports = function(user) {
       treeFocus.forEach(function(focus) {
         if (isScribeMarker(focus.vNode)) focus.remove();
       });
-    }
-
-    function updateEditedBy(noteSegment) {
-      var dataset = userAndTimeAsDatasetAttrs();
-      noteSegment.vNode.properties.dataset[DATA_NAME_CAMEL] = dataset[DATA_NAME_CAMEL];
-      noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL] = dataset[DATA_DATE_CAMEL];
     }
 
 
@@ -303,14 +312,10 @@ module.exports = function(user) {
 
       // We assume there's only one marker.
       var marker = findMarkers(treeFocus)[0];
-
       marker.replace(replacementVNode);
 
-      // "Merge" with any adjacent note (update edited by and update start and
-      // end CSS classes)
       var noteSegments = findEntireNote(marker);
-      updateStartAndEndClasses(noteSegments);
-      noteSegments.forEach(updateEditedBy);
+      updateNoteProperties(noteSegments);
     }
 
     // treeFocus: tree focus of tree containing two scribe markers
@@ -349,11 +354,8 @@ module.exports = function(user) {
       var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0]);
       lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
 
-      // "Merge" with any adjacent note (update edited by and update start and
-      // end CSS classes)
       var noteSegments = findEntireNote(lastNoteSegment);
-      updateStartAndEndClasses(noteSegments);
-      noteSegments.forEach(updateEditedBy);
+      updateNoteProperties(noteSegments);
     }
 
     function unnote(treeFocus) {
@@ -431,17 +433,13 @@ module.exports = function(user) {
       // Unwrap previously existing note
       entireNote.forEach(unwrap);
 
-
       // Notes to the left and right of the selection may have been created.
       // We need to update their attributes and CSS classes.
       var lefty = findEntireNote(focusesToNote[0]);
       var righty = findEntireNote(focusesToNote[focusesToNote.length - 1]);
 
-      updateStartAndEndClasses(lefty);
-      lefty.forEach(updateEditedBy);
-
-      updateStartAndEndClasses(righty);
-      righty.forEach(updateEditedBy);
+      updateNoteProperties(lefty);
+      updateNoteProperties(righty);
 
 
       // Place marker at the end of the unnoted text.
