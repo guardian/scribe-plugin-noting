@@ -400,9 +400,9 @@ module.exports = function(user) {
 
       var entireNoteTextNodes = _(entireNote).map(function (focus) { return focus.vNode.children; }).flatten().filter(isVText).value();
       var textNodesToUnnote = focusesToUnnote.map(function (focus) { return focus.vNode; });
+      var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
 
       var focusesToNote = entireNoteTextNodeFocuses.filter(notToBeUnnoted);
-      var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
       var userAndTime = userAndTimeAsDatasetAttrs();
 
       // Wrap the text nodes
@@ -438,6 +438,7 @@ module.exports = function(user) {
 
       updateStartAndEndClasses(righty);
       righty.forEach(updateEditedBy);
+
 
       // Place marker at the end of the unnoted text.
       var endOfUnnotedText = righty[0].prev();
