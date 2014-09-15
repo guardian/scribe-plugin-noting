@@ -190,6 +190,28 @@ VFocus.prototype.insertAfter = function(newVNodes) {
   return this;
 };
 
+// If the tree has been mutated and parent/vNode references not been updated
+// a VFocus might not refer to its "correct" parent. This will update our
+// `this.parent` reference.
+//
+// Note: If you have to use this method you should probably figure out how
+// your mutating function can change parent references to correctly reflect
+// the tree you're focusing on.
+VFocus.prototype.refresh = function() {
+  var self = this;
+  function myself(focus) { return focus.vNode === self.vNode }
+
+  // Traverse the tree until we end up focusing on `this.vNode`.
+  var me = this.top().find(myself);
+
+  // Now we know who our parent is, so we update this object's parent
+  // reference.
+  this.parent = me.parent;
+
+  return this;
+};
+
+
 /**
 * Iteration methods
 */
@@ -251,25 +273,4 @@ VFocus.prototype.find = function(predicate, movement) {
   }
 
   return focus;
-};
-
-// If the tree has been mutated and parent/vNode references not been updated
-// a VFocus might not refer to its "correct" parent. This will update our
-// `this.parent` reference.
-//
-// Note: If you have to use this method you should probably figure out how
-// your mutating function can change parent references to correctly reflect
-// the tree you're focusing on.
-VFocus.prototype.refresh = function() {
-  var self = this;
-  function myself(focus) { return focus.vNode === self.vNode }
-
-  // Traverse the tree until we end up focusing on `this.vNode`.
-  var me = this.top().find(myself);
-
-  // Now we know who our parent is, so we update this object's parent
-  // reference.
-  this.parent = me.parent;
-
-  return this;
 };
