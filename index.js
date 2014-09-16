@@ -34,6 +34,7 @@ module.exports = function(user) {
     var DATA_NAME_CAMEL = 'noteEditedBy';
     var DATA_DATE = 'data-note-edited-date';
     var DATA_DATE_CAMEL = 'noteEditedDate';
+    var NOTE_BARRIER_TAG = 'gu:note-barrier';
 
     var noteCommand = new scribe.api.Command('insertHTML');
 
@@ -69,11 +70,19 @@ module.exports = function(user) {
       return isVText(vNode) && consideredEmpty(vNode.text);
     }
 
+    function focusOnNoteBarrier(focus) {
+      return isNoteBarrier(focus.vNode);
+    }
+
     // Whether a DOM node or vNode is a note.
     // Case insensitive to work with both DOM nodes and vNodes
     // (which can be lowercase).
     function isNote(node) {
       return node.tagName && node.tagName.toLowerCase() === TAG;
+    }
+
+    function isNoteBarrier(node) {
+      return node.tagName && node.tagName.toLowerCase() === NOTE_BARRIER_TAG;
     }
 
     function isScribeMarker(vNode) {
@@ -86,7 +95,7 @@ module.exports = function(user) {
     }
 
     function stillWithinNote(focus) {
-      return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
+      return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || focusOnNoteBarrier(focus) || findAncestorNoteSegment(focus);
     }
 
 
@@ -122,6 +131,11 @@ module.exports = function(user) {
       return _.last(
         fNoteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
       );
+    }
+
+    function findNoteBarriers(noteSegment) {
+      return findFirstNoteSegment(noteSegment).takeWhile(stillWithinNote)
+        .filter(focusOnNoteBarrier);
     }
 
     // Find the rest of a note.
@@ -200,7 +214,10 @@ module.exports = function(user) {
     function updateNoteProperties(noteSegments) {
       updateStartAndEndClasses(noteSegments);
       noteSegments.forEach(updateEditedBy);
-      removeNoteBarriersWithinNote(noteSegments);
+
+      var noteBarriers = findNoteBarriers(noteSegments[0]);
+      var exceptFirstAndLast = _(noteBarriers).rest().initial().value();
+      exceptFirstAndLast.forEach(function (barrier) { barrier.remove(); });
     }
 
     // Ensure the first (and only the first) note segment has a
@@ -240,21 +257,6 @@ module.exports = function(user) {
       addStartAndEndClasses(noteSegments);
     }
 
-    function removeNoteBarrier(focusOnTextNode) {
-      var textNode = focusOnTextNode.vNode;
-      return textNode.text = textNode.text.replace('\u200B', '');
-    }
-
-    // Remove note barriers within a note, leaving any at the start
-    // and end of the note.
-    function removeNoteBarriersWithinNote(noteSegments) {
-      var noteTextNodes = findFirstNoteSegment(noteSegments[0])
-        .takeWhile(stillWithinNote).filter(focusOnTextNode);
-      var exceptFirstAndLast = _(noteTextNodes).initial().rest().value();
-
-      exceptFirstAndLast.forEach(removeNoteBarrier);
-    }
-
     function updateEditedBy(noteSegment) {
       var dataset = userAndTimeAsDatasetAttrs();
       noteSegment.vNode.properties.dataset[DATA_NAME_CAMEL] = dataset[DATA_NAME_CAMEL];
@@ -274,7 +276,7 @@ module.exports = function(user) {
     }
 
     function createNoteBarrier() {
-      return new VText('\u200B');
+      return h(NOTE_BARRIER_TAG, ['\u200B']);
     }
 
     function removeVirtualScribeMarkers(treeFocus) {
@@ -360,16 +362,14 @@ module.exports = function(user) {
       // existing markers.
       removeVirtualScribeMarkers(treeFocus);
 
-      // Then we place a new marker.
-      // TODO: Think of a proper solution instead of using this "element in between" hack.
-      //       Chrome has a bug which means it doesn't place the caret
-      //       outside the note.
-      //
-      //       Also, being able to step in and out of notes might need a solution
-      //       like this, but where we somehow always maintain one zero-space
-      //       element at the beginning and end of each note.
+      // (We also insert a note barrier at the start.)
+      var firstNoteSegment = findFirstNoteSegment(toWrapAndReplace[0]);
+      firstNoteSegment.next().insertBefore(createNoteBarrier());
+
+      // Then we place a new marker. (And a note barrier at the end.)
       var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0]);
       lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
+
 
       var noteSegments = findEntireNote(lastNoteSegment);
       updateNoteProperties(noteSegments);
@@ -524,7 +524,17 @@ module.exports = function(user) {
       listed as being edited by The Count of Monte Cristo and the timestamp
       shows the time when the notes were merged.
     */
-    noteCommand.mergeIfNecessary = function () {
+    function mergeIfNecessary(treeFocus) {
+      // Merging is simply a matter of updating the attributes of any notes
+      // where all the segments of the note doesn't have the same timestamp.
+      findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
+    }
+
+    function updateNoteBarriers(treeFocus) {
+      findAllNotes(treeFocus).filter(focusOnNoteBarrier)
+    }
+
+    noteCommand.ensureNoteIntegrity = function () {
       function inconsistentTimestamps(note) {
         function getDataDate(noteSegment) {
           return noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL];
@@ -538,9 +548,8 @@ module.exports = function(user) {
       var tree = virtualize(scribe.el); // we'll mutate this one
       var treeFocus = new VFocus(tree);
 
-      // Merging is simply a matter of updating the attributes of any notes
-      // where all the segments of the note doesn't have the same timestamp.
-      findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
+      mergeIfNecessary(treeFocus);
+      updateNoteBarriers(treeFocus);
 
       // Then diff with the original tree and patch the DOM.
       var patches = diff(originalTree, tree);
@@ -587,6 +596,6 @@ module.exports = function(user) {
       // The `input` event is fired when a `contenteditable` is changed.
       // Note that if we'd use `keydown` our function would run before
       // the change (as well as more than necessary).
-      scribe.el.addEventListener('input', noteCommand.mergeIfNecessary, false);
+      scribe.el.addEventListener('input', noteCommand.ensureNoteIntegrity, false);
   }
 }
