@@ -8,6 +8,9 @@
 var notingApi = require('./noting-api');
 var vdom = require('./noting-vdom');
 
+
+exports.commands = {};
+
 /**
  * Initialise noting commands
  * @param  {Scribe} scribe
@@ -18,6 +21,9 @@ exports.init = function(scribe, user) {
   // initialise current user for Noting API
   notingApi.user = user;
 
+
+  scribe.commands['noteCollapseToggle'] = createCollapseToggleCommand(scribe);
+  scribe.commands['noteCollapseToggleAll'] = createCollapseToggleAllCommand(scribe);
 
   /**
   * The note command
@@ -161,5 +167,68 @@ exports.init = function(scribe, user) {
   // Note that if we'd use `keydown` our function would run before
   // the change (as well as more than necessary).
   scribe.el.addEventListener('input', noteCommand.mergeIfNecessary, false);
+
+};
+
+
+function createCollapseToggleCommand(scribe) {
+
+  var collapseCommand = new scribe.api.Command('insertHTML');
+
+
+  // *** collapse toggle command ***
+  collapseCommand.execute = function(value) {
+    console.log('execute! collapseCommand');
+
+    var selection = new scribe.api.Selection();
+
+    // Place markers and create virtual trees.
+    // We'll use the markers to determine where a selection starts and ends.
+    selection.placeMarkers();
+
+    notingApi.collapseToggleSelectedNote(scribe.el);
+
+    // Place caret (necessary to do this explicitly for FF).
+    selection.selectMarkers();
+
+    // We need to make sure we clean up after ourselves by removing markers
+    // when we're done, as our functions assume there's either one or two
+    // markers present.
+    selection.removeMarkers();
+
+  };
+
+  collapseCommand.queryState = function() {
+
+  };
+
+
+  return collapseCommand;
+};
+
+
+function createCollapseToggleAllCommand(scribe) {
+
+  var collapseAllCommand = new scribe.api.Command('insertHTML');
+
+  // *** toggle collapse all command ***
+  collapseAllCommand.execute = function() {
+    var state = !this._state;
+
+    notingApi.collapseToggleAllNotes(scribe.el);
+
+    this._state = state;
+  };
+
+  collapseAllCommand.queryEnabled = function() {
+    // true when notes are on page
+    return !!scribe.el.getElementsByTagName('gu:note').length;
+  };
+
+  collapseAllCommand.queryState = function() {
+    return !!this._state;
+  };
+
+  return collapseAllCommand;
 
 };
