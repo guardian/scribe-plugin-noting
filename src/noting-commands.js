@@ -6,17 +6,7 @@
 
 
 var notingApi = require('./noting-api');
-
-var diff = require('virtual-dom/diff');
-var patch = require('virtual-dom/patch');
-
-// There was a bug in vdom-virtualize that caused data attributes not
-// to be virtualized. Have fixed this and got it merged upstream.
-// No new release yet, however, so have specified the specific commit as
-// dependency. Feel free to update to future versions when they're released.
-var virtualize = require('vdom-virtualize');
-
-var VFocus = require('./vfocus');
+var vdom = require('./noting-vdom');
 
 module.exports = function(scribe) {
 
@@ -33,23 +23,17 @@ module.exports = function(scribe) {
     // We'll use the markers to determine where a selection starts and ends.
     selection.placeMarkers();
 
-    var originalTree = virtualize(scribe.el);
-    var tree = virtualize(scribe.el); // we'll mutate this one
-    var treeFocus = new VFocus(tree);
+    vdom.mutate(scribe.el, function(treeFocus) {
+      var scenarios = {
+        caretWithinNote: function (treeFocus) { notingApi.unnote(treeFocus); },
+        selectionWithinNote: function (treeFocus) {  notingApi.unnotePartOfNote(treeFocus);  },
+        caretOutsideNote: function (treeFocus) { notingApi.createEmptyNoteAtCaret(treeFocus); },
+        selectionOutsideNote: function (treeFocus) { notingApi.createNoteFromSelection(treeFocus); }
+      };
 
-    var scenarios = {
-      caretWithinNote: function (treeFocus) { notingApi.unnote(treeFocus); },
-      selectionWithinNote: function (treeFocus) {  notingApi.unnotePartOfNote(treeFocus);  },
-      caretOutsideNote: function (treeFocus) { notingApi.createEmptyNoteAtCaret(treeFocus); },
-      selectionOutsideNote: function (treeFocus) { notingApi.createNoteFromSelection(treeFocus); }
-    };
-
-    // Perform action depending on which state we're in.
-    scenarios[noteCommand.queryState()](treeFocus);
-
-    // Then diff with the original tree and patch the DOM.
-    var patches = diff(originalTree, tree);
-    patch(scribe.el, patches);
+      // Perform action depending on which state we're in.
+      scenarios[noteCommand.queryState()](treeFocus);
+    });
 
     // Place caret (necessary to do this explicitly for FF).
     selection.selectMarkers();
@@ -91,17 +75,11 @@ module.exports = function(scribe) {
       return uniqVals.length > 1;
     }
 
-    var originalTree = virtualize(scribe.el);
-    var tree = virtualize(scribe.el); // we'll mutate this one
-    var treeFocus = new VFocus(tree);
-
-    // Merging is simply a matter of updating the attributes of any notes
-    // where all the segments of the note doesn't have the same timestamp.
-    findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
-
-    // Then diff with the original tree and patch the DOM.
-    var patches = diff(originalTree, tree);
-    patch(scribe.el, patches);
+    vdom.mutate(scribe.el, function(treeFocus) {
+      // Merging is simply a matter of updating the attributes of any notes
+      // where all the segments of the note doesn't have the same timestamp.
+      findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
+    });
   };
 
   var NODE_NAME = 'GU:NOTE';
