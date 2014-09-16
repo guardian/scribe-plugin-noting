@@ -565,8 +565,6 @@ module.exports = function(user) {
         if (f8 || f10 || altDelete) {
           event.preventDefault();
           noteCommand.execute();
-        } else {
-          // window.setTimeout(noteCommand.mergeIfNecessary, 100);
         }
       });
 
