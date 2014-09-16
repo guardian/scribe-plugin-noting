@@ -8,7 +8,16 @@
 var notingApi = require('./noting-api');
 var vdom = require('./noting-vdom');
 
-module.exports = function(scribe) {
+/**
+ * Initialise noting commands
+ * @param  {Scribe} scribe
+ * @param  {String} user  Current user string.
+ */
+exports.init = function(scribe, user) {
+
+  // initialise current user for Noting API
+  notingApi.user = user;
+
 
   /**
   * The note command

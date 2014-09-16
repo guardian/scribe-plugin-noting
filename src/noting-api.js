@@ -20,8 +20,11 @@ var DATA_NAME_CAMEL = 'noteEditedBy';
 var DATA_DATE = 'data-note-edited-date';
 var DATA_DATE_CAMEL = 'noteEditedDate';
 
-var user = '____temportary user fixme@! ____';
-
+/**
+ * Current User property must be set.
+ * @type {String}
+ */
+exports.user = 'unknown';
 
 /**
 * Noting: Checks
@@ -232,7 +235,7 @@ function updateEditedBy(noteSegment) {
 
 function userAndTimeAsDatasetAttrs() {
   var dataset = {}
-  dataset[DATA_NAME_CAMEL] = user;
+  dataset[DATA_NAME_CAMEL] = exports.user;
   dataset[DATA_DATE_CAMEL] = new Date().toISOString(); // how deal with timezone?
 
   return dataset;
