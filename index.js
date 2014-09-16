@@ -64,6 +64,8 @@ module.exports = function(user) {
         return s === '' || s === '\u200B';
       }
       var vNode = focus.vNode;
+
+      var result = isVText(vNode) && consideredEmpty(vNode.text);
       return isVText(vNode) && consideredEmpty(vNode.text);
     }
 
@@ -564,8 +566,13 @@ module.exports = function(user) {
           event.preventDefault();
           noteCommand.execute();
         } else {
-          noteCommand.mergeIfNecessary();
+          // window.setTimeout(noteCommand.mergeIfNecessary, 100);
         }
-      ;});
+      });
+
+      // The `input` event is fired when a `contenteditable` is changed.
+      // Note that if we'd use `keydown` our function would run before
+      // the change (as well as more than necessary).
+      scribe.el.addEventListener('input', noteCommand.mergeIfNecessary, false);
   }
 }
