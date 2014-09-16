@@ -200,6 +200,7 @@ module.exports = function(user) {
     function updateNoteProperties(noteSegments) {
       updateStartAndEndClasses(noteSegments);
       noteSegments.forEach(updateEditedBy);
+      removeNoteBarriersWithinNote(noteSegments);
     }
 
     // Ensure the first (and only the first) note segment has a
@@ -237,6 +238,21 @@ module.exports = function(user) {
 
       removeStartAndEndClasses(noteSegments);
       addStartAndEndClasses(noteSegments);
+    }
+
+    function removeNoteBarrier(focusOnTextNode) {
+      var textNode = focusOnTextNode.vNode;
+      return textNode.text = textNode.text.replace('\u200B', '');
+    }
+
+    // Remove note barriers within a note, leaving any at the start
+    // and end of the note.
+    function removeNoteBarriersWithinNote(noteSegments) {
+      var noteTextNodes = findFirstNoteSegment(noteSegments[0])
+        .takeWhile(stillWithinNote).filter(focusOnTextNode);
+      var exceptFirstAndLast = _(noteTextNodes).initial().rest().value();
+
+      exceptFirstAndLast.forEach(removeNoteBarrier);
     }
 
     function updateEditedBy(noteSegment) {
