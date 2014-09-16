@@ -530,8 +530,21 @@ module.exports = function(user) {
       findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
     }
 
+    // TODO: NOT WORKING!!!
     function updateNoteBarriers(treeFocus) {
-      findAllNotes(treeFocus).filter(focusOnNoteBarrier)
+      var notes = findAllNotes(treeFocus);
+
+      // Remove all note barriers.
+      notes.map(function (noteSegments) { return noteSegments[0]; }).map(findNoteBarriers).forEach(function (barrier) { barrier.remove(); });
+
+      // Insert note barriers at the start and end of each note.
+      notes.forEach(function (noteSegments) {
+        var firstNoteSegment = noteSegments[0];
+        firstNoteSegment.next().insertBefore(createNoteBarrier());
+
+        var lastNoteSegment = noteSegments[0];
+        lastNoteSegment.insertAfter(createNoteBarrier());
+      });
     }
 
     noteCommand.ensureNoteIntegrity = function () {
