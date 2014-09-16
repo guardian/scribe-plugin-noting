@@ -1,0 +1,87 @@
+gu\:note {
+    /*background-color: #e6f2f7;*/ /* original */
+    background: rgba(230, 242, 247, 0.7);
+    border-top: 1px dotted rgba(41, 131, 182, 1);
+    border-bottom: 1px dotted rgba(41, 131, 182, 1);
+    transition: padding 0.15s ease,
+                margin 0.15s ease;
+
+
+    position: relative;
+    vertical-align: bottom;
+    pointer-events: none;
+}
+
+gu\:note.note--collapsed {
+    /*padding: 0 0.4em;*/
+    /*margin: 0 0.1em;*/
+    width: 0;
+    height: 1em;  /* needs to be same as line-height */
+    display: inline-block;
+    overflow: hidden;
+    text-indent: 24px;
+    /*margin set on start/end elems*/
+}
+
+gu\:note.note--collapsed:hover {
+    padding: 0 0.5em !important;
+    margin: 0;
+    cursor: pointer;
+}
+
+/*expanded*/
+gu\:note {
+    display: inline;
+    width: auto;
+    margin: 0;
+    /*padding: 0 0.5em;*/
+}
+
+/*expanded*/
+gu\:note:hover {
+    cursor: inherit;
+}
+
+
+gu\:note.note--start {
+    border-left: 2px solid rgba(41, 131, 182, 1);
+    margin-left: 0.1em;
+    padding-left: 0.4em;
+}
+gu\:note.note--end {
+    border-right: 2px solid rgba(41, 131, 182, 1);
+    margin-right: 0.1em;
+    padding-right: 0.4em;
+}
+
+
+gu\:note.note--start::before {
+
+    content: ' ';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0.4em 0.4em 0 0;
+    border-color: rgba(41, 131, 182, 1) transparent transparent transparent;
+    cursor: pointer;
+    height: 1em;
+    pointer-events: all;
+}
+
+gu\:note.note--end::after {
+    content: ' ';
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 0.4em 0.4em;
+    border-color: transparent transparent rgba(41, 131, 182, 1) transparent;
+    cursor: pointer;
+    height: 1em;
+    pointer-events: all;
+}
