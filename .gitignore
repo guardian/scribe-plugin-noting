@@ -1,5 +1,2 @@
-src/scribe-plugin-noting.js
 node_modules
-*.old
-vendor/
-bower_components/
+bower_components
