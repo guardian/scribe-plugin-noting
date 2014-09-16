@@ -150,7 +150,6 @@ module.exports = function(user) {
 
         focus = note[note.length - 1].next();
       }
-
       return notes;
     }
 
@@ -508,12 +507,22 @@ module.exports = function(user) {
       shows the time when the notes were merged.
     */
     noteCommand.mergeIfNecessary = function () {
+      function inconsistentTimestamps(note) {
+        function getDataDate(noteSegment) {
+          return noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL];
+        }
+
+        var uniqVals = _(note).map(getDataDate).uniq().value();
+        return uniqVals.length > 1;
+      }
+
       var originalTree = virtualize(scribe.el);
       var tree = virtualize(scribe.el); // we'll mutate this one
       var treeFocus = new VFocus(tree);
 
-      // Merging is simply a matter of updating all the notes' attributes.
-      findAllNotes(treeFocus).forEach(updateNoteProperties);
+      // Merging is simply a matter of updating the attributes of any notes
+      // where all the segments of the note doesn't have the same timestamp.
+      findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
 
       // Then diff with the original tree and patch the DOM.
       var patches = diff(originalTree, tree);
