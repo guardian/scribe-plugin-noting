@@ -20,6 +20,9 @@ var DATA_NAME_CAMEL = 'noteEditedBy';
 var DATA_DATE = 'data-note-edited-date';
 var DATA_DATE_CAMEL = 'noteEditedDate';
 
+exports.collapse = require('./api/note-collapse');
+
+
 /**
  * Current User property must be set.
  * @type {String}

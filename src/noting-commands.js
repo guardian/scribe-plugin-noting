@@ -9,8 +9,6 @@ var notingApi = require('./noting-api');
 var vdom = require('./noting-vdom');
 
 
-exports.commands = {};
-
 /**
  * Initialise noting commands
  * @param  {Scribe} scribe
@@ -24,6 +22,8 @@ exports.init = function(scribe, user) {
 
   scribe.commands['noteCollapseToggle'] = createCollapseToggleCommand(scribe);
   scribe.commands['noteCollapseToggleAll'] = createCollapseToggleAllCommand(scribe);
+
+  addNoteCollapseListener(scribe);
 
   /**
   * The note command
@@ -186,7 +186,7 @@ function createCollapseToggleCommand(scribe) {
     // We'll use the markers to determine where a selection starts and ends.
     selection.placeMarkers();
 
-    notingApi.collapseToggleSelectedNote(scribe.el);
+    notingApi.collapse.collapseToggleSelectedNote(scribe.el);
 
     // Place caret (necessary to do this explicitly for FF).
     selection.selectMarkers();
@@ -215,7 +215,7 @@ function createCollapseToggleAllCommand(scribe) {
   collapseAllCommand.execute = function() {
     var state = !this._state;
 
-    notingApi.collapseToggleAllNotes(scribe.el);
+    notingApi.collapse.collapseToggleAllNotes(scribe.el);
 
     this._state = state;
   };
@@ -232,3 +232,24 @@ function createCollapseToggleAllCommand(scribe) {
   return collapseAllCommand;
 
 };
+
+
+function addNoteCollapseListener(scribe) {
+  scribe.el.addEventListener('click', function(event) {
+
+    var target = event.target;
+
+    if (target.nodeName == 'GU:NOTE') { // WORKS!!! needs css pointer-events: none
+
+      var selection = new scribe.api.Selection();
+
+      var range = document.createRange();
+      range.selectNodeContents(target);
+
+      selection.selection.removeAllRanges();
+      selection.selection.addRange(range);
+
+      scribe.getCommand('noteCollapseToggle').execute();
+    }
+}
+
