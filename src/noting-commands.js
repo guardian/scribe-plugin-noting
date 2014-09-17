@@ -20,8 +20,8 @@ exports.init = function(scribe, user) {
   notingApi.user = user;
 
 
-  scribe.commands['noteCollapseToggle'] = createCollapseToggleCommand(scribe);
-  scribe.commands['noteCollapseToggleAll'] = createCollapseToggleAllCommand(scribe);
+  scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);
+  scribe.commands.noteCollapseToggleAll = createCollapseToggleAllCommand(scribe);
 
   addNoteCollapseListener(scribe);
 
@@ -172,14 +172,10 @@ exports.init = function(scribe, user) {
 
 
 function createCollapseToggleCommand(scribe) {
-
   var collapseCommand = new scribe.api.Command('insertHTML');
-
 
   // *** collapse toggle command ***
   collapseCommand.execute = function(value) {
-    console.log('execute! collapseCommand');
-
     var selection = new scribe.api.Selection();
 
     // Place markers and create virtual trees.
@@ -195,20 +191,17 @@ function createCollapseToggleCommand(scribe) {
     // when we're done, as our functions assume there's either one or two
     // markers present.
     selection.removeMarkers();
-
   };
 
   collapseCommand.queryState = function() {
 
   };
 
-
   return collapseCommand;
 };
 
 
 function createCollapseToggleAllCommand(scribe) {
-
   var collapseAllCommand = new scribe.api.Command('insertHTML');
 
   // *** toggle collapse all command ***
@@ -236,10 +229,9 @@ function createCollapseToggleAllCommand(scribe) {
 
 function addNoteCollapseListener(scribe) {
   scribe.el.addEventListener('click', function(event) {
-
     var target = event.target;
 
-    if (target.nodeName == 'GU:NOTE') { // WORKS!!! needs css pointer-events: none
+    if (target.nodeName == 'GU:NOTE') {
 
       var selection = new scribe.api.Selection();
 

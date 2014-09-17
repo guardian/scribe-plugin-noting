@@ -146,7 +146,7 @@ exports.findAllNotes = function findAllNotes(focus) {
 
   var notes = [];
 
-  var focus = treeFocus;
+  focus = treeFocus;
   var firstNoteSegment;
   while (firstNoteSegment = focus.find(focusOnNote)) {
     var note = findEntireNote(firstNoteSegment);
@@ -155,7 +155,7 @@ exports.findAllNotes = function findAllNotes(focus) {
     focus = note[note.length - 1].next();
   }
   return notes;
-}
+};
 
 function focusOnlyTextNodes (focuses) {
   return focuses.filter(focusOnTextNode);
