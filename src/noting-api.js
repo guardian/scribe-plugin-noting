@@ -12,6 +12,7 @@ var VText = require('vtree/vtext');
 var _ = require('lodash');
 
 
+var NODE_NAME = 'GU:NOTE';
 var TAG = 'gu:note';
 
 var CLASS_NAME = 'note';
@@ -268,7 +269,7 @@ function removeVirtualScribeMarkers(treeFocus) {
 
 // tree - tree containing a marker.
 // Note that we will mutate the tree.
-exports.createEmptyNoteAtCaret = function createEmptyNoteAtCaret(treeFocus) {
+function createEmptyNoteAtCaret(treeFocus) {
   // We need a zero width space character to make the note selectable.
   var zeroWidthSpace = '\u200B';
 
@@ -288,7 +289,7 @@ exports.createEmptyNoteAtCaret = function createEmptyNoteAtCaret(treeFocus) {
 
 // treeFocus: tree focus of tree containing two scribe markers
 // Note that we will mutate the tree.
-exports.createNoteFromSelection = function createNoteFromSelection(treeFocus) {
+function createNoteFromSelection(treeFocus) {
   // We want to wrap text nodes between the markers. We filter out nodes that have
   // already been wrapped.
   var toWrapAndReplace = findTextNodeFocusesBetweenMarkers(treeFocus).filter(focusOutsideNote);
@@ -326,7 +327,7 @@ exports.createNoteFromSelection = function createNoteFromSelection(treeFocus) {
   updateNoteProperties(noteSegments);
 }
 
-exports.unnote = function unnote(treeFocus) {
+function unnote(treeFocus) {
   // We assume the caller knows there's only one marker.
   var marker = findMarkers(treeFocus)[0];
 
@@ -366,7 +367,7 @@ Then we unwrap the previously existing note. The text we selected has been unnot
   been laden, and I had been her master, he would have bought her.</p>
 
 */
-exports.unnotePartOfNote = function unnotePartOfNote(treeFocus) {
+function unnotePartOfNote(treeFocus) {
   function notToBeUnnoted(focus) {
     var candidateVTextNode = focus.vNode;
     return textNodesToUnnote.indexOf(candidateVTextNode) === -1;
@@ -413,4 +414,58 @@ exports.unnotePartOfNote = function unnotePartOfNote(treeFocus) {
   // Place marker at the end of the unnoted text.
   var endOfUnnotedText = righty[0].prev();
   endOfUnnotedText.insertAfter(createVirtualScribeMarker());
+};
+
+
+// TODO: Should return false when the start and end is within a note,
+// but where there is unnoted text inbetween.
+exports.isSelectionInANote = function isSelectionInANote(selectionRange, parentContainer) {
+
+  // Walk up the (real) DOM checking isTargetNode.
+  function domWalkUpFind(node, isTargetNode) {
+    if (!node.parentNode || node === parentContainer) { return false; }
+
+    return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
+  }
+
+  // Return the note our selection is inside of, if we are inside one.
+  function domFindAncestorNote(node) {
+    return domWalkUpFind(node, function(node) {
+      return node.tagName === NODE_NAME;
+    });
+  }
+
+  return domFindAncestorNote(selectionRange.startContainer) && domFindAncestorNote(selectionRange.endContainer) && true;
+};
+
+
+exports.toggleNoteAtSelection = function toggleNoteAtSelection(selection, treeFocus) {
+
+  function state() {
+
+    var withinNote = exports.isSelectionInANote(selection.range);
+
+    var state;
+    if (selection.selection.isCollapsed && withinNote) {
+      state = 'caretWithinNote';
+    } else if (withinNote) {
+      state = 'selectionWithinNote';
+    } else if (selection.selection.isCollapsed) {
+      state = 'caretOutsideNote';
+    } else {
+      state = 'selectionOutsideNote'; // at least partially outside.
+    }
+
+    return state;
+  }
+
+  var scenarios = {
+    caretWithinNote: function (treeFocus) { unnote(treeFocus); },
+    selectionWithinNote: function (treeFocus) {  unnotePartOfNote(treeFocus);  },
+    caretOutsideNote: function (treeFocus) { createEmptyNoteAtCaret(treeFocus); },
+    selectionOutsideNote: function (treeFocus) { createNoteFromSelection(treeFocus); }
+  };
+
+  // Perform action depending on which state we're in.
+  scenarios[state()](treeFocus);
 };

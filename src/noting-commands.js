@@ -19,45 +19,13 @@ exports.init = function(scribe, user) {
   // initialise current user for Noting API
   notingApi.user = user;
 
-
+  scribe.commands.note = createNoteToggleCommand(scribe);
   scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);
   scribe.commands.noteCollapseToggleAll = createCollapseToggleAllCommand(scribe);
 
+  addNoteToggleListener(scribe);
   addNoteCollapseListener(scribe);
 
-  /**
-  * The note command
-  */
-
-  var noteCommand = new scribe.api.Command('insertHTML');
-
-  noteCommand.execute = function () {
-    var selection = new scribe.api.Selection();
-
-    // Place markers and create virtual trees.
-    // We'll use the markers to determine where a selection starts and ends.
-    selection.placeMarkers();
-
-    vdom.mutate(scribe.el, function(treeFocus) {
-      var scenarios = {
-        caretWithinNote: function (treeFocus) { notingApi.unnote(treeFocus); },
-        selectionWithinNote: function (treeFocus) {  notingApi.unnotePartOfNote(treeFocus);  },
-        caretOutsideNote: function (treeFocus) { notingApi.createEmptyNoteAtCaret(treeFocus); },
-        selectionOutsideNote: function (treeFocus) { notingApi.createNoteFromSelection(treeFocus); }
-      };
-
-      // Perform action depending on which state we're in.
-      scenarios[noteCommand.queryState()](treeFocus);
-    });
-
-    // Place caret (necessary to do this explicitly for FF).
-    selection.selectMarkers();
-
-    // We need to make sure we clean up after ourselves by removing markers
-    // when we're done, as our functions assume there's either one or two
-    // markers present.
-    selection.removeMarkers();
-  };
 
   /*
     Example. We have two notes:
@@ -80,7 +48,7 @@ exports.init = function(scribe, user) {
     listed as being edited by The Count of Monte Cristo and the timestamp
     shows the time when the notes were merged.
   */
-  noteCommand.mergeIfNecessary = function () {
+  var mergeIfNecessary = function () {
     function inconsistentTimestamps(note) {
       function getDataDate(noteSegment) {
         return noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL];
@@ -93,82 +61,60 @@ exports.init = function(scribe, user) {
     vdom.mutate(scribe.el, function(treeFocus) {
       // Merging is simply a matter of updating the attributes of any notes
       // where all the segments of the note doesn't have the same timestamp.
-      findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
+      vdom.findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
     });
   };
 
-  var NODE_NAME = 'GU:NOTE';
-
-  /**
-   * Noting: Operations on the real DOM
-   */
-
-  // Walk up the (real) DOM checking isTargetNode.
-  function domWalkUpFind(node, isTargetNode) {
-    if (! node.parentNode) return false;
-
-    return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
-  }
-
-  // Return the note our selection is inside of, if we are inside one.
-  function domFindAncestorNote(node) {
-    return domWalkUpFind(node, function(node) {
-      return node.tagName === NODE_NAME;
-    });
-  }
 
 
-  function domSelectionEntirelyWithinNote() {
-    var selection = new scribe.api.Selection();
-    var startNode = selection.selection.getRangeAt(0).startContainer;
-    var endNode = selection.selection.getRangeAt(0).endContainer;
 
-    return domFindAncestorNote(startNode) && domFindAncestorNote(endNode);
-  }
-
-
-  noteCommand.queryState = function () {
-    var selection = new scribe.api.Selection();
-
-    // TODO: Should return false when the start and end is within a note,
-    // but where there is unnoted text inbetween.
-    var withinNote = domSelectionEntirelyWithinNote();
-
-    var state;
-    if (selection.selection.isCollapsed && withinNote) {
-      state = 'caretWithinNote';
-    } else if (withinNote) {
-      state = 'selectionWithinNote';
-    } else if (selection.selection.isCollapsed) {
-      state = 'caretOutsideNote';
-    } else {
-      state = 'selectionOutsideNote'; // at least partially outside.
-    }
-
-    return state;
-  };
-
-  scribe.commands.note = noteCommand;
-
-  scribe.el.addEventListener('keydown', function (event) {
-    var noteCommand = scribe.getCommand('note');
-
-    var f8 = event.keyCode === 119;
-    var f10 = event.keyCode === 121;
-    var altDelete = event.altKey && event.keyCode === 46;
-
-    if (f8 || f10 || altDelete) {
-      event.preventDefault();
-      noteCommand.execute();
-    }
-  });
 
   // The `input` event is fired when a `contenteditable` is changed.
   // Note that if we'd use `keydown` our function would run before
   // the change (as well as more than necessary).
-  scribe.el.addEventListener('input', noteCommand.mergeIfNecessary, false);
+  scribe.el.addEventListener('input', mergeIfNecessary, false);
 
 };
+
+
+
+function createNoteToggleCommand(scribe) {
+  var noteCommand = new scribe.api.Command('insertHTML');
+
+  noteCommand.execute = function() {
+    var selection = new scribe.api.Selection();
+
+    // Place markers and create virtual trees.
+    // We'll use the markers to determine where a selection starts and ends.
+    selection.placeMarkers();
+
+    vdom.mutate(scribe.el, function(treeFocus) {
+      notingApi.toggleNoteAtSelection(selection, treeFocus);
+    });
+
+    // Place caret (necessary to do this explicitly for FF).
+    selection.selectMarkers();
+
+    // We need to make sure we clean up after ourselves by removing markers
+    // when we're done, as our functions assume there's either one or two
+    // markers present.
+    selection.removeMarkers();
+  };
+
+  noteCommand.queryState = function() {
+    var selection = new scribe.api.Selection();
+
+    return notingApi.isSelectionInANote(selection.range, scribe.el);
+  };
+
+  noteCommand.queryEnabled = function() {
+    return true;
+  };
+
+  return noteCommand;
+};
+
+
 
 
 function createCollapseToggleCommand(scribe) {
@@ -219,12 +165,26 @@ function createCollapseToggleAllCommand(scribe) {
   };
 
   collapseAllCommand.queryState = function() {
-    return !!this._state;
+    return this.queryEnabled() && !!this._state;
   };
 
   return collapseAllCommand;
 
 };
+
+
+function addNoteToggleListener(scribe) {
+  scribe.el.addEventListener('keydown', function (event) {
+    var f8 = event.keyCode === 119;
+    var f10 = event.keyCode === 121;
+    var altDelete = event.altKey && event.keyCode === 46;
+
+    if (f8 || f10 || altDelete) {
+      event.preventDefault();
+      scribe.getCommand('note').execute();
+    }
+  });
+}
 
 
 function addNoteCollapseListener(scribe) {
