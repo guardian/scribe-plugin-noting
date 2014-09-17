@@ -7,12 +7,13 @@
   ],
   "description": "Adds notes to scribe",
   "main": "dist/scribe-plugin-noting",
-  "dependencies" : {
+  "dependencies": {
     "scribe-common": "~0.0.5",
     "lodash-amd": "2.4.1"
   },
   "devDependencies": {
     "requirejs": "~2.1.9",
-    "scribe": "guardian/scribe#master"
+    "scribe": "guardian/scribe#master",
+    "scribe-plugin-toolbar": "~0.1.4"
   }
 }
