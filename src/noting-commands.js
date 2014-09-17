@@ -251,5 +251,6 @@ function addNoteCollapseListener(scribe) {
 
       scribe.getCommand('noteCollapseToggle').execute();
     }
+  });
 }
 

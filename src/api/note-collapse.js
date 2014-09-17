@@ -36,30 +36,15 @@ function toggleNotes(note, state) {
 
 exports.collapseToggleSelectedNote = function collapseToggleSelectedNote(scribeElem) {
   vdom.mutate(scribeElem, function(treeFocus) {
+    var selectedNote = vdom.findSelectedNote(treeFocus);
 
-    console.log('markers: ', utils.findMarkers(treeFocus));
-
-    // assume we're in a note
-    var note = utils.findAncestorNoteSegment(utils.findMarkers(treeFocus)[0]);
-
-    // var noteStart = utils.findFirstNoteSegment(note);
-
-
-    if (note) {
-      var selectedNote = utils.findEntireNote(note);
-
-      console.log('selectedNote', selectedNote);
-
-      toggleNotes(selectedNote);
-    }
-
-
+    toggleNotes(selectedNote);
   });
 
-}
+};
 
 exports.collapseToggleAllNotes = function collapseToggleAllNotes(scribeElem) {
   vdom.mutate(scribeElem, function(treeFocus) {
-    utils.findAllNotes(treeFocus).forEach(function(notes) { toggleNotes(notes, state); });
+    vdom.findAllNotes(treeFocus).forEach(function(notes) { toggleNotes(notes, state); });
   });
-}
+};
