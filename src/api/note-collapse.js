@@ -43,7 +43,7 @@ exports.collapseToggleSelectedNote = function collapseToggleSelectedNote(scribeE
 
 };
 
-exports.collapseToggleAllNotes = function collapseToggleAllNotes(scribeElem) {
+exports.collapseToggleAllNotes = function collapseToggleAllNotes(scribeElem, state) {
   vdom.mutate(scribeElem, function(treeFocus) {
     vdom.findAllNotes(treeFocus).forEach(function(notes) { toggleNotes(notes, state); });
   });

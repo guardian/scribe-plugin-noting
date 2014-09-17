@@ -208,7 +208,7 @@ function createCollapseToggleAllCommand(scribe) {
   collapseAllCommand.execute = function() {
     var state = !this._state;
 
-    notingApi.collapse.collapseToggleAllNotes(scribe.el);
+    notingApi.collapse.collapseToggleAllNotes(scribe.el, state);
 
     this._state = state;
   };
