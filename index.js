@@ -133,11 +133,6 @@ module.exports = function(user) {
       );
     }
 
-    function findNoteBarriers(noteSegment) {
-      return findFirstNoteSegment(noteSegment).takeWhile(stillWithinNote)
-        .filter(focusOnNoteBarrier);
-    }
-
     // Find the rest of a note.
     // We identify notes based on 'adjacency' rather than giving them an id.
     // This is because people may press RETURN or copy and paste part of a note.
@@ -215,9 +210,8 @@ module.exports = function(user) {
       updateStartAndEndClasses(noteSegments);
       noteSegments.forEach(updateEditedBy);
 
-      var noteBarriers = findNoteBarriers(noteSegments[0]);
-      var exceptFirstAndLast = _(noteBarriers).rest().initial().value();
-      exceptFirstAndLast.forEach(function (barrier) { barrier.remove(); });
+      var treeFocus = noteSegments[0].top();
+      updateNoteBarriers(treeFocus);
     }
 
     // Ensure the first (and only the first) note segment has a
@@ -276,7 +270,15 @@ module.exports = function(user) {
     }
 
     function createNoteBarrier() {
-      return h(NOTE_BARRIER_TAG + '.note-barrier', ['']);
+      // Note that the note barrier must be empty. This prevents the web
+      // browser from ever placing the caret inside of the tag. The problem
+      // with allowing the caret to be placed inside of the tag is that we'll
+      // end up with text within the note barriers.
+      //
+      // However, keeping it empty makes it necessary to specify the CSS
+      // ".note-barrier { display: inline-block }" or browsers will render
+      // a line break after each note barrier.
+      return h(NOTE_BARRIER_TAG + '.note-barrier');
     }
 
     function removeVirtualScribeMarkers(treeFocus) {
@@ -539,28 +541,22 @@ module.exports = function(user) {
       findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
     }
 
-    // TODO: NOT WORKING!!!
     function updateNoteBarriers(treeFocus) {
-      function removeNoteBarriers(notes) {
-        _(notes).map(function (noteSegments) { return noteSegments[0]; })
-          .map(findNoteBarriers).flatten().value().forEach(function (barrier) {
-            barrier.remove(); }
-        );
-      }
-
-      function insertNoteBarriers(notes) {
-        notes.forEach(function (noteSegments) {
-          var firstNoteSegment = noteSegments[0];
-          firstNoteSegment.next().insertBefore(createNoteBarrier());
-
-          var lastNoteSegment = noteSegments[noteSegments.length - 1];
-          lastNoteSegment.insertAfter(createNoteBarrier());
+      function removeNoteBarriers(treeFocus) {
+        treeFocus.filter(focusOnNoteBarrier).forEach(function (barrier) {
+          barrier.remove();
         });
       }
 
-      var notes = findAllNotes(treeFocus);
-      removeNoteBarriers(notes);
-      insertNoteBarriers(notes);
+      function insertNoteBarriers(treeFocus) {
+        findAllNotes(treeFocus).forEach(function (noteSegments) {
+          _.first(noteSegments).next().insertBefore(createNoteBarrier());
+          _.last(noteSegments).insertAfter(createNoteBarrier());
+        });
+      }
+
+      removeNoteBarriers(treeFocus);
+      insertNoteBarriers(treeFocus);
 
     }
 
