@@ -264,7 +264,7 @@ module.exports = function(user) {
     }
 
     function userAndTimeAsDatasetAttrs() {
-      var dataset = {}
+      var dataset = {};
       dataset[DATA_NAME_CAMEL] = user;
       dataset[DATA_DATE_CAMEL] = new Date().toISOString(); // how deal with timezone?
 
@@ -276,7 +276,7 @@ module.exports = function(user) {
     }
 
     function createNoteBarrier() {
-      return h(NOTE_BARRIER_TAG, ['\u200B']);
+      return h(NOTE_BARRIER_TAG + '.note-barrier', ['']);
     }
 
     function removeVirtualScribeMarkers(treeFocus) {
@@ -525,29 +525,6 @@ module.exports = function(user) {
       shows the time when the notes were merged.
     */
     function mergeIfNecessary(treeFocus) {
-      // Merging is simply a matter of updating the attributes of any notes
-      // where all the segments of the note doesn't have the same timestamp.
-      findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
-    }
-
-    // TODO: NOT WORKING!!!
-    function updateNoteBarriers(treeFocus) {
-      var notes = findAllNotes(treeFocus);
-
-      // Remove all note barriers.
-      notes.map(function (noteSegments) { return noteSegments[0]; }).map(findNoteBarriers).forEach(function (barrier) { barrier.remove(); });
-
-      // Insert note barriers at the start and end of each note.
-      notes.forEach(function (noteSegments) {
-        var firstNoteSegment = noteSegments[0];
-        firstNoteSegment.next().insertBefore(createNoteBarrier());
-
-        var lastNoteSegment = noteSegments[0];
-        lastNoteSegment.insertAfter(createNoteBarrier());
-      });
-    }
-
-    noteCommand.ensureNoteIntegrity = function () {
       function inconsistentTimestamps(note) {
         function getDataDate(noteSegment) {
           return noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL];
@@ -557,17 +534,62 @@ module.exports = function(user) {
         return uniqVals.length > 1;
       }
 
-      var originalTree = virtualize(scribe.el);
-      var tree = virtualize(scribe.el); // we'll mutate this one
-      var treeFocus = new VFocus(tree);
+      // Merging is simply a matter of updating the attributes of any notes
+      // where all the segments of the note doesn't have the same timestamp.
+      findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
+    }
 
-      mergeIfNecessary(treeFocus);
-      updateNoteBarriers(treeFocus);
+    // TODO: NOT WORKING!!!
+    function updateNoteBarriers(treeFocus) {
+      function removeNoteBarriers(notes) {
+        _(notes).map(function (noteSegments) { return noteSegments[0]; })
+          .map(findNoteBarriers).flatten().value().forEach(function (barrier) {
+            barrier.remove(); }
+        );
+      }
 
-      // Then diff with the original tree and patch the DOM.
-      var patches = diff(originalTree, tree);
-      patch(scribe.el, patches);
-    };
+      function insertNoteBarriers(notes) {
+        notes.forEach(function (noteSegments) {
+          var firstNoteSegment = noteSegments[0];
+          firstNoteSegment.next().insertBefore(createNoteBarrier());
+
+          var lastNoteSegment = noteSegments[noteSegments.length - 1];
+          lastNoteSegment.insertAfter(createNoteBarrier());
+        });
+      }
+
+      var notes = findAllNotes(treeFocus);
+      removeNoteBarriers(notes);
+      insertNoteBarriers(notes);
+
+    }
+
+    noteCommand.ensureNoteIntegrity = function () {
+        var selection = new scribe.api.Selection();
+
+        // Place markers and create virtual trees.
+        // We'll use the markers to determine where a selection starts and ends.
+        selection.placeMarkers();
+
+        var originalTree = virtualize(scribe.el);
+        var tree = virtualize(scribe.el); // we'll mutate this one
+        var treeFocus = new VFocus(tree);
+
+        mergeIfNecessary(treeFocus);
+        updateNoteBarriers(treeFocus);
+
+        // Then diff with the original tree and patch the DOM.
+        var patches = diff(originalTree, tree);
+        patch(scribe.el, patches);
+
+        // Place caret (necessary to do this explicitly for FF).
+        selection.selectMarkers();
+
+        // We need to make sure we clean up after ourselves by removing markers
+        // when we're done, as our functions assume there's either one or two
+        // markers present.
+        selection.removeMarkers();
+      };
 
 
       noteCommand.queryState = function () {
@@ -609,6 +631,6 @@ module.exports = function(user) {
       // The `input` event is fired when a `contenteditable` is changed.
       // Note that if we'd use `keydown` our function would run before
       // the change (as well as more than necessary).
-      scribe.el.addEventListener('input', noteCommand.ensureNoteIntegrity, false);
-  }
-}
+      scribe.el.addEventListener('input', noteCommand.ensureNoteIntegrity);
+    };
+};
