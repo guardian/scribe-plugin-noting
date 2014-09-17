@@ -560,6 +560,25 @@ module.exports = function(user) {
 
     }
 
+    // Empty notes need a zero width character to make it possible to put
+    // the cursor inside them.
+    function ensureNotesSelectable(treeFocus) {
+      function focusNotOnNote(focus) {
+        return ! focusOnNote(focus);
+      }
+      function focusOnEmptyNoteSegment(focus) {
+        var textNodesWithinNote = focus.next().takeWhile(focusNotOnNote).filter(focusOnTextNode);
+
+        return textNodesWithinNote.length === 0;
+      }
+
+      var emptyNoteSegments = _(findAllNotes(treeFocus)).flatten().filter(focusOnEmptyNoteSegment).value();
+
+      emptyNoteSegments.forEach(function (segment) {
+        segment.vNode.text = '\u200B';
+      });
+    }
+
     noteCommand.ensureNoteIntegrity = function () {
         var selection = new scribe.api.Selection();
 
@@ -573,6 +592,7 @@ module.exports = function(user) {
 
         mergeIfNecessary(treeFocus);
         updateNoteBarriers(treeFocus);
+        ensureNotesSelectable(treeFocus);
 
         // Then diff with the original tree and patch the DOM.
         var patches = diff(originalTree, tree);

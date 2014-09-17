@@ -6,9 +6,17 @@
       .note {
         background-color: cyan;
         border: 1px solid black;
+
+        /*
+        Because web browsers insert will insert a <br> into our tag if it's
+        empty. We might be able to filter them out in some way, or we
+        can do it like this. So far this seems like the least complex and
+        most stable solution.
+        */
+        display: inline-block;
       }
       .note-barrier {
-        /* Necessary to keep note barriers inline. */
+        /* Keeps note barriers inline. */
         display: inline-block;
       }
     </style>
