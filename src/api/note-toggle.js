@@ -344,3 +344,41 @@ exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, select
   // Perform action depending on which state we're in.
   scenarios[state()](treeFocus);
 };
+
+
+/*
+  Example. We have two notes:
+  <p>
+    <gu:note>Some noted text</gu:note>| and some other text inbetween |<gu:note>More noted text</gu:note>
+  </p>
+
+  We press BACKSPACE, deleting the text, and end up with:
+  <p>
+    <gu:note data-note-edited-by="Edmond Dantès" data-note-edited-date="2014-09-15T16:49:20.012Z">Some noted text</gu:note><gu:note data-note-edited-by="Lord Wilmore" data-note-edited-date="2014-09-20T10:00:00.012Z">More noted text</gu:note>
+  </p>
+
+  This function will merge the notes:
+  <p>
+    <gu:note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">Some noted text</gu:note><gu:note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">More noted text</gu:note>
+  </p>
+
+  The last user to edit "wins", the rationale being that they have approved
+  these notes by merging them. In this case all note segments are now
+  listed as being edited by The Count of Monte Cristo and the timestamp
+  shows the time when the notes were merged.
+*/
+exports.mergeIfNecessary = function(treeFocus) {
+  function inconsistentTimestamps(note) {
+    function getDataDate(noteSegment) {
+      return noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL];
+    }
+
+    var uniqVals = _(note).map(getDataDate).uniq().value();
+    return uniqVals.length > 1;
+  }
+
+
+  // Merging is simply a matter of updating the attributes of any notes
+  // where all the segments of the note doesn't have the same timestamp.
+  vdom.findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
+};
