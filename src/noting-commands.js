@@ -4,8 +4,10 @@
  * Scribe noting commands.
  */
 
+'use strict';
 
-var notingApi = require('./noting-api');
+var noteToggle = require('./api/note-toggle');
+var noteCollapse = require('./api/note-collapse');
 var vdom = require('./noting-vdom');
 
 
@@ -17,7 +19,7 @@ var vdom = require('./noting-vdom');
 exports.init = function(scribe, user) {
 
   // initialise current user for Noting API
-  notingApi.user = user;
+  noteToggle.user = user;
 
   scribe.commands.note = createNoteToggleCommand(scribe);
   scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);
@@ -47,7 +49,7 @@ exports.init = function(scribe, user) {
     these notes by merging them. In this case all note segments are now
     listed as being edited by The Count of Monte Cristo and the timestamp
     shows the time when the notes were merged.
-  */
+  *//*
   var mergeIfNecessary = function () {
     function inconsistentTimestamps(note) {
       function getDataDate(noteSegment) {
@@ -73,7 +75,7 @@ exports.init = function(scribe, user) {
   // Note that if we'd use `keydown` our function would run before
   // the change (as well as more than necessary).
   scribe.el.addEventListener('input', mergeIfNecessary, false);
-
+*/
 };
 
 
@@ -83,8 +85,8 @@ function createNoteToggleCommand(scribe) {
 
   noteCommand.execute = function() {
 
-    vdom.mutateScribe(scribe, function(treeFocus) {
-      notingApi.toggleNoteAtSelection(selection, treeFocus);
+    vdom.mutateScribe(scribe, function(treeFocus, selection) {
+      noteToggle.toggleNoteAtSelection(treeFocus, selection);
     });
 
   };
@@ -92,7 +94,7 @@ function createNoteToggleCommand(scribe) {
   noteCommand.queryState = function() {
     var selection = new scribe.api.Selection();
 
-    return notingApi.isSelectionInANote(selection.range, scribe.el);
+    return noteToggle.isSelectionInANote(selection.range, scribe.el);
   };
 
   noteCommand.queryEnabled = function() {
@@ -100,7 +102,7 @@ function createNoteToggleCommand(scribe) {
   };
 
   return noteCommand;
-};
+}
 
 
 
@@ -110,21 +112,11 @@ function createCollapseToggleCommand(scribe) {
 
   // *** collapse toggle command ***
   collapseCommand.execute = function(value) {
-    var selection = new scribe.api.Selection();
 
-    // Place markers and create virtual trees.
-    // We'll use the markers to determine where a selection starts and ends.
-    selection.placeMarkers();
+    vdom.mutateScribe(scribe, function(treeFocus) {
+      noteCollapse.collapseToggleSelectedNote(treeFocus);
+    });
 
-    notingApi.collapse.collapseToggleSelectedNote(scribe.el);
-
-    // Place caret (necessary to do this explicitly for FF).
-    selection.selectMarkers();
-
-    // We need to make sure we clean up after ourselves by removing markers
-    // when we're done, as our functions assume there's either one or two
-    // markers present.
-    selection.removeMarkers();
   };
 
   collapseCommand.queryState = function() {
@@ -132,7 +124,7 @@ function createCollapseToggleCommand(scribe) {
   };
 
   return collapseCommand;
-};
+}
 
 
 function createCollapseToggleAllCommand(scribe) {
@@ -142,7 +134,9 @@ function createCollapseToggleAllCommand(scribe) {
   collapseAllCommand.execute = function() {
     var state = !this._state;
 
-    notingApi.collapse.collapseToggleAllNotes(scribe.el, state);
+    vdom.mutate(scribe.el, function(treeFocus) {
+      noteCollapse.collapseToggleAllNotes(treeFocus, state);
+    });
 
     this._state = state;
   };
@@ -158,7 +152,7 @@ function createCollapseToggleAllCommand(scribe) {
 
   return collapseAllCommand;
 
-};
+}
 
 
 function addNoteToggleListener(scribe) {

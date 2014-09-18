@@ -3,10 +3,9 @@
  *
  * Perform noting actions on a Virtual DOM
  */
+'use strict';
 
 var h = require('virtual-hyperscript');
-var createElement = require('virtual-dom/create-element');
-var isVNode = require('vtree/is-vnode');
 var isVText = require('vtree/is-vtext');
 var VText = require('vtree/vtext');
 var _ = require('lodash');
@@ -21,7 +20,8 @@ var DATA_NAME_CAMEL = 'noteEditedBy';
 var DATA_DATE = 'data-note-edited-date';
 var DATA_DATE_CAMEL = 'noteEditedDate';
 
-exports.collapse = require('./api/note-collapse');
+
+var vdom = require('./note-vdom');
 
 
 /**
@@ -29,128 +29,6 @@ exports.collapse = require('./api/note-collapse');
  * @type {String}
  */
 exports.user = 'unknown';
-
-/**
-* Noting: Checks
-*/
-
-function focusOnMarker(focus) {
-  return isScribeMarker(focus.vNode);
-}
-
-function focusOnTextNode (focus) {
-  return focus.vNode.type === 'VirtualText';
-}
-
-function focusOnNote(focus) {
-  return isNote(focus.vNode);
-}
-
-function focusOutsideNote(focus) {
-  return ! findAncestorNoteSegment(focus);
-}
-
-function focusOnEmptyTextNode(focus) {
-  // We consider zero width spaces as empty.
-  function consideredEmpty(s) {
-    return s === '' || s === '\u200B';
-  }
-  var vNode = focus.vNode;
-
-  var result = isVText(vNode) && consideredEmpty(vNode.text);
-  return isVText(vNode) && consideredEmpty(vNode.text);
-}
-
-// Whether a DOM node or vNode is a note.
-// Case insensitive to work with both DOM nodes and vNodes
-// (which can be lowercase).
-function isNote(node) {
-  return node.tagName && node.tagName.toLowerCase() === TAG;
-}
-
-function isScribeMarker(vNode) {
-   return hasClass(vNode, 'scribe-marker');
-}
-
-// Check if VNode has class
-function hasClass(vNode, value) {
-  return (vNode.properties && vNode.properties.className === value);
-}
-
-function stillWithinNote(focus) {
-  return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
-}
-
-
-/**
-* Noting: Finders and filters
-*/
-
-function findAncestorNoteSegment(focus) {
-  return focus.find(focusOnNote, 'up');
-}
-
-function findTextNodeFocusesBetweenMarkers(treeFocus) {
-  function focusNotOnMarker(focus) {
-    return ! focusOnMarker(focus);
-  }
-
-  return focusOnlyTextNodes(
-    treeFocus.find(focusOnMarker).next().takeWhile(focusNotOnMarker)
-  );
-}
-
-function findMarkers(treeFocus) {
-  return treeFocus.filter(focusOnMarker);
-}
-
-function findFirstNoteSegment(fNoteSegment) {
-  return _.last(
-    fNoteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
-  );
-}
-
-function findLastNoteSegment(fNoteSegment) {
-  return _.last(
-    fNoteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
-  );
-}
-
-// Find the rest of a note.
-// We identify notes based on 'adjacency' rather than giving them an id.
-// This is because people may press RETURN or copy and paste part of a note.
-// In such cases we don't want that to keep being the same note.
-// noteSegment: focus on note
-function findEntireNote(noteSegment) {
-  return findFirstNoteSegment(noteSegment)
-    .takeWhile(stillWithinNote).filter(focusOnNote);
-}
-
-function findEntireNoteTextNodeFocuses(noteSegment) {
-  return findFirstNoteSegment(noteSegment).takeWhile(stillWithinNote).filter(focusOnTextNode).filter(function (focus) { return ! focusOnEmptyTextNode(focus); });
-}
-
-// Regurns an array of arrays of note segments
-function findAllNotes(focus) {
-  var treeFocus = focus.top();
-
-  var notes = [];
-
-  var focus = treeFocus;
-  var firstNoteSegment;
-  while (firstNoteSegment = focus.find(focusOnNote)) {
-    var note = findEntireNote(firstNoteSegment);
-    notes.push(note);
-
-    focus = note[note.length - 1].next();
-  }
-  return notes;
-}
-
-function focusOnlyTextNodes (focuses) {
-  return focuses.filter(focusOnTextNode);
-}
-
 
 /**
 * Noting: Create, remove, wrap etc.
@@ -255,7 +133,7 @@ function createNoteBarrier() {
 
 function removeVirtualScribeMarkers(treeFocus) {
   treeFocus.forEach(function(focus) {
-    if (isScribeMarker(focus.vNode)) focus.remove();
+    if (vdom.isScribeMarker(focus.vNode)) focus.remove();
   });
 }
 
@@ -263,9 +141,6 @@ function removeVirtualScribeMarkers(treeFocus) {
 
 
 
-/**
-* Noting: User initiated actions
-*/
 
 // tree - tree containing a marker.
 // Note that we will mutate the tree.
@@ -280,10 +155,10 @@ function createEmptyNoteAtCaret(treeFocus) {
   var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], userAndTimeAsDatasetAttrs());
 
   // We assume there's only one marker.
-  var marker = findMarkers(treeFocus)[0];
+  var marker = vdom.findMarkers(treeFocus)[0];
   marker.replace(replacementVNode);
 
-  var noteSegments = findEntireNote(marker);
+  var noteSegments = vdom.findEntireNote(marker);
   updateNoteProperties(noteSegments);
 }
 
@@ -292,7 +167,7 @@ function createEmptyNoteAtCaret(treeFocus) {
 function createNoteFromSelection(treeFocus) {
   // We want to wrap text nodes between the markers. We filter out nodes that have
   // already been wrapped.
-  var toWrapAndReplace = findTextNodeFocusesBetweenMarkers(treeFocus).filter(focusOutsideNote);
+  var toWrapAndReplace = vdom.findTextNodeFocusesBetweenMarkers(treeFocus).filter(vdom.focusOutsideNote);
 
   // Wrap the text nodes.
   var userAndTime = userAndTimeAsDatasetAttrs();
@@ -320,19 +195,19 @@ function createNoteFromSelection(treeFocus) {
   //       Also, being able to step in and out of notes might need a solution
   //       like this, but where we somehow always maintain one zero-space
   //       element at the beginning and end of each note.
-  var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0]);
+  var lastNoteSegment = vdom.findLastNoteSegment(toWrapAndReplace[0]);
   lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
 
-  var noteSegments = findEntireNote(lastNoteSegment);
+  var noteSegments = vdom.findEntireNote(lastNoteSegment);
   updateNoteProperties(noteSegments);
 }
 
 function unnote(treeFocus) {
   // We assume the caller knows there's only one marker.
-  var marker = findMarkers(treeFocus)[0];
+  var marker = vdom.findMarkers(treeFocus)[0];
 
-  var noteSegment = findAncestorNoteSegment(marker);
-  var noteSegments = findEntireNote(noteSegment);
+  var noteSegment = vdom.findAncestorNoteSegment(marker);
+  var noteSegments = vdom.findEntireNote(noteSegment);
 
   noteSegments.forEach(unwrap);
 
@@ -373,9 +248,9 @@ function unnotePartOfNote(treeFocus) {
     return textNodesToUnnote.indexOf(candidateVTextNode) === -1;
   }
 
-  var focusesToUnnote = findTextNodeFocusesBetweenMarkers(treeFocus);
-  var entireNote = findEntireNote(focusesToUnnote[0]);
-  var entireNoteTextNodeFocuses = findEntireNoteTextNodeFocuses(entireNote[0]);
+  var focusesToUnnote = vdom.findTextNodeFocusesBetweenMarkers(treeFocus);
+  var entireNote = vdom.findEntireNote(focusesToUnnote[0]);
+  var entireNoteTextNodeFocuses = vdom.findEntireNoteTextNodeFocuses(entireNote[0]);
 
   var entireNoteTextNodes = _(entireNote).map(function (focus) { return focus.vNode.children; }).flatten().filter(isVText).value();
   var textNodesToUnnote = focusesToUnnote.map(function (focus) { return focus.vNode; });
@@ -404,8 +279,8 @@ function unnotePartOfNote(treeFocus) {
 
   // Notes to the left and right of the selection may have been created.
   // We need to update their attributes and CSS classes.
-  var lefty = findEntireNote(focusesToNote[0]);
-  var righty = findEntireNote(focusesToNote[focusesToNote.length - 1]);
+  var lefty = vdom.findEntireNote(focusesToNote[0]);
+  var righty = vdom.findEntireNote(focusesToNote[focusesToNote.length - 1]);
 
   updateNoteProperties(lefty);
   updateNoteProperties(righty);
@@ -439,7 +314,7 @@ exports.isSelectionInANote = function isSelectionInANote(selectionRange, parentC
 };
 
 
-exports.toggleNoteAtSelection = function toggleNoteAtSelection(selection, treeFocus) {
+exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, selection) {
 
   function state() {
 

@@ -1,4 +1,4 @@
-var vdom = require('../noting-vdom');
+var vdom = require('./note-vdom');
 
 var NOTE_CLASS_COLLAPSED = 'note--collapsed';
 
@@ -34,17 +34,13 @@ function toggleNotes(note, state) {
 }
 
 
-exports.collapseToggleSelectedNote = function collapseToggleSelectedNote(scribeElem) {
-  vdom.mutate(scribeElem, function(treeFocus) {
-    var selectedNote = vdom.findSelectedNote(treeFocus);
+exports.collapseToggleSelectedNote = function collapseToggleSelectedNote(treeFocus) {
+  var selectedNote = vdom.findSelectedNote(treeFocus);
 
-    toggleNotes(selectedNote);
-  });
+  toggleNotes(selectedNote);
 
 };
 
-exports.collapseToggleAllNotes = function collapseToggleAllNotes(scribeElem, state) {
-  vdom.mutate(scribeElem, function(treeFocus) {
-    vdom.findAllNotes(treeFocus).forEach(function(notes) { toggleNotes(notes, state); });
-  });
+exports.collapseToggleAllNotes = function collapseToggleAllNotes(treeFocus, state) {
+  vdom.findAllNotes(treeFocus).forEach(function(notes) { toggleNotes(notes, state); });
 };
