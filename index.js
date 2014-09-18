@@ -59,14 +59,14 @@ module.exports = function(user) {
       return ! findAncestorNoteSegment(focus);
     }
 
-    function focusOnEmptyTextNode(focus) {
-      // We consider zero width spaces as empty.
-      function consideredEmpty(s) {
-        return s === '' || s === '\u200B';
-      }
-      var vNode = focus.vNode;
+    function consideredEmpty(s) {
+      var zeroWidthSpace = '\u200B';
+      var nonBreakingSpace = '\u00A0';
+      return s === '' || s === zeroWidthSpace || s === nonBreakingSpace;
+    }
 
-      var result = isVText(vNode) && consideredEmpty(vNode.text);
+    function focusOnEmptyTextNode(focus) {
+      var vNode = focus.vNode;
       return isVText(vNode) && consideredEmpty(vNode.text);
     }
 
@@ -579,6 +579,46 @@ module.exports = function(user) {
       });
     }
 
+    function getDescendants(focus) {
+      function insideTag(insideOfFocus) {
+        return !!insideOfFocus.find(function (f) { return f.vNode === focus.vNode; }, 'up');
+      }
+      return focus.takeWhile(insideTag);
+    }
+
+
+    function removeNotesWithoutText(treeFocus) {
+      function withoutText(focus) {
+        var descendants = getDescendants(focus);
+        return descendants.filter(focusOnTextNode).length === 0;
+      }
+
+      function focusOnEmptyTextNode(focus) {
+        return focusOnTextNode(focus) && consideredEmpty(focus.vNode.text);
+      }
+
+      function withEmptyTextNode(focus) {
+        var descendants = getDescendants(focus);
+        return descendants.filter(focusOnEmptyTextNode).length > 0;
+      }
+
+      function criteria(focus) {
+        return withoutText(focus) || withEmptyTextNode(focus);
+      }
+
+      // Remove note segments without text.
+      var noteSegments = _.flatten(findAllNotes(treeFocus));
+      var removals = noteSegments.filter(criteria).map(function (segment) {
+        return segment.remove();
+      });
+
+      // Also remove ancestors if they don't have any text.
+      function getParent(focus) { return focus.parent; }
+      var removedParents = removals.map(getParent).filter(criteria).map(function (tag) {
+        return tag.remove();
+      });
+    }
+
     noteCommand.ensureNoteIntegrity = function () {
         var selection = new scribe.api.Selection();
 
@@ -593,6 +633,7 @@ module.exports = function(user) {
         mergeIfNecessary(treeFocus);
         updateNoteBarriers(treeFocus);
         ensureNotesSelectable(treeFocus);
+        removeNotesWithoutText(treeFocus);
 
         // Then diff with the original tree and patch the DOM.
         var patches = diff(originalTree, tree);
