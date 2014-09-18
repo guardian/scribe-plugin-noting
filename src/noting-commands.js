@@ -82,23 +82,11 @@ function createNoteToggleCommand(scribe) {
   var noteCommand = new scribe.api.Command('insertHTML');
 
   noteCommand.execute = function() {
-    var selection = new scribe.api.Selection();
 
-    // Place markers and create virtual trees.
-    // We'll use the markers to determine where a selection starts and ends.
-    selection.placeMarkers();
-
-    vdom.mutate(scribe.el, function(treeFocus) {
+    vdom.mutateScribe(scribe, function(treeFocus) {
       notingApi.toggleNoteAtSelection(selection, treeFocus);
     });
 
-    // Place caret (necessary to do this explicitly for FF).
-    selection.selectMarkers();
-
-    // We need to make sure we clean up after ourselves by removing markers
-    // when we're done, as our functions assume there's either one or two
-    // markers present.
-    selection.removeMarkers();
   };
 
   noteCommand.queryState = function() {
