@@ -83,8 +83,7 @@ module.exports = function(user) {
       // hasn't asked for that.
       //
       // TODO: Find a workaround. Maybe moving the space to the previous
-      // note segment if there is one, or replacing the space with a zero width
-      // space if there is no previous note segment.
+      // note segment if there is one.
       var regularSpace = ' ';
 
       return s === '' || s === zeroWidthSpace || s === nonBreakingSpace || s === asciiNonBreakingSpace || s === regularSpace;
@@ -412,14 +411,14 @@ module.exports = function(user) {
 
         var noteSegments = _.flatten(findAllNotes(treeFocus));
         return noteSegments.filter(criteria).map(function (segment) {
-          return segment.replace(new VText('\u200B'));
+          return segment.remove();
         });
       }
 
       function replaceAncestorsIfNecessary(focus) {
         var f = focus;
         while (f) {
-          if (! f.canDown()) f.replace(new VText('\u200B'));
+          if (! f.canDown()) f.remove();
           f = f.up();
         }
       }
