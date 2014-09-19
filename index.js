@@ -27,8 +27,14 @@ module.exports = function(user) {
 
     var VFocus = require('./vfocus');
 
+    // NOTE: This tag is invalid. Custom elements must include
+    // a '-' or browsers consider them invalid. Can probaly lead to
+    // quirks in behaviour. It's also possible to register them.
+    // Not sure if one is expected to do that.
+    // (See: http://www.html5rocks.com/en/tutorials/webcomponents/customelements/)
     var TAG = 'gu:note';
     var NODE_NAME = 'GU:NOTE';
+
     var CLASS_NAME = 'note';
     var DATA_NAME = 'data-node-edited-by';
     var DATA_NAME_CAMEL = 'noteEditedBy';
@@ -47,6 +53,10 @@ module.exports = function(user) {
       return isScribeMarker(focus.vNode);
     }
 
+    function focusNotOnMarker(focus) {
+      return ! focusOnMarker(focus);
+    }
+
     function focusOnTextNode (focus) {
       return focus.vNode.type === 'VirtualText';
     }
@@ -61,8 +71,23 @@ module.exports = function(user) {
 
     function consideredEmpty(s) {
       var zeroWidthSpace = '\u200B';
-      var nonBreakingSpace = '\u00A0';
-      return s === '' || s === zeroWidthSpace || s === nonBreakingSpace;
+      var nonBreakingSpace = '\u00a0';
+      var asciiNonBreakingSpace = '\xA0';
+
+      // We incude regular spaces because if we have a note tag that only
+      // includes a a regular space, then the browser will also insert a <BR>.
+      // If we consider a string containing only a regular space as empty we
+      // can remove the note tag to avoid the line break.
+      //
+      // Not ideal since it causes the space to be deleted even though the user
+      // hasn't asked for that.
+      //
+      // TODO: Find a workaround. Maybe moving the space to the previous
+      // note segment if there is one, or replacing the space with a zero width
+      // space if there is no previous note segment.
+      var regularSpace = ' ';
+
+      return s === '' || s === zeroWidthSpace || s === nonBreakingSpace || s === asciiNonBreakingSpace || s === regularSpace;
     }
 
     function focusOnEmptyTextNode(focus) {
@@ -108,10 +133,6 @@ module.exports = function(user) {
     }
 
     function findTextNodeFocusesBetweenMarkers(treeFocus) {
-      function focusNotOnMarker(focus) {
-        return ! focusOnMarker(focus);
-      }
-
       return focusOnlyTextNodes(
         treeFocus.find(focusOnMarker).next().takeWhile(focusNotOnMarker)
       );
@@ -131,6 +152,22 @@ module.exports = function(user) {
       return _.last(
         fNoteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
       );
+    }
+
+    function focusAndDescendants(focus) {
+      // TODO: Use a proper algorithm for this.
+      function insideTag(insideOfFocus) {
+        return !!insideOfFocus.find(function (f) { return f.vNode === focus.vNode; }, 'up');
+      }
+      return focus.takeWhile(insideTag);
+    }
+
+    function withoutText(focus) {
+      return focusAndDescendants(focus).filter(focusOnTextNode).length === 0;
+    }
+
+    function withEmptyTextNode(focus) {
+      return focusAndDescendants(focus).filter(focusOnTextNode).every(focusOnEmptyTextNode);
     }
 
     // Find the rest of a note.
@@ -281,10 +318,117 @@ module.exports = function(user) {
       return h(NOTE_BARRIER_TAG + '.note-barrier');
     }
 
+    function updateNoteBarriers(treeFocus) {
+      function removeNoteBarriers(treeFocus) {
+        treeFocus.filter(focusOnNoteBarrier).forEach(function (barrier) {
+          barrier.remove();
+        });
+      }
+
+      function insertNoteBarriers(treeFocus) {
+        findAllNotes(treeFocus).forEach(function (noteSegments) {
+          _.first(noteSegments).next().insertBefore(createNoteBarrier());
+          _.last(noteSegments).insertAfter(createNoteBarrier());
+        });
+      }
+
+      removeNoteBarriers(treeFocus);
+      insertNoteBarriers(treeFocus);
+    }
+
     function removeVirtualScribeMarkers(treeFocus) {
       treeFocus.forEach(function(focus) {
         if (isScribeMarker(focus.vNode)) focus.remove();
       });
+    }
+
+    // To clean up after ourselves, when a user removes notes by e.g. pressing
+    // BACKSPACE.
+    function removeLeftoverZeroWidthSpaces(treeFocus) {
+      var nonNoteTextNodeFocuses = treeFocus.filter(focusOutsideNote)
+        .filter(focusOnTextNode);
+
+      nonNoteTextNodeFocuses.forEach(function (focus) {
+        var vNode = focus.vNode;
+        if (vNode.text.length > 1) {
+          vNode.text = vNode.text.replace(/\u200B/g, '');
+        }
+      });
+    }
+
+    // To clean up after ourselves, when a user removes notes by e.g. pressing
+    // BACKSPACE.
+    function removeEmptyNodes(treeFocus) {
+      function criteria(focus) {
+        return withoutText(focus) || withEmptyTextNode(focus);
+      }
+
+      return treeFocus.filter(function (focus) { return ! focusOnTextNode(focus); }).filter(criteria).map(function (node) {
+        return node.remove();
+      });
+    }
+
+    /*
+      Example. We have two notes:
+      <p>
+        <gu:note>Some noted text</gu:note>| and some other text inbetween |<gu:note>More noted text</gu:note>
+      </p>
+
+      We press BACKSPACE, deleting the text, and end up with:
+      <p>
+        <gu:note data-note-edited-by="Edmond Dantès" data-note-edited-date="2014-09-15T16:49:20.012Z">Some noted text</gu:note><gu:note data-note-edited-by="Lord Wilmore" data-note-edited-date="2014-09-20T10:00:00.012Z">More noted text</gu:note>
+      </p>
+
+      This function will merge the notes:
+      <p>
+        <gu:note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">Some noted text</gu:note><gu:note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">More noted text</gu:note>
+      </p>
+
+      The last user to edit "wins", the rationale being that they have approved
+      these notes by merging them. In this case all note segments are now
+      listed as being edited by The Count of Monte Cristo and the timestamp
+      shows the time when the notes were merged.
+    */
+    function mergeIfNecessary(treeFocus) {
+      function inconsistentTimestamps(note) {
+        function getDataDate(noteSegment) {
+          return noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL];
+        }
+
+        var uniqVals = _(note).map(getDataDate).uniq().value();
+        return uniqVals.length > 1;
+      }
+
+      // Merging is simply a matter of updating the attributes of any notes
+      // where all the segments of the note doesn't have the same timestamp.
+      findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
+    }
+
+    function preventBrTags(treeFocus) {
+      function replaceEmptyNoteSegments(treeFocus) {
+        function criteria(focus) {
+          return withoutText(focus) || withEmptyTextNode(focus);
+        }
+
+        var noteSegments = _.flatten(findAllNotes(treeFocus));
+        return noteSegments.filter(criteria).map(function (segment) {
+          return segment.replace(new VText('\u200B'));
+        });
+      }
+
+      function replaceAncestorsIfNecessary(focus) {
+        var f = focus;
+        while (f) {
+          if (! f.canDown()) f.replace(new VText('\u200B'));
+          f = f.up();
+        }
+      }
+
+      // Unfortunately we end up with zero width characters in the HTML outside
+      // of note tags. Tried removing instead of replacing, but that came with
+      // issues in Chrome, where text outside of a note would get deleted.
+      var replacedTags = replaceEmptyNoteSegments(treeFocus);
+      replacedTags.forEach(replaceAncestorsIfNecessary);
     }
 
 
@@ -318,6 +462,25 @@ module.exports = function(user) {
     /**
     * Noting: User initiated actions
     */
+
+    noteCommand.ensureNoteIntegrity = function () {
+      var originalTree = virtualize(scribe.el);
+      var tree = virtualize(scribe.el); // we'll mutate this one
+      var treeFocus = new VFocus(tree);
+
+      // Clean up.
+      removeEmptyNodes(treeFocus);
+      removeLeftoverZeroWidthSpaces(treeFocus);
+
+      // Ensure note integrity.
+      mergeIfNecessary(treeFocus);
+      updateNoteBarriers(treeFocus);
+      preventBrTags(treeFocus);
+
+      // Then diff with the original tree and patch the DOM.
+      var patches = diff(originalTree, tree);
+      patch(scribe.el, patches);
+    };
 
     // tree - tree containing a marker.
     // Note that we will mutate the tree.
@@ -505,189 +668,47 @@ module.exports = function(user) {
       selection.removeMarkers();
     };
 
-    /*
-      Example. We have two notes:
-      <p>
-        <gu:note>Some noted text</gu:note>| and some other text inbetween |<gu:note>More noted text</gu:note>
-      </p>
+    noteCommand.queryState = function () {
+      var selection = new scribe.api.Selection();
 
-      We press BACKSPACE, deleting the text, and end up with:
-      <p>
-        <gu:note data-note-edited-by="Edmond Dantès" data-note-edited-date="2014-09-15T16:49:20.012Z">Some noted text</gu:note><gu:note data-note-edited-by="Lord Wilmore" data-note-edited-date="2014-09-20T10:00:00.012Z">More noted text</gu:note>
-      </p>
+      // TODO: Should return false when the start and end is within a note,
+      // but where there is unnoted text inbetween.
+      var withinNote = domSelectionEntirelyWithinNote();
 
-      This function will merge the notes:
-      <p>
-        <gu:note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">Some noted text</gu:note><gu:note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">More noted text</gu:note>
-      </p>
-
-      The last user to edit "wins", the rationale being that they have approved
-      these notes by merging them. In this case all note segments are now
-      listed as being edited by The Count of Monte Cristo and the timestamp
-      shows the time when the notes were merged.
-    */
-    function mergeIfNecessary(treeFocus) {
-      function inconsistentTimestamps(note) {
-        function getDataDate(noteSegment) {
-          return noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL];
-        }
-
-        var uniqVals = _(note).map(getDataDate).uniq().value();
-        return uniqVals.length > 1;
+      var state;
+      if (selection.selection.isCollapsed && withinNote) {
+        state = 'caretWithinNote';
+      } else if (withinNote) {
+        state = 'selectionWithinNote';
+      } else if (selection.selection.isCollapsed) {
+        state = 'caretOutsideNote';
+      } else {
+        state = 'selectionOutsideNote'; // at least partially outside.
       }
 
-      // Merging is simply a matter of updating the attributes of any notes
-      // where all the segments of the note doesn't have the same timestamp.
-      findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
-    }
-
-    function updateNoteBarriers(treeFocus) {
-      function removeNoteBarriers(treeFocus) {
-        treeFocus.filter(focusOnNoteBarrier).forEach(function (barrier) {
-          barrier.remove();
-        });
-      }
-
-      function insertNoteBarriers(treeFocus) {
-        findAllNotes(treeFocus).forEach(function (noteSegments) {
-          _.first(noteSegments).next().insertBefore(createNoteBarrier());
-          _.last(noteSegments).insertAfter(createNoteBarrier());
-        });
-      }
-
-      removeNoteBarriers(treeFocus);
-      insertNoteBarriers(treeFocus);
-
-    }
-
-    // Empty notes need a zero width character to make it possible to put
-    // the cursor inside them.
-    function ensureNotesSelectable(treeFocus) {
-      function focusNotOnNote(focus) {
-        return ! focusOnNote(focus);
-      }
-      function focusOnEmptyNoteSegment(focus) {
-        var textNodesWithinNote = focus.next().takeWhile(focusNotOnNote).filter(focusOnTextNode);
-
-        return textNodesWithinNote.length === 0;
-      }
-
-      var emptyNoteSegments = _(findAllNotes(treeFocus)).flatten().filter(focusOnEmptyNoteSegment).value();
-
-      emptyNoteSegments.forEach(function (segment) {
-        segment.vNode.text = '\u200B';
-      });
-    }
-
-    function getDescendants(focus) {
-      function insideTag(insideOfFocus) {
-        return !!insideOfFocus.find(function (f) { return f.vNode === focus.vNode; }, 'up');
-      }
-      return focus.takeWhile(insideTag);
-    }
-
-
-    function removeNotesWithoutText(treeFocus) {
-      function withoutText(focus) {
-        var descendants = getDescendants(focus);
-        return descendants.filter(focusOnTextNode).length === 0;
-      }
-
-      function focusOnEmptyTextNode(focus) {
-        return focusOnTextNode(focus) && consideredEmpty(focus.vNode.text);
-      }
-
-      function withEmptyTextNode(focus) {
-        var descendants = getDescendants(focus);
-        return descendants.filter(focusOnEmptyTextNode).length > 0;
-      }
-
-      function criteria(focus) {
-        return withoutText(focus) || withEmptyTextNode(focus);
-      }
-
-      // Remove note segments without text.
-      var noteSegments = _.flatten(findAllNotes(treeFocus));
-      var removals = noteSegments.filter(criteria).map(function (segment) {
-        return segment.remove();
-      });
-
-      // Also remove ancestors if they don't have any text.
-      function getParent(focus) { return focus.parent; }
-      var removedParents = removals.map(getParent).filter(criteria).map(function (tag) {
-        return tag.remove();
-      });
-    }
-
-    noteCommand.ensureNoteIntegrity = function () {
-        var selection = new scribe.api.Selection();
-
-        // Place markers and create virtual trees.
-        // We'll use the markers to determine where a selection starts and ends.
-        selection.placeMarkers();
-
-        var originalTree = virtualize(scribe.el);
-        var tree = virtualize(scribe.el); // we'll mutate this one
-        var treeFocus = new VFocus(tree);
-
-        mergeIfNecessary(treeFocus);
-        updateNoteBarriers(treeFocus);
-        ensureNotesSelectable(treeFocus);
-        removeNotesWithoutText(treeFocus);
-
-        // Then diff with the original tree and patch the DOM.
-        var patches = diff(originalTree, tree);
-        patch(scribe.el, patches);
-
-        // Place caret (necessary to do this explicitly for FF).
-        selection.selectMarkers();
-
-        // We need to make sure we clean up after ourselves by removing markers
-        // when we're done, as our functions assume there's either one or two
-        // markers present.
-        selection.removeMarkers();
-      };
-
-
-      noteCommand.queryState = function () {
-        var selection = new scribe.api.Selection();
-
-        // TODO: Should return false when the start and end is within a note,
-        // but where there is unnoted text inbetween.
-        var withinNote = domSelectionEntirelyWithinNote();
-
-        var state;
-        if (selection.selection.isCollapsed && withinNote) {
-          state = 'caretWithinNote';
-        } else if (withinNote) {
-          state = 'selectionWithinNote';
-        } else if (selection.selection.isCollapsed) {
-          state = 'caretOutsideNote';
-        } else {
-          state = 'selectionOutsideNote'; // at least partially outside.
-        }
-
-        return state;
-      };
-
-      scribe.commands.note = noteCommand;
-
-      scribe.el.addEventListener('keydown', function (event) {
-        var noteCommand = scribe.getCommand('note');
-
-        var f8 = event.keyCode === 119;
-        var f10 = event.keyCode === 121;
-        var altDelete = event.altKey && event.keyCode === 46;
-
-        if (f8 || f10 || altDelete) {
-          event.preventDefault();
-          noteCommand.execute();
-        }
-      });
-
-      // The `input` event is fired when a `contenteditable` is changed.
-      // Note that if we'd use `keydown` our function would run before
-      // the change (as well as more than necessary).
-      scribe.el.addEventListener('input', noteCommand.ensureNoteIntegrity);
+      return state;
     };
+
+
+
+    scribe.commands.note = noteCommand;
+
+    scribe.el.addEventListener('keydown', function (event) {
+      var noteCommand = scribe.getCommand('note');
+
+      var f8 = event.keyCode === 119;
+      var f10 = event.keyCode === 121;
+      var altDelete = event.altKey && event.keyCode === 46;
+
+      if (f8 || f10 || altDelete) {
+        event.preventDefault();
+        noteCommand.execute();
+      }
+    });
+
+    // The `input` event is fired when a `contenteditable` is changed.
+    // Note that if we'd use `keydown` our function would run before
+    // the change (as well as more than necessary).
+    scribe.el.addEventListener('input', noteCommand.ensureNoteIntegrity);
+  };
 };
