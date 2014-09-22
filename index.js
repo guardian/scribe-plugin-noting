@@ -120,8 +120,7 @@ module.exports = function(user) {
       return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || focusOnNoteBarrier(focus) || findAncestorNoteSegment(focus);
     }
 
-    function selectionEntirelyWithinNote(treeFocus) {
-      var markers = findMarkers(treeFocus);
+    function selectionEntirelyWithinNote(markers) {
       if (markers.length === 2) {
         var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker);
         return ! betweenMarkers.some(focusOutsideNote);
@@ -445,17 +444,17 @@ module.exports = function(user) {
 
       // Unfortunately we sometimes end up with empty nodes and zero width
       // characters in the HTML outside of note tags. We rely on
-      // `ensureNoteIntegrity` cleaning this up.
+      // `ensureContentIntegrity` cleaning this up.
       var removedTags = removeEmptyNoteSegments(treeFocus);
       removedTags.forEach(removeAncestorsIfNecessary);
     }
 
 
     /**
-    * Noting: User initiated actions
+    * Noting: Actions
     */
 
-    noteCommand.ensureNoteIntegrity = function () {
+    noteCommand.ensureContentIntegrity = function () {
       var originalTree = virtualize(scribe.el);
       var tree = virtualize(scribe.el); // we'll mutate this one
       var treeFocus = new VFocus(tree);
@@ -666,9 +665,9 @@ module.exports = function(user) {
     noteCommand.queryState = function (treeFocus) {
       var treeFocus = treeFocus || new VFocus(virtualize(scribe.el));
 
-      var selection = new scribe.api.Selection();
-      var selectionIsCollapsed = findMarkers(treeFocus).length === 1;
-      var withinNote = selectionEntirelyWithinNote(treeFocus);
+      var selectionMarkers = findMarkers(treeFocus);
+      var selectionIsCollapsed = selectionMarkers.length === 1;
+      var withinNote = selectionEntirelyWithinNote(selectionMarkers);
 
       var state;
       if (selectionIsCollapsed && withinNote) {
@@ -704,6 +703,6 @@ module.exports = function(user) {
     // The `input` event is fired when a `contenteditable` is changed.
     // Note that if we'd use `keydown` our function would run before
     // the change (as well as more than necessary).
-    scribe.el.addEventListener('input', noteCommand.ensureNoteIntegrity);
+    scribe.el.addEventListener('input', noteCommand.ensureContentIntegrity);
   };
 };
