@@ -404,7 +404,7 @@ module.exports = function(user) {
     }
 
     function preventBrTags(treeFocus) {
-      function replaceEmptyNoteSegments(treeFocus) {
+      function removeEmptyNoteSegments(treeFocus) {
         function criteria(focus) {
           return withoutText(focus) || withEmptyTextNode(focus);
         }
@@ -415,7 +415,7 @@ module.exports = function(user) {
         });
       }
 
-      function replaceAncestorsIfNecessary(focus) {
+      function removeAncestorsIfNecessary(focus) {
         var f = focus;
         while (f) {
           if (! f.canDown()) f.remove();
@@ -423,11 +423,11 @@ module.exports = function(user) {
         }
       }
 
-      // Unfortunately we end up with zero width characters in the HTML outside
-      // of note tags. Tried removing instead of replacing, but that came with
-      // issues in Chrome, where text outside of a note would get deleted.
-      var replacedTags = replaceEmptyNoteSegments(treeFocus);
-      replacedTags.forEach(replaceAncestorsIfNecessary);
+      // Unfortunately we sometimes end up with empty nodes and zero width
+      // characters in the HTML outside of note tags. We rely on
+      // `ensureNoteIntegrity` cleaning this up.
+      var removedTags = removeEmptyNoteSegments(treeFocus);
+      removedTags.forEach(removeAncestorsIfNecessary);
     }
 
 
@@ -537,6 +537,9 @@ module.exports = function(user) {
 
       var noteSegments = findEntireNote(lastNoteSegment);
       updateNoteProperties(noteSegments);
+
+      // If we end up with an empty note a <BR> tag would be created.
+      preventBrTags(treeFocus);
     }
 
     function unnote(treeFocus) {
