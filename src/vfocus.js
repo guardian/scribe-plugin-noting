@@ -167,6 +167,24 @@ VFocus.prototype.remove = function() {
   return this;
 };
 
+VFocus.prototype.insertBefore = function(newVNodes) {
+  var newVNodes = newVNodes instanceof Array ? newVNodes : [newVNodes];
+
+  if (this.isRoot()) {
+    // No can do. Should maybe raise an exception.
+  } else {
+    var siblings = this.parent.vNode.children;
+    var vNodeIndex = siblings.indexOf(this.vNode);
+
+    // Insert before ourself.
+    newVNodes.reverse().forEach(function (vNode) {
+      siblings.splice(vNodeIndex, 0, vNode);
+    });
+  }
+
+  return this;
+};
+
 VFocus.prototype.insertAfter = function(newVNodes) {
   var newVNodes = newVNodes instanceof Array ? newVNodes : [newVNodes];
 
