@@ -452,25 +452,6 @@ module.exports = function(user) {
 
 
     /**
-     * Noting: Operations on the real DOM
-     */
-
-    // Walk up the (real) DOM checking isTargetNode.
-    function domWalkUpFind(node, isTargetNode) {
-      if (! node.parentNode) return false;
-
-      return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
-    }
-
-    // Return the note our selection is inside of, if we are inside one.
-    function domFindAncestorNote(node) {
-      return domWalkUpFind(node, function(node) {
-        return node.tagName === NODE_NAME;
-      });
-    }
-
-
-    /**
     * Noting: User initiated actions
     */
 
@@ -686,14 +667,15 @@ module.exports = function(user) {
       var treeFocus = treeFocus || new VFocus(virtualize(scribe.el));
 
       var selection = new scribe.api.Selection();
+      var selectionIsCollapsed = findMarkers(treeFocus).length === 1;
       var withinNote = selectionEntirelyWithinNote(treeFocus);
 
       var state;
-      if (selection.selection.isCollapsed && withinNote) {
+      if (selectionIsCollapsed && withinNote) {
         state = 'caretWithinNote';
       } else if (withinNote) {
         state = 'selectionWithinNote';
-      } else if (selection.selection.isCollapsed) {
+      } else if (selectionIsCollapsed) {
         state = 'caretOutsideNote';
       } else {
         state = 'selectionOutsideNote'; // at least partially outside.
