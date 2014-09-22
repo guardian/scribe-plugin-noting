@@ -80,10 +80,8 @@ module.exports = function(user) {
       // can remove the note tag to avoid the line break.
       //
       // Not ideal since it causes the space to be deleted even though the user
-      // hasn't asked for that.
-      //
-      // TODO: Find a workaround. Maybe moving the space to the previous
-      // note segment if there is one.
+      // hasn't asked for that. We compensate for this by moving any deleted
+      // space to the previous note segment.
       var regularSpace = ' ';
 
       return s === '' || s === zeroWidthSpace || s === nonBreakingSpace || s === asciiNonBreakingSpace || s === regularSpace;
@@ -362,7 +360,19 @@ module.exports = function(user) {
         return withoutText(focus) || withEmptyTextNode(focus);
       }
 
+      // Move any space we delete to the previous note segment.
+      function moveSpaceToPrevSegment(node) {
+        if (focusOnNote(node)) {
+          var prevNoteSegment = node.prev().find(focusOnNote, 'prev');
+          if (prevNoteSegment) {
+            var lastTextNode = _.last(prevNoteSegment.vNode.children.filter(isVText));
+            if (lastTextNode) lastTextNode.text = lastTextNode.text + ' ';
+          }
+        }
+      }
+
       return treeFocus.filter(function (focus) { return ! focusOnTextNode(focus); }).filter(criteria).map(function (node) {
+        moveSpaceToPrevSegment(node);
         return node.remove();
       });
     }
