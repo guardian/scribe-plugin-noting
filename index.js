@@ -120,6 +120,16 @@ module.exports = function(user) {
       return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || focusOnNoteBarrier(focus) || findAncestorNoteSegment(focus);
     }
 
+    function selectionEntirelyWithinNote(treeFocus) {
+      var markers = findMarkers(treeFocus);
+      if (markers.length === 2) {
+        var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker);
+        return ! betweenMarkers.some(focusOutsideNote);
+      } else {
+        return !!findAncestorNoteSegment(markers[0]);
+      }
+    }
+
 
     /**
     * Noting: Finders and filters
@@ -459,14 +469,6 @@ module.exports = function(user) {
       });
     }
 
-    function domSelectionEntirelyWithinNote() {
-      var selection = new scribe.api.Selection();
-      var startNode = selection.selection.getRangeAt(0).startContainer;
-      var endNode = selection.selection.getRangeAt(0).endContainer;
-
-      return domFindAncestorNote(startNode) && domFindAncestorNote(endNode);
-    }
-
 
     /**
     * Noting: User initiated actions
@@ -665,7 +667,7 @@ module.exports = function(user) {
       };
 
       // Perform action depending on which state we're in.
-      scenarios[noteCommand.queryState()](treeFocus);
+      scenarios[noteCommand.queryState(treeFocus)](treeFocus);
 
       // Then diff with the original tree and patch the DOM.
       var patches = diff(originalTree, tree);
@@ -680,12 +682,11 @@ module.exports = function(user) {
       selection.removeMarkers();
     };
 
-    noteCommand.queryState = function () {
-      var selection = new scribe.api.Selection();
+    noteCommand.queryState = function (treeFocus) {
+      var treeFocus = treeFocus || new VFocus(virtualize(scribe.el));
 
-      // TODO: Should return false when the start and end is within a note,
-      // but where there is unnoted text inbetween.
-      var withinNote = domSelectionEntirelyWithinNote();
+      var selection = new scribe.api.Selection();
+      var withinNote = selectionEntirelyWithinNote(treeFocus);
 
       var state;
       if (selection.selection.isCollapsed && withinNote) {

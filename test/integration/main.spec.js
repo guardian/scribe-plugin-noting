@@ -178,6 +178,32 @@ describe('noting plugin', function () {
       });
     });
 
+    when('when the start of our selection is within a note and the end is within another note', function() {
+      givenContentOf('<p><gu:note class="note">On the |24th of</gu:note> February, the look-out at <gu:note class="note">Notre-Dame de| la Garde</gu:note> signalled the three-master, the Pharaon from Smyrna</p>', function() {
+        when('we press the noting key', function() {
+          it('merges the two notes together with the text inbetween', function () {
+            note().then(function () {
+              scribeNode.getInnerHTML().then(function (innerHTML) {
+                expect(innerHTML).to.include('the 24th of</gu:note>');
+                expect(innerHTML).to.include('look-out at </gu:note>');
+                expect(innerHTML).to.include('Notre-Dame de la Garde</gu:note>');
+
+                // Expect one start and one end attribute
+                var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
+                expect(numberOfNoteStartAttributes).to.equal(1);
+                expect(numberOfNoteEndAttributes).to.equal(1);
+
+
+                expect(innerHTML).to.include('data-note-edited-by');
+                expect(innerHTML).to.include('data-note-edited-date');
+              });
+            });
+          });
+        });
+      });
+    });
+
 
     /**
     * Unnote part of a note
