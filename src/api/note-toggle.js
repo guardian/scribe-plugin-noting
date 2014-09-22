@@ -11,6 +11,11 @@ var VText = require('vtree/vtext');
 var _ = require('lodash');
 
 
+// NOTE: This tag is invalid. Custom elements must include
+// a '-' or browsers consider them invalid. Can probaly lead to
+// quirks in behaviour. It's also possible to register them.
+// Not sure if one is expected to do that.
+// (See: http://www.html5rocks.com/en/tutorials/webcomponents/customelements/)
 var NODE_NAME = 'GU:NOTE';
 var TAG = 'gu:note';
 
@@ -19,6 +24,7 @@ var DATA_NAME = 'data-node-edited-by';
 var DATA_NAME_CAMEL = 'noteEditedBy';
 var DATA_DATE = 'data-note-edited-date';
 var DATA_DATE_CAMEL = 'noteEditedDate';
+var NOTE_BARRIER_TAG = 'gu:note-barrier';
 
 
 var vdom = require('./note-vdom');
@@ -70,6 +76,9 @@ function unwrap(focus) {
 function updateNoteProperties(noteSegments) {
   updateStartAndEndClasses(noteSegments);
   noteSegments.forEach(updateEditedBy);
+
+  var treeFocus = noteSegments[0].top();
+  updateNoteBarriers(treeFocus);
 }
 
 // Ensure the first (and only the first) note segment has a
@@ -116,7 +125,7 @@ function updateEditedBy(noteSegment) {
 }
 
 function userAndTimeAsDatasetAttrs() {
-  var dataset = {}
+  var dataset = {};
   dataset[DATA_NAME_CAMEL] = exports.user;
   dataset[DATA_DATE_CAMEL] = new Date().toISOString(); // how deal with timezone?
 
@@ -128,7 +137,33 @@ function createVirtualScribeMarker() {
 }
 
 function createNoteBarrier() {
-  return new VText('\u200B');
+  // Note that the note barrier must be empty. This prevents the web
+  // browser from ever placing the caret inside of the tag. The problem
+  // with allowing the caret to be placed inside of the tag is that we'll
+  // end up with text within the note barriers.
+  //
+  // However, keeping it empty makes it necessary to specify the CSS
+  // ".note-barrier { display: inline-block }" or browsers will render
+  // a line break after each note barrier.
+  return h(NOTE_BARRIER_TAG + '.note-barrier');
+}
+
+function updateNoteBarriers(treeFocus) {
+  function removeNoteBarriers(treeFocus) {
+    treeFocus.filter(vdom.focusOnNoteBarrier).forEach(function (barrier) {
+      barrier.remove();
+    });
+  }
+
+  function insertNoteBarriers(treeFocus) {
+    vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
+      _.first(noteSegments).next().insertBefore(createNoteBarrier());
+      _.last(noteSegments).insertAfter(createNoteBarrier());
+    });
+  }
+
+  removeNoteBarriers(treeFocus);
+  insertNoteBarriers(treeFocus);
 }
 
 function removeVirtualScribeMarkers(treeFocus) {
@@ -137,6 +172,43 @@ function removeVirtualScribeMarkers(treeFocus) {
   });
 }
 
+// To clean up after ourselves, when a user removes notes by e.g. pressing
+// BACKSPACE.
+function removeLeftoverZeroWidthSpaces(treeFocus) {
+  var nonNoteTextNodeFocuses = treeFocus.filter(vdom.focusOutsideNote)
+    .filter(vdom.focusOnTextNode);
+
+  nonNoteTextNodeFocuses.forEach(function (focus) {
+    var vNode = focus.vNode;
+    if (vNode.text.length > 1) {
+      vNode.text = vNode.text.replace(/\u200B/g, '');
+    }
+  });
+}
+
+// To clean up after ourselves, when a user removes notes by e.g. pressing
+// BACKSPACE.
+function removeEmptyNodes(treeFocus) {
+  function criteria(focus) {
+    return vdom.withoutText(focus) || vdom.withEmptyTextNode(focus);
+  }
+
+  // Move any space we delete to the previous note segment.
+  function moveSpaceToPrevSegment(node) {
+    if (vdom.focusOnNote(node)) {
+      var prevNoteSegment = node.prev().find(vdom.focusOnNote, 'prev');
+      if (prevNoteSegment) {
+        var lastTextNode = _.last(prevNoteSegment.vNode.children.filter(isVText));
+        if (lastTextNode) lastTextNode.text = lastTextNode.text + ' ';
+      }
+    }
+  }
+
+  return treeFocus.filter(function (focus) { return ! vdom.focusOnTextNode(focus); }).filter(criteria).map(function (node) {
+    moveSpaceToPrevSegment(node);
+    return node.remove();
+  });
+}
 
 
 
@@ -277,10 +349,17 @@ function unnotePartOfNote(treeFocus) {
   // Unwrap previously existing note
   entireNote.forEach(unwrap);
 
+
   // Notes to the left and right of the selection may have been created.
   // We need to update their attributes and CSS classes.
-  var lefty = vdom.findEntireNote(focusesToNote[0]);
-  var righty = vdom.findEntireNote(focusesToNote[focusesToNote.length - 1]);
+
+  // Note: refresh() is necessary here. Maybe possible to avoid somehow,
+  // but as of now the focusesToNote focuses are not reliable.
+  var startOfLefty = focusesToNote[0].refresh()
+  var lefty = vdom.findEntireNote(startOfLefty);
+
+  var startOfRighty = focusesToNote[focusesToNote.length - 1].refresh();
+  var righty = vdom.findEntireNote(startOfRighty);
 
   updateNoteProperties(lefty);
   updateNoteProperties(righty);
@@ -289,7 +368,7 @@ function unnotePartOfNote(treeFocus) {
   // Place marker at the end of the unnoted text.
   var endOfUnnotedText = righty[0].prev();
   endOfUnnotedText.insertAfter(createVirtualScribeMarker());
-};
+}
 
 
 // TODO: Should return false when the start and end is within a note,
@@ -318,14 +397,16 @@ exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, select
 
   function state() {
 
-    var withinNote = exports.isSelectionInANote(selection.range);
+    var selectionMarkers = vdom.findMarkers(treeFocus);
+    var selectionIsCollapsed = selectionMarkers.length === 1;
+    var withinNote = vdom.selectionEntirelyWithinNote(selectionMarkers);
 
     var state;
-    if (selection.selection.isCollapsed && withinNote) {
+    if (selectionIsCollapsed && withinNote) {
       state = 'caretWithinNote';
     } else if (withinNote) {
       state = 'selectionWithinNote';
-    } else if (selection.selection.isCollapsed) {
+    } else if (selectionIsCollapsed) {
       state = 'caretOutsideNote';
     } else {
       state = 'selectionOutsideNote'; // at least partially outside.
@@ -367,7 +448,7 @@ exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, select
   listed as being edited by The Count of Monte Cristo and the timestamp
   shows the time when the notes were merged.
 */
-exports.mergeIfNecessary = function(treeFocus) {
+function mergeIfNecessary(treeFocus) {
   function inconsistentTimestamps(note) {
     function getDataDate(noteSegment) {
       return noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL];
@@ -377,8 +458,45 @@ exports.mergeIfNecessary = function(treeFocus) {
     return uniqVals.length > 1;
   }
 
-
   // Merging is simply a matter of updating the attributes of any notes
   // where all the segments of the note doesn't have the same timestamp.
   vdom.findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
+}
+
+function preventBrTags(treeFocus) {
+  function removeEmptyNoteSegments(treeFocus) {
+    function criteria(focus) {
+      return vdom.withoutText(focus) || vdom.withEmptyTextNode(focus);
+    }
+
+    var noteSegments = _.flatten(vdom.findAllNotes(treeFocus));
+    return noteSegments.filter(criteria).map(function (segment) {
+      return segment.remove();
+    });
+  }
+
+  function removeAncestorsIfNecessary(focus) {
+    var f = focus;
+    while (f) {
+      if (! f.canDown()) f.remove();
+      f = f.up();
+    }
+  }
+
+  // Unfortunately we sometimes end up with empty nodes and zero width
+  // characters in the HTML outside of note tags. We rely on
+  // `ensureContentIntegrity` cleaning this up.
+  var removedTags = removeEmptyNoteSegments(treeFocus);
+  removedTags.forEach(removeAncestorsIfNecessary);
+}
+
+exports.ensureContentIntegrity = function (treeFocus) {
+  // Clean up.
+  removeEmptyNodes(treeFocus);
+  removeLeftoverZeroWidthSpaces(treeFocus);
+
+  // Ensure note integrity.
+  mergeIfNecessary(treeFocus);
+  updateNoteBarriers(treeFocus);
+  preventBrTags(treeFocus);
 };

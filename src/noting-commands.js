@@ -28,7 +28,7 @@ exports.init = function(scribe, user) {
   addNoteToggleListener(scribe);
   addNoteCollapseListener(scribe);
 
-  addMergeCheckListener(scribe);
+  addContentChangedListener(scribe);
 };
 
 
@@ -141,11 +141,11 @@ function addNoteCollapseListener(scribe) {
 }
 
 
-function addMergeCheckListener(scribe) {
+function addContentChangedListener(scribe) {
   scribe.el.addEventListener('input', function() {
 
     vdom.mutate(scribe.el, function(treeFocus) {
-      noteToggle.mergeIfNecessary(treeFocus);
+      noteToggle.ensureContentIntegrity(treeFocus);
     });
 
   }, false);

@@ -85,3 +85,9 @@ gu\:note.note--end::after {
     height: 1em;
     pointer-events: all;
 }
+
+
+.note-barrier {
+    /* Keeps note barriers inline. */
+    display: inline-block;
+}

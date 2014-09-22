@@ -8,6 +8,7 @@ var isVText = require('vtree/is-vtext');
 
 var NODE_NAME = 'GU:NOTE';
 var TAG = 'gu:note';
+var NOTE_BARRIER_TAG = 'gu:note-barrier';
 var _ = require('lodash');
 
 /**
@@ -16,6 +17,10 @@ var _ = require('lodash');
 
 function focusOnMarker(focus) {
   return isScribeMarker(focus.vNode);
+}
+
+function focusNotOnMarker(focus) {
+  return ! focusOnMarker(focus);
 }
 
 function focusOnTextNode (focus) {
@@ -30,15 +35,31 @@ function focusOutsideNote(focus) {
   return ! findAncestorNoteSegment(focus);
 }
 
-function focusOnEmptyTextNode(focus) {
-  // We consider zero width spaces as empty.
-  function consideredEmpty(s) {
-    return s === '' || s === '\u200B';
-  }
-  var vNode = focus.vNode;
 
-  var result = isVText(vNode) && consideredEmpty(vNode.text);
+function consideredEmpty(s) {
+  var zeroWidthSpace = '\u200B';
+  var nonBreakingSpace = '\u00a0';
+
+  // We incude regular spaces because if we have a note tag that only
+  // includes a a regular space, then the browser will also insert a <BR>.
+  // If we consider a string containing only a regular space as empty we
+  // can remove the note tag to avoid the line break.
+  //
+  // Not ideal since it causes the space to be deleted even though the user
+  // hasn't asked for that. We compensate for this by moving any deleted
+  // space to the previous note segment.
+  var regularSpace = ' ';
+
+  return s === '' || s === zeroWidthSpace || s === nonBreakingSpace || s === regularSpace;
+}
+
+function focusOnEmptyTextNode(focus) {
+  var vNode = focus.vNode;
   return isVText(vNode) && consideredEmpty(vNode.text);
+}
+
+function focusOnNoteBarrier(focus) {
+  return isNoteBarrier(focus.vNode);
 }
 
 // Whether a DOM node or vNode is a note.
@@ -46,6 +67,10 @@ function focusOnEmptyTextNode(focus) {
 // (which can be lowercase).
 function isNote(node) {
   return node.tagName && node.tagName.toLowerCase() === TAG;
+}
+
+function isNoteBarrier(node) {
+  return node.tagName && node.tagName.toLowerCase() === NOTE_BARRIER_TAG;
 }
 
 function isScribeMarker(vNode) {
@@ -58,7 +83,7 @@ function hasClass(vNode, value) {
 }
 
 function stillWithinNote(focus) {
-  return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
+  return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || focusOnNoteBarrier(focus) || findAncestorNoteSegment(focus);
 }
 
 
@@ -71,10 +96,6 @@ function findAncestorNoteSegment(focus) {
 }
 
 function findTextNodeFocusesBetweenMarkers(treeFocus) {
-  function focusNotOnMarker(focus) {
-    return ! focusOnMarker(focus);
-  }
-
   return focusOnlyTextNodes(
     treeFocus.find(focusOnMarker).next().takeWhile(focusNotOnMarker)
   );
@@ -94,6 +115,27 @@ function findLastNoteSegment(fNoteSegment) {
   return _.last(
     fNoteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
   );
+}
+
+
+function focusAndDescendants(focus) {
+  // TODO: Use a proper algorithm for this.
+  function insideTag(insideOfFocus) {
+    return !!insideOfFocus.find(function (f) { return f.vNode === focus.vNode; }, 'up');
+  }
+  return focus.takeWhile(insideTag);
+}
+
+function withoutText(focus) {
+  return focusAndDescendants(focus).filter(focusOnTextNode).length === 0;
+}
+
+function withEmptyTextNode(focus) {
+  return focusAndDescendants(focus).filter(focusOnTextNode).every(focusOnEmptyTextNode);
+}
+
+function containsNote(focus) {
+  return _(focusAndDescendants(focus)).rest().value().some(focusOnNote);
 }
 
 // Find the rest of a note.
@@ -139,8 +181,28 @@ function findSelectedNote(treeFocus) {
 };
 
 
+function selectionEntirelyWithinNote(markers) {
+  if (markers.length === 2) {
+    // We have to exclude tags that contain a note since only part of that
+    // tag might be noted. E.g:
+    // <b>Some |text <gu:note class="note">and some noted |text</gu:note></b>
+    var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker)
+      .filter(function (focus) { return ! containsNote(focus); });
+
+    return betweenMarkers.every(findAncestorNoteSegment);
+  } else {
+    return !!findAncestorNoteSegment(markers[0]);
+  }
+}
+
+
 // Export the following functions
 //   TODO: streamline these so that dependant modules use more generic functions
+exports.focusOnNote = focusOnNote;
+exports.focusOnNoteBarrier = focusOnNoteBarrier;
+exports.focusOnTextNode = focusOnTextNode;
+exports.withoutText = withoutText;
+exports.withEmptyTextNode = withEmptyTextNode;
 exports.findLastNoteSegment = findLastNoteSegment;
 exports.findEntireNoteTextNodeFocuses = findEntireNoteTextNodeFocuses;
 exports.focusOutsideNote = focusOutsideNote;
@@ -152,3 +214,4 @@ exports.findMarkers = findMarkers;
 exports.isScribeMarker = isScribeMarker;
 exports.findAncestorNoteSegment = findAncestorNoteSegment;
 exports.findTextNodeFocusesBetweenMarkers = findTextNodeFocusesBetweenMarkers;
+exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
