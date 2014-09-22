@@ -239,7 +239,7 @@ function createEmptyNoteAtCaret(treeFocus) {
 function createNoteFromSelection(treeFocus) {
   // We want to wrap text nodes between the markers. We filter out nodes that have
   // already been wrapped.
-  var toWrapAndReplace = vdom.findTextNodeFocusesBetweenMarkers(treeFocus).filter(vdom.focusOutsideNote);
+  var toWrapAndReplace = findTextNodeFocusesBetweenMarkers(treeFocus).filter(focusOutsideNote);
 
   // Wrap the text nodes.
   var userAndTime = userAndTimeAsDatasetAttrs();
@@ -259,19 +259,20 @@ function createNoteFromSelection(treeFocus) {
   // existing markers.
   removeVirtualScribeMarkers(treeFocus);
 
-  // Then we place a new marker.
-  // TODO: Think of a proper solution instead of using this "element in between" hack.
-  //       Chrome has a bug which means it doesn't place the caret
-  //       outside the note.
-  //
-  //       Also, being able to step in and out of notes might need a solution
-  //       like this, but where we somehow always maintain one zero-space
-  //       element at the beginning and end of each note.
-  var lastNoteSegment = vdom.findLastNoteSegment(toWrapAndReplace[0]);
+  // (We also insert a note barrier at the start.)
+  var firstNoteSegment = findFirstNoteSegment(toWrapAndReplace[0]);
+  firstNoteSegment.next().insertBefore(createNoteBarrier());
+
+  // Then we place a new marker. (And a note barrier at the end.)
+  var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0]);
   lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
 
-  var noteSegments = vdom.findEntireNote(lastNoteSegment);
+
+  var noteSegments = findEntireNote(lastNoteSegment);
   updateNoteProperties(noteSegments);
+
+  // If we end up with an empty note a <BR> tag would be created.
+  preventBrTags(treeFocus);
 }
 
 function unnote(treeFocus) {
