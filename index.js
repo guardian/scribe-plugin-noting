@@ -72,7 +72,6 @@ module.exports = function(user) {
     function consideredEmpty(s) {
       var zeroWidthSpace = '\u200B';
       var nonBreakingSpace = '\u00a0';
-      var asciiNonBreakingSpace = '\xA0';
 
       // We incude regular spaces because if we have a note tag that only
       // includes a a regular space, then the browser will also insert a <BR>.
@@ -84,7 +83,7 @@ module.exports = function(user) {
       // space to the previous note segment.
       var regularSpace = ' ';
 
-      return s === '' || s === zeroWidthSpace || s === nonBreakingSpace || s === asciiNonBreakingSpace || s === regularSpace;
+      return s === '' || s === zeroWidthSpace || s === nonBreakingSpace || s === regularSpace;
     }
 
     function focusOnEmptyTextNode(focus) {
