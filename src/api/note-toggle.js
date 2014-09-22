@@ -10,12 +10,6 @@ var isVText = require('vtree/is-vtext');
 var VText = require('vtree/vtext');
 var _ = require('lodash');
 
-
-// NOTE: This tag is invalid. Custom elements must include
-// a '-' or browsers consider them invalid. Can probaly lead to
-// quirks in behaviour. It's also possible to register them.
-// Not sure if one is expected to do that.
-// (See: http://www.html5rocks.com/en/tutorials/webcomponents/customelements/)
 var NODE_NAME = 'GU-NOTE';
 var TAG = 'gu-note';
 
@@ -171,46 +165,6 @@ function removeVirtualScribeMarkers(treeFocus) {
     if (vdom.isScribeMarker(focus.vNode)) focus.remove();
   });
 }
-
-// To clean up after ourselves, when a user removes notes by e.g. pressing
-// BACKSPACE.
-function removeLeftoverZeroWidthSpaces(treeFocus) {
-  var nonNoteTextNodeFocuses = treeFocus.filter(vdom.focusOutsideNote)
-    .filter(vdom.focusOnTextNode);
-
-  nonNoteTextNodeFocuses.forEach(function (focus) {
-    var vNode = focus.vNode;
-    if (vNode.text.length > 1) {
-      vNode.text = vNode.text.replace(/\u200B/g, '');
-    }
-  });
-}
-
-// To clean up after ourselves, when a user removes notes by e.g. pressing
-// BACKSPACE.
-function removeEmptyNodes(treeFocus) {
-  function criteria(focus) {
-    return vdom.withoutText(focus) || vdom.withEmptyTextNode(focus);
-  }
-
-  // Move any space we delete to the previous note segment.
-  function moveSpaceToPrevSegment(node) {
-    if (vdom.focusOnNote(node)) {
-      var prevNoteSegment = node.prev().find(vdom.focusOnNote, 'prev');
-      if (prevNoteSegment) {
-        var lastTextNode = _.last(prevNoteSegment.vNode.children.filter(isVText));
-        if (lastTextNode) lastTextNode.text = lastTextNode.text + ' ';
-      }
-    }
-  }
-
-  return treeFocus.filter(function (focus) { return ! vdom.focusOnTextNode(focus); }).filter(criteria).map(function (node) {
-    moveSpaceToPrevSegment(node);
-    return node.remove();
-  });
-}
-
-
 
 
 
@@ -372,62 +326,6 @@ function unnotePartOfNote(treeFocus) {
 }
 
 
-// TODO: Should return false when the start and end is within a note,
-// but where there is unnoted text inbetween.
-exports.isSelectionInANote = function isSelectionInANote(selectionRange, parentContainer) {
-
-  // Walk up the (real) DOM checking isTargetNode.
-  function domWalkUpFind(node, isTargetNode) {
-    if (!node.parentNode || node === parentContainer) { return false; }
-
-    return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
-  }
-
-  // Return the note our selection is inside of, if we are inside one.
-  function domFindAncestorNote(node) {
-    return domWalkUpFind(node, function(node) {
-      return node.tagName === NODE_NAME;
-    });
-  }
-
-  return domFindAncestorNote(selectionRange.startContainer) && domFindAncestorNote(selectionRange.endContainer) && true;
-};
-
-
-exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, selection) {
-
-  function state() {
-
-    var selectionMarkers = vdom.findMarkers(treeFocus);
-    var selectionIsCollapsed = selectionMarkers.length === 1;
-    var withinNote = vdom.selectionEntirelyWithinNote(selectionMarkers);
-
-    var state;
-    if (selectionIsCollapsed && withinNote) {
-      state = 'caretWithinNote';
-    } else if (withinNote) {
-      state = 'selectionWithinNote';
-    } else if (selectionIsCollapsed) {
-      state = 'caretOutsideNote';
-    } else {
-      state = 'selectionOutsideNote'; // at least partially outside.
-    }
-
-    return state;
-  }
-
-  var scenarios = {
-    caretWithinNote: function (treeFocus) { unnote(treeFocus); },
-    selectionWithinNote: function (treeFocus) {  unnotePartOfNote(treeFocus);  },
-    caretOutsideNote: function (treeFocus) { createEmptyNoteAtCaret(treeFocus); },
-    selectionOutsideNote: function (treeFocus) { createNoteFromSelection(treeFocus); }
-  };
-
-  // Perform action depending on which state we're in.
-  scenarios[state()](treeFocus);
-};
-
-
 /*
   Example. We have two notes:
   <p>
@@ -491,6 +389,44 @@ function preventBrTags(treeFocus) {
   removedTags.forEach(removeAncestorsIfNecessary);
 }
 
+// To clean up after ourselves, when a user removes notes by e.g. pressing
+// BACKSPACE.
+function removeLeftoverZeroWidthSpaces(treeFocus) {
+  var nonNoteTextNodeFocuses = treeFocus.filter(vdom.focusOutsideNote)
+    .filter(vdom.focusOnTextNode);
+
+  nonNoteTextNodeFocuses.forEach(function (focus) {
+    var vNode = focus.vNode;
+    if (vNode.text.length > 1) {
+      vNode.text = vNode.text.replace(/\u200B/g, '');
+    }
+  });
+}
+
+// To clean up after ourselves, when a user removes notes by e.g. pressing
+// BACKSPACE.
+function removeEmptyNodes(treeFocus) {
+  function criteria(focus) {
+    return vdom.withoutText(focus) || vdom.withEmptyTextNode(focus);
+  }
+
+  // Move any space we delete to the previous note segment.
+  function moveSpaceToPrevSegment(node) {
+    if (vdom.focusOnNote(node)) {
+      var prevNoteSegment = node.prev().find(vdom.focusOnNote, 'prev');
+      if (prevNoteSegment) {
+        var lastTextNode = _.last(prevNoteSegment.vNode.children.filter(isVText));
+        if (lastTextNode) lastTextNode.text = lastTextNode.text + ' ';
+      }
+    }
+  }
+
+  return treeFocus.filter(function (focus) { return ! vdom.focusOnTextNode(focus); }).filter(criteria).map(function (node) {
+    moveSpaceToPrevSegment(node);
+    return node.remove();
+  });
+}
+
 exports.ensureContentIntegrity = function (treeFocus) {
   // Clean up.
   removeEmptyNodes(treeFocus);
@@ -500,4 +436,56 @@ exports.ensureContentIntegrity = function (treeFocus) {
   mergeIfNecessary(treeFocus);
   updateNoteBarriers(treeFocus);
   preventBrTags(treeFocus);
+};
+
+
+exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, selection) {
+  function state() {
+    var selectionMarkers = vdom.findMarkers(treeFocus);
+    var selectionIsCollapsed = selectionMarkers.length === 1;
+    var withinNote = vdom.selectionEntirelyWithinNote(selectionMarkers);
+
+    var state;
+    if (selectionIsCollapsed && withinNote) {
+      state = 'caretWithinNote';
+    } else if (withinNote) {
+      state = 'selectionWithinNote';
+    } else if (selectionIsCollapsed) {
+      state = 'caretOutsideNote';
+    } else {
+      state = 'selectionOutsideNote'; // at least partially outside.
+    }
+
+    return state;
+  }
+
+  var scenarios = {
+    caretWithinNote: function (treeFocus) { unnote(treeFocus); },
+    selectionWithinNote: function (treeFocus) {  unnotePartOfNote(treeFocus);  },
+    caretOutsideNote: function (treeFocus) { createEmptyNoteAtCaret(treeFocus); },
+    selectionOutsideNote: function (treeFocus) { createNoteFromSelection(treeFocus); }
+  };
+
+  // Perform action depending on which state we're in.
+  scenarios[state()](treeFocus);
+};
+
+// TODO: Replace with `selectionEntirelyWithinNote`.
+exports.isSelectionInANote = function isSelectionInANote(selectionRange, parentContainer) {
+
+  // Walk up the (real) DOM checking isTargetNode.
+  function domWalkUpFind(node, isTargetNode) {
+    if (!node.parentNode || node === parentContainer) { return false; }
+
+    return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
+  }
+
+  // Return the note our selection is inside of, if we are inside one.
+  function domFindAncestorNote(node) {
+    return domWalkUpFind(node, function(node) {
+      return node.tagName === NODE_NAME;
+    });
+  }
+
+  return domFindAncestorNote(selectionRange.startContainer) && domFindAncestorNote(selectionRange.endContainer) && true;
 };
