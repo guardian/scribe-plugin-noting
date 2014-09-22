@@ -618,10 +618,17 @@ module.exports = function(user) {
       // Unwrap previously existing note
       entireNote.forEach(unwrap);
 
+
       // Notes to the left and right of the selection may have been created.
       // We need to update their attributes and CSS classes.
-      var lefty = findEntireNote(focusesToNote[0]);
-      var righty = findEntireNote(focusesToNote[focusesToNote.length - 1]);
+
+      // Note: refresh() is necessary here. Maybe possible to avoid somehow,
+      // but as of now the focusesToNote focuses are not reliable.
+      var startOfLefty = focusesToNote[0].refresh()
+      var lefty = findEntireNote(startOfLefty);
+
+      var startOfRighty = focusesToNote[focusesToNote.length - 1].refresh();
+      var righty = findEntireNote(startOfRighty);
 
       updateNoteProperties(lefty);
       updateNoteProperties(righty);
