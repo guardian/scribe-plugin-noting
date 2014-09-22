@@ -16,15 +16,15 @@ var _ = require('lodash');
 // quirks in behaviour. It's also possible to register them.
 // Not sure if one is expected to do that.
 // (See: http://www.html5rocks.com/en/tutorials/webcomponents/customelements/)
-var NODE_NAME = 'GU:NOTE';
-var TAG = 'gu:note';
+var NODE_NAME = 'GU-NOTE';
+var TAG = 'gu-note';
 
 var CLASS_NAME = 'note';
 var DATA_NAME = 'data-node-edited-by';
 var DATA_NAME_CAMEL = 'noteEditedBy';
 var DATA_DATE = 'data-note-edited-date';
 var DATA_DATE_CAMEL = 'noteEditedDate';
-var NOTE_BARRIER_TAG = 'gu:note-barrier';
+var NOTE_BARRIER_TAG = 'gu-note-barrier';
 
 
 var vdom = require('./note-vdom');
@@ -295,22 +295,22 @@ Example
 -------
 Text within a note has been selected:
 
-  <p>Asked me questions about the vessel<gu:note>|, the time she left Marseilles|, the
-  course she had taken,</gu:note> and what was her cargo. I believe, if she had not
+  <p>Asked me questions about the vessel<gu-note>|, the time she left Marseilles|, the
+  course she had taken,</gu-note> and what was her cargo. I believe, if she had not
   been laden, and I had been her master, he would have bought her.</p>
 
 
 We find the entire note and, within the note, we note everything _but_ what we want to unnote:
 
-  <p>Asked me questions about the vessel<gu:note>, the time she left Marseilles<gu:note>, the
-  course she had taken,</gu:note></gu:note> and what was her cargo. I believe, if she had not
+  <p>Asked me questions about the vessel<gu-note>, the time she left Marseilles<gu-note>, the
+  course she had taken,</gu-note></gu-note> and what was her cargo. I believe, if she had not
   been laden, and I had been her master, he would have bought her.</p>
 
 
 Then we unwrap the previously existing note. The text we selected has been unnoted:
 
-  <p>Asked me questions about the vessel, the time she left Marseilles<gu:note>, the
-  course she had taken,</gu:note> and what was her cargo. I believe, if she had not
+  <p>Asked me questions about the vessel, the time she left Marseilles<gu-note>, the
+  course she had taken,</gu-note> and what was her cargo. I believe, if she had not
   been laden, and I had been her master, he would have bought her.</p>
 
 */
@@ -430,17 +430,17 @@ exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, select
 /*
   Example. We have two notes:
   <p>
-    <gu:note>Some noted text</gu:note>| and some other text inbetween |<gu:note>More noted text</gu:note>
+    <gu-note>Some noted text</gu-note>| and some other text inbetween |<gu-note>More noted text</gu-note>
   </p>
 
   We press BACKSPACE, deleting the text, and end up with:
   <p>
-    <gu:note data-note-edited-by="Edmond Dantès" data-note-edited-date="2014-09-15T16:49:20.012Z">Some noted text</gu:note><gu:note data-note-edited-by="Lord Wilmore" data-note-edited-date="2014-09-20T10:00:00.012Z">More noted text</gu:note>
+    <gu-note data-note-edited-by="Edmond Dantès" data-note-edited-date="2014-09-15T16:49:20.012Z">Some noted text</gu-note><gu-note data-note-edited-by="Lord Wilmore" data-note-edited-date="2014-09-20T10:00:00.012Z">More noted text</gu-note>
   </p>
 
   This function will merge the notes:
   <p>
-    <gu:note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">Some noted text</gu:note><gu:note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">More noted text</gu:note>
+    <gu-note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">Some noted text</gu-note><gu-note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">More noted text</gu-note>
   </p>
 
   The last user to edit "wins", the rationale being that they have approved

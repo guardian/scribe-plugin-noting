@@ -6,9 +6,9 @@
 
 var isVText = require('vtree/is-vtext');
 
-var NODE_NAME = 'GU:NOTE';
-var TAG = 'gu:note';
-var NOTE_BARRIER_TAG = 'gu:note-barrier';
+var NODE_NAME = 'GU-NOTE';
+var TAG = 'gu-note';
+var NOTE_BARRIER_TAG = 'gu-note-barrier';
 var _ = require('lodash');
 
 /**
@@ -185,7 +185,7 @@ function selectionEntirelyWithinNote(markers) {
   if (markers.length === 2) {
     // We have to exclude tags that contain a note since only part of that
     // tag might be noted. E.g:
-    // <b>Some |text <gu:note class="note">and some noted |text</gu:note></b>
+    // <b>Some |text <gu-note class="note">and some noted |text</gu-note></b>
     var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker)
       .filter(function (focus) { return ! containsNote(focus); });
 

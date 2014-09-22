@@ -95,7 +95,7 @@ function createCollapseToggleAllCommand(scribe) {
 
   collapseAllCommand.queryEnabled = function() {
     // true when notes are on page
-    return !!scribe.el.getElementsByTagName('gu:note').length;
+    return !!scribe.el.getElementsByTagName('gu-note').length;
   };
 
   collapseAllCommand.queryState = function() {
@@ -125,7 +125,7 @@ function addNoteCollapseListener(scribe) {
   scribe.el.addEventListener('click', function(event) {
     var target = event.target;
 
-    if (target.nodeName == 'GU:NOTE') {
+    if (target.nodeName == 'GU-NOTE') {
 
       var selection = new scribe.api.Selection();
 

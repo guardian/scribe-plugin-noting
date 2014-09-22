@@ -2,7 +2,7 @@
  * Virtual DOM parser / serializer for Noting plugin.
  */
 
-var TAG = 'gu:note';
+var TAG = 'gu-note';
 
 var _ = require('lodash');
 
