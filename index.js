@@ -122,8 +122,13 @@ module.exports = function(user) {
 
     function selectionEntirelyWithinNote(markers) {
       if (markers.length === 2) {
-        var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker);
-        return ! betweenMarkers.some(focusOutsideNote);
+        // We have to exclude tags that contain a note since only part of that
+        // tag might be noted. E.g:
+        // <b>Some |text <gu:note class="note">and some noted |text</gu:note></b>
+        var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker)
+          .filter(function (focus) { return ! containsNote(focus); });
+
+        return betweenMarkers.every(findAncestorNoteSegment);
       } else {
         return !!findAncestorNoteSegment(markers[0]);
       }
@@ -174,6 +179,10 @@ module.exports = function(user) {
 
     function withEmptyTextNode(focus) {
       return focusAndDescendants(focus).filter(focusOnTextNode).every(focusOnEmptyTextNode);
+    }
+
+    function containsNote(focus) {
+      return _(focusAndDescendants(focus)).rest().value().some(focusOnNote);
     }
 
     // Find the rest of a note.
