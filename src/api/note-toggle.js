@@ -147,7 +147,7 @@ function createVirtualScribeMarker() {
   return h('em.scribe-marker', []);
 }
 
-function createNoteBarrier() {
+function createNoteBarrier(startOrEnd) {
   // Note that the note barrier must be empty. This prevents the web
   // browser from ever placing the caret inside of the tag. The problem
   // with allowing the caret to be placed inside of the tag is that we'll
@@ -156,7 +156,7 @@ function createNoteBarrier() {
   // However, keeping it empty makes it necessary to specify the CSS
   // ".note-barrier { display: inline-block }" or browsers will render
   // a line break after each note barrier.
-  return h(NOTE_BARRIER_TAG + '.note-barrier');
+  return h(NOTE_BARRIER_TAG + '.note-barrier' + '.note-barrier--' + startOrEnd);
 }
 
 function updateNoteBarriers(treeFocus) {
@@ -168,8 +168,8 @@ function updateNoteBarriers(treeFocus) {
 
   function insertNoteBarriers(treeFocus) {
     vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
-      _.first(noteSegments).next().insertBefore(createNoteBarrier());
-      _.last(noteSegments).insertAfter(createNoteBarrier());
+      _.first(noteSegments).next().insertBefore(createNoteBarrier('start'));
+      _.last(noteSegments).insertAfter(createNoteBarrier('end'));
     });
   }
 
