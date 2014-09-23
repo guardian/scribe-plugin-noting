@@ -9,8 +9,10 @@ var glob      = require('plumber-glob');
 var requireJS = require('plumber-requirejs');
 var uglifyJS  = require('plumber-uglifyjs');
 var write     = require('plumber-write');
+var browserify = require('./lib/plumber-browserify');
 
-module.exports = function (pipelines) {
+
+module.exports = function(pipelines) {
   var toBuildDir = write('./build');
   var writeBoth = all(
     // Send the resource along these branches
@@ -19,15 +21,12 @@ module.exports = function (pipelines) {
   );
 
   pipelines['build'] = [
-    glob('src/scribe-plugin-noting.js'),
-    requireJS({
-      // FIXME: auto?
-      preserveLicenseComments: false,
-      paths: {
-        'scribe-common': '../bower_components/scribe-common',
-        'lodash-amd': '../bower_components/lodash-amd'
-      }
+    glob('scribe-plugin-noting.js'),
+
+    browserify({
+      standalone: 'scribe-plugin-noting'
     }),
+
     writeBoth
   ];
 };
