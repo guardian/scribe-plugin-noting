@@ -210,7 +210,7 @@ function createEmptyNoteAtCaret(treeFocus) {
 function createNoteFromSelection(treeFocus) {
   // We want to wrap text nodes between the markers. We filter out nodes that have
   // already been wrapped.
-  var toWrapAndReplace = findTextNodeFocusesBetweenMarkers(treeFocus).filter(focusOutsideNote);
+  var toWrapAndReplace = vdom.findTextNodeFocusesBetweenMarkers(treeFocus).filter(vdom.focusOutsideNote);
 
   // Wrap the text nodes.
   var userAndTime = userAndTimeAsDatasetAttrs();
@@ -231,15 +231,15 @@ function createNoteFromSelection(treeFocus) {
   removeVirtualScribeMarkers(treeFocus);
 
   // (We also insert a note barrier at the start.)
-  var firstNoteSegment = findFirstNoteSegment(toWrapAndReplace[0]);
+  var firstNoteSegment = vdom.findFirstNoteSegment(toWrapAndReplace[0]);
   firstNoteSegment.next().insertBefore(createNoteBarrier());
 
   // Then we place a new marker. (And a note barrier at the end.)
-  var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0]);
+  var lastNoteSegment = vdom.findLastNoteSegment(toWrapAndReplace[0]);
   lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
 
 
-  var noteSegments = findEntireNote(lastNoteSegment);
+  var noteSegments = vdom.findEntireNote(lastNoteSegment);
   updateNoteProperties(noteSegments);
 
   // If we end up with an empty note a <BR> tag would be created.

@@ -188,7 +188,6 @@ function selectionEntirelyWithinNote(markers) {
     // <b>Some |text <gu-note class="note">and some noted |text</gu-note></b>
     var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker)
       .filter(function (focus) { return ! containsNote(focus); });
-
     return betweenMarkers.every(findAncestorNoteSegment);
   } else {
     return !!findAncestorNoteSegment(markers[0]);

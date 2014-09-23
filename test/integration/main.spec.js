@@ -16,7 +16,7 @@ var _ = require('lodash');
 
 function loadPlugin() {
   return driver.executeAsyncScript(function (done) {
-    require(['../../src/scribe-plugin-noting'], function (scribePluginNoting) {
+    require(['../../dist/scribe-plugin-noting'], function (scribePluginNoting) {
       window.scribe.use(scribePluginNoting("A User"));
       done();
     });
