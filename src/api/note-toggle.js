@@ -43,7 +43,7 @@ function wrapInNote(toWrap, dataAttrs) {
   // sharing the same dataset object.
   var dataAttrs = dataAttrs ? _.clone(dataAttrs) : {};
 
-  var note = h(TAG + '.' + CLASS_NAME, {dataset: dataAttrs}, nodes);
+  var note = h(TAG + '.' + CLASS_NAME, {title: getEditedByTitleText(dataAttrs), dataset: dataAttrs}, nodes);
   return note;
 }
 
@@ -112,10 +112,27 @@ function updateStartAndEndClasses(noteSegments) {
   addStartAndEndClasses(noteSegments);
 }
 
+function getEditedByTitleText(dataAttrs) {
+  var date = new Date(dataAttrs[DATA_DATE_CAMEL]),
+
+  // crude formatting avoids a "momentjs" dependency - should be adequate
+  // forced UK formatted time in local timezone:  dd/MM/YYYY at hh:mm
+  formattedDate = [
+    date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(),
+    'at',
+    date.getHours() + ':' + date.getMinutes()
+  ].join(' ');
+
+  return dataAttrs[DATA_NAME_CAMEL] + '  ' + formattedDate;
+}
+
 function updateEditedBy(noteSegment) {
   var dataset = userAndTimeAsDatasetAttrs();
+
   noteSegment.vNode.properties.dataset[DATA_NAME_CAMEL] = dataset[DATA_NAME_CAMEL];
   noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL] = dataset[DATA_DATE_CAMEL];
+
+  noteSegment.vNode.properties.title = getEditedByTitleText(dataset);
 }
 
 function userAndTimeAsDatasetAttrs() {
