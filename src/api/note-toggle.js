@@ -380,6 +380,10 @@ function mergeIfNecessary(treeFocus) {
 }
 
 
+// In a contenteditable, browsers insert a <BR> tag into any empty element.
+// This causes styling issues when the user deletes a part of a note,
+// e.g. using backspace. This function provides a workaround and should be run
+// anytime a note segment might be empty (as defined by `vdom.consideredEmpty`).
 function preventBrTags(treeFocus) {
   function isTrue(obj) { return !!obj; }
 
@@ -420,6 +424,7 @@ function preventBrTags(treeFocus) {
     marker.find(vdom.focusOnNote)
   ].filter(isTrue);
 
+  // Replace/delete empty notes, and parents that might have become empty.
   segments.filter(function (segment) { return !!segment; })
     .map(function (segment) {
       if (vdom.withEmptyTextNode(segment)) addSpaceToPrevSegment(segment);
