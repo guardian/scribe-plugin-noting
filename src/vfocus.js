@@ -258,10 +258,9 @@ VFocus.prototype.takeWhile = function(predicate, movement) {
 
   var focus = this;
   var acc = [];
-  while (predicate(focus)) {
+  while (focus && predicate(focus)) {
     acc.push(focus);
     focus = focus[movement]();
-    if (! focus[movement]()) break;
   }
   return acc;
 };
