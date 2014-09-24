@@ -1,4 +1,4 @@
-gu\:note {
+gu-note {
     /*background-color: #e6f2f7;*/ /* original */
     background: rgba(230, 242, 247, 0.7);
     border-top: 1px dotted rgba(41, 131, 182, 1);
@@ -12,7 +12,7 @@ gu\:note {
     pointer-events: none;
 }
 
-gu\:note.note--collapsed {
+gu-note.note--collapsed {
     /*padding: 0 0.4em;*/
     /*margin: 0 0.1em;*/
     width: 0;
@@ -23,14 +23,14 @@ gu\:note.note--collapsed {
     /*margin set on start/end elems*/
 }
 
-gu\:note.note--collapsed:hover {
+gu-note.note--collapsed:hover {
     padding: 0 0.5em !important;
     margin: 0;
     cursor: pointer;
 }
 
 /*expanded*/
-gu\:note {
+gu-note {
     display: inline;
     width: auto;
     margin: 0;
@@ -38,24 +38,24 @@ gu\:note {
 }
 
 /*expanded*/
-gu\:note:hover {
+gu-note:hover {
     cursor: inherit;
 }
 
 
-gu\:note.note--start {
+gu-note.note--start {
     border-left: 2px solid rgba(41, 131, 182, 1);
     margin-left: 0.1em;
     padding-left: 0.4em;
 }
-gu\:note.note--end {
+gu-note.note--end {
     border-right: 2px solid rgba(41, 131, 182, 1);
     margin-right: 0.1em;
     padding-right: 0.4em;
 }
 
 
-gu\:note.note--start::before {
+gu-note.note--start::before {
 
     content: ' ';
     position: absolute;
@@ -71,7 +71,7 @@ gu\:note.note--start::before {
     pointer-events: all;
 }
 
-gu\:note.note--end::after {
+gu-note.note--end::after {
     content: ' ';
     position: absolute;
     right: -1px;
