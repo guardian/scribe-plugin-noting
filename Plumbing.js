@@ -20,7 +20,7 @@ module.exports = function(pipelines) {
     toBuildDir
   );
 
-  pipelines['build'] = [
+  pipelines['build:js'] = [
     glob('scribe-plugin-noting.js'),
 
     browserify({
@@ -29,4 +29,14 @@ module.exports = function(pipelines) {
 
     writeBoth
   ];
+
+  pipelines['build:css'] = [
+    glob('src/skins/*.css'),
+    write('./build/skins')
+  ];
+
+  pipelines['build'] = all(
+    pipelines['build:js'],
+    pipelines['build:css']
+  );
 };
