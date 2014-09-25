@@ -4,7 +4,7 @@
 @note-text-colour: #767676;
 
 .note {
-    background: @note-background-colour;
+    .note--background();
 
     position: relative;
     vertical-align: bottom;
@@ -20,6 +20,68 @@
         color: inherit;
     }
 }
+
+/* SVG Borders for note */
+@note-border-dotted: %("<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%A' stroke-dasharray='1'/></svg>", @note-border-colour);
+@note-border-dotted-url: url("data:image/svg+xml;utf8,@{note-border-dotted}");
+
+@note-border-left: %("<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 0 0 L 6 0 L 0 6 L 0 0 L 2 0 L 2 20 L 0 20' fill='%A' stroke='none'/></svg>", @note-border-colour);
+@note-border-left-url: url("data:image/svg+xml;utf8,@{note-border-left}");
+
+@note-border-right: %("<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 8 20 L 2 20 L 8 14 L 8 20 L 6 20 L 6 0 L 8 0' fill='%A' stroke='none'/></svg>", @note-border-colour);
+@note-border-right-url: url("data:image/svg+xml;utf8,@{note-border-right}");
+
+
+/**
+ * Border mixins set as backgrounds
+ *     background: <bg-image> || <position> [ / <bg-size> ]? || <repeat-style>
+ */
+.note-border--dotted-top() {
+    background+: @note-border-dotted-url top / 2px repeat-x;
+}
+
+.note-border--dotted-bottom() {
+    background+: @note-border-dotted-url bottom / 2px repeat-x;
+}
+
+.note-border--left() {
+    background+: @note-border-left-url top left / contain no-repeat;
+}
+
+.note-border--right() {
+    background+: @note-border-right-url bottom right / contain no-repeat;
+}
+
+/* Core note background */
+.note--background() {
+    .note-border--dotted-top();
+    .note-border--dotted-bottom();
+    background-color: @note-background-colour;
+}
+
+
+.note--start {
+    .note--background();
+    .note-border--left();
+    margin-left: 1px;
+    padding-left: 4px;
+}
+
+.note--end {
+    .note--background();
+    .note-border--right();
+    margin-right: 1px;
+    padding-right: 4px;
+}
+
+
+.note--start.note--end,
+.note--start.note--collapsed {
+    .note--background();
+    .note-border--left();
+    .note-border--right();
+}
+
 
 .note--collapsed {
     display: none;
@@ -44,39 +106,6 @@
         width: 18px;
         cursor: pointer;
     }
-}
-
-@note-border-left: %("<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 0 0 L 6 0 L 0 6 L 0 0 L 2 0 L 2 20 L 0 20' fill='%A' stroke='none'/></svg>", @note-border-colour);
-@note-border-right: %("<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 8 20 L 2 20 L 8 14 L 8 20 L 6 20 L 6 0 L 8 0' fill='%A' stroke='none'/></svg>", @note-border-colour);
-@note-border-left-url: url("data:image/svg+xml;utf8,@{note-border-left}");
-@note-border-right-url: url("data:image/svg+xml;utf8,@{note-border-right}");
-
-.note--start {
-    margin-left: 1px;
-    padding-left: 4px;
-    background-image: @note-border-left-url;
-    background-size: 0.5em;
-    background-position: top left;
-    background-repeat: no-repeat;
-}
-
-
-.note--end {
-    margin-right: 1px;
-    padding-right: 4px;
-    background-image: @note-border-right-url;
-    background-size: 0.5em;
-    background-position: bottom right;
-    background-repeat: no-repeat;
-}
-
-
-.note--start.note--end,
-.note--start.note--collapsed {
-    background-image: @note-border-left-url, @note-border-right-url;
-    background-size: 0.5em, 0.5em;
-    background-position: top left, bottom right;
-    background-repeat: no-repeat;
 }
 
 
