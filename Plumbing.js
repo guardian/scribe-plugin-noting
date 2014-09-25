@@ -8,6 +8,7 @@ var all       = require('plumber-all');
 var glob      = require('plumber-glob');
 var requireJS = require('plumber-requirejs');
 var uglifyJS  = require('plumber-uglifyjs');
+var less      = require('plumber-less');
 var write     = require('plumber-write');
 var browserify = require('./lib/plumber-browserify');
 
@@ -31,7 +32,8 @@ module.exports = function(pipelines) {
   ];
 
   pipelines['build:css'] = [
-    glob('src/skins/*.css'),
+    glob('src/skins/*.less'),
+    less(),
     write('./build/skins')
   ];
 
