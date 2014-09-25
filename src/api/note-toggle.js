@@ -374,9 +374,20 @@ function mergeIfNecessary(treeFocus) {
     return uniqVals.length > 1;
   }
 
+  function lacksStartOrEnd(note) {
+    var hasNoteStart = 'noteStart' in note[0].vNode.properties.dataset;
+    var hasNoteEnd = 'noteEnd' in note[note.length - 1].vNode.properties.dataset;
+
+    return ! (hasNoteStart && hasNoteEnd);
+  }
+
   // Merging is simply a matter of updating the attributes of any notes
-  // where all the segments of the note doesn't have the same timestamp.
-  vdom.findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
+  // where all the segments of the note doesn't have the same timestamp,
+  // or where there's no start or end property (e.g. when the user has deleted
+  // the last note segment of a note).
+  function criteria(note) { return inconsistentTimestamps(note) || lacksStartOrEnd(note); }
+
+  vdom.findAllNotes(treeFocus).filter(criteria).forEach(updateNoteProperties);
 }
 
 
