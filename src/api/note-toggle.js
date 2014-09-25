@@ -120,7 +120,7 @@ function getEditedByTitleText(dataAttrs) {
   formattedDate = [
     date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(),
     'at',
-    date.getHours() + ':' + date.getMinutes()
+    date.getHours() + ':' + (date.getMinutes() < 9 ? '0' : '') + date.getMinutes()
   ].join(' ');
 
   return dataAttrs[DATA_NAME_CAMEL] + '  ' + formattedDate;
