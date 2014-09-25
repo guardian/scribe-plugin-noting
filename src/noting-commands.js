@@ -144,9 +144,9 @@ function addNoteCollapseListener(scribe) {
 function addContentChangedListener(scribe) {
   scribe.el.addEventListener('input', function() {
 
-    vdom.mutate(scribe.el, function(treeFocus) {
-      noteToggle.ensureContentIntegrity(treeFocus);
+    vdom.mutateScribe(scribe, function(treeFocus) {
+      noteToggle.ensureNoteIntegrity(treeFocus);
     });
 
-  }, false);
+  });
 }

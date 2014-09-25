@@ -374,24 +374,31 @@ function mergeIfNecessary(treeFocus) {
     return uniqVals.length > 1;
   }
 
-  // Merging is simply a matter of updating the attributes of any notes
-  // where all the segments of the note doesn't have the same timestamp.
-  vdom.findAllNotes(treeFocus).filter(inconsistentTimestamps).forEach(updateNoteProperties);
-}
+  function lacksStartOrEnd(note) {
+    var hasNoteStart = 'noteStart' in note[0].vNode.properties.dataset;
+    var hasNoteEnd = 'noteEnd' in note[note.length - 1].vNode.properties.dataset;
 
-function preventBrTags(treeFocus) {
-  function removeEmptyNoteSegments(treeFocus) {
-    function criteria(focus) {
-      return vdom.withoutText(focus) || vdom.withEmptyTextNode(focus);
-    }
-
-    var noteSegments = _.flatten(vdom.findAllNotes(treeFocus));
-    return noteSegments.filter(criteria).map(function (segment) {
-      return segment.remove();
-    });
+    return ! (hasNoteStart && hasNoteEnd);
   }
 
-  function removeAncestorsIfNecessary(focus) {
+  // Merging is simply a matter of updating the attributes of any notes
+  // where all the segments of the note doesn't have the same timestamp,
+  // or where there's no start or end property (e.g. when the user has deleted
+  // the last note segment of a note).
+  function criteria(note) { return inconsistentTimestamps(note) || lacksStartOrEnd(note); }
+
+  vdom.findAllNotes(treeFocus).filter(criteria).forEach(updateNoteProperties);
+}
+
+
+// In a contenteditable, browsers insert a <BR> tag into any empty element.
+// This causes styling issues when the user deletes a part of a note,
+// e.g. using backspace. This function provides a workaround and should be run
+// anytime a note segment might be empty (as defined by `vdom.consideredEmpty`).
+function preventBrTags(treeFocus) {
+  function isTrue(obj) { return !!obj; }
+
+  function removeEmptyAncestors(focus) {
     var f = focus;
     while (f) {
       if (! f.canDown()) f.remove();
@@ -399,57 +406,53 @@ function preventBrTags(treeFocus) {
     }
   }
 
-  // Unfortunately we sometimes end up with empty nodes and zero width
-  // characters in the HTML outside of note tags. We rely on
-  // `ensureContentIntegrity` cleaning this up.
-  var removedTags = removeEmptyNoteSegments(treeFocus);
-  removedTags.forEach(removeAncestorsIfNecessary);
-}
+  // When we delete a space we want to add a space to the previous
+  // note segment.
+  function addSpaceToPrevSegment(segment) {
+      var prevNoteSegment = segment.prev().find(vdom.focusOnNote, 'prev');
 
-// To clean up after ourselves, when a user removes notes by e.g. pressing
-// BACKSPACE.
-function removeLeftoverZeroWidthSpaces(treeFocus) {
-  var nonNoteTextNodeFocuses = treeFocus.filter(vdom.focusOutsideNote)
-    .filter(vdom.focusOnTextNode);
-
-  nonNoteTextNodeFocuses.forEach(function (focus) {
-    var vNode = focus.vNode;
-    if (vNode.text.length > 1) {
-      vNode.text = vNode.text.replace(/\u200B/g, '');
-    }
-  });
-}
-
-// To clean up after ourselves, when a user removes notes by e.g. pressing
-// BACKSPACE.
-function removeEmptyNodes(treeFocus) {
-  function criteria(focus) {
-    return vdom.withoutText(focus) || vdom.withEmptyTextNode(focus);
-  }
-
-  // Move any space we delete to the previous note segment.
-  function moveSpaceToPrevSegment(node) {
-    if (vdom.focusOnNote(node)) {
-      var prevNoteSegment = node.prev().find(vdom.focusOnNote, 'prev');
       if (prevNoteSegment) {
         var lastTextNode = _.last(prevNoteSegment.vNode.children.filter(isVText));
         if (lastTextNode) lastTextNode.text = lastTextNode.text + ' ';
       }
-    }
   }
 
-  return treeFocus.filter(function (focus) { return ! vdom.focusOnTextNode(focus); }).filter(criteria).map(function (node) {
-    moveSpaceToPrevSegment(node);
-    return node.remove();
+  // We're only interested in when content is removed, meaning
+  // there should only be one marker (a collapsed selection).
+  //
+  // Could possibly develop a way of knowing deletions from
+  // additions, but this isn't necessary at the moment.
+  var markers = vdom.findMarkers(treeFocus);
+  if (markers.length === 2) return;
+
+
+  // We're good to go.
+  var marker = markers[0];
+
+  // Let's find any note segment before or after the marker.
+  var segments = [
+    marker.find(vdom.focusOnNote, 'prev'),
+    marker.find(vdom.focusOnNote)
+  ].filter(isTrue);
+
+  // Replace/delete empty notes, and parents that might have become empty.
+  segments.filter(function (segment) { return !!segment; })
+    .map(function (segment) {
+      if (vdom.withEmptyTextNode(segment)) addSpaceToPrevSegment(segment);
+
+      if (vdom.withoutText(segment) || vdom.withEmptyTextNode(segment)) {
+      // In Chrome, removing causes text before the note to be deleted when
+      // deleting the last note segment. Replacing with an empty node works
+      // fine in Chrome and FF.
+      var replaced = segment.replace(new VText('\u200B'));
+
+      removeEmptyAncestors(replaced);
+    }
   });
 }
 
-exports.ensureContentIntegrity = function (treeFocus) {
-  // Clean up.
-  removeEmptyNodes(treeFocus);
-  removeLeftoverZeroWidthSpaces(treeFocus);
 
-  // Ensure note integrity.
+exports.ensureNoteIntegrity = function (treeFocus) {
   mergeIfNecessary(treeFocus);
   updateNoteBarriers(treeFocus);
   preventBrTags(treeFocus);

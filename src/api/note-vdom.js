@@ -197,6 +197,7 @@ function selectionEntirelyWithinNote(markers) {
 
 // Export the following functions
 //   TODO: streamline these so that dependant modules use more generic functions
+exports.focusAndDescendants = focusAndDescendants;
 exports.focusOnNote = focusOnNote;
 exports.focusOnNoteBarrier = focusOnNoteBarrier;
 exports.focusOnTextNode = focusOnTextNode;
