@@ -371,6 +371,7 @@ function unnotePartOfNote(treeFocus) {
   shows the time when the notes were merged.
 */
 function mergeIfNecessary(treeFocus) {
+
   function inconsistentTimestamps(note) {
     function getDataDate(noteSegment) {
       return noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL];
