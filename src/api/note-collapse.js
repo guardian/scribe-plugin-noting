@@ -8,7 +8,7 @@ function toggleClass(vNode, className, state) {
 
   existingIdx = classes.indexOf(className);
 
-  if (~existingIdx) { // class exists
+  if (existingIdx !== -1) { // class exists
     if (state !== true) {
       classes.splice(existingIdx, 1);
     }
