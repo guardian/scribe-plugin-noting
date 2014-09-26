@@ -227,6 +227,10 @@ function createNoteFromSelection(treeFocus) {
     focus.replace(replacementVNode);
   });
 
+  // If we end up with an empty note a <BR> tag would be created. We have to do
+  // this before we remove the markers.
+  preventBrTags(treeFocus);
+
   // We want to place the caret after the note. First we have to remove the
   // existing markers.
   removeVirtualScribeMarkers(treeFocus);
@@ -242,9 +246,6 @@ function createNoteFromSelection(treeFocus) {
 
   var noteSegments = vdom.findEntireNote(lastNoteSegment);
   updateNoteProperties(noteSegments);
-
-  // If we end up with an empty note a <BR> tag would be created.
-  preventBrTags(treeFocus);
 }
 
 function unnote(treeFocus) {
