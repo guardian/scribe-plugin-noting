@@ -297,12 +297,17 @@ function unnotePartOfNote(treeFocus) {
   var entireNote = vdom.findEntireNote(focusesToUnnote[0]);
   var entireNoteTextNodeFocuses = vdom.findEntireNoteTextNodeFocuses(entireNote[0]);
 
-  var entireNoteTextNodes = _(entireNote).map(function (focus) { return focus.vNode.children; }).flatten().filter(isVText).value();
+
+  var entireNoteTextNodes = _(entireNote).map(function (focus) { return focus.vNode.children; })
+    .flatten().filter(isVText).value();
+
   var textNodesToUnnote = focusesToUnnote.map(function (focus) { return focus.vNode; });
   var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
 
+
   var focusesToNote = entireNoteTextNodeFocuses.filter(notToBeUnnoted);
   var userAndTime = userAndTimeAsDatasetAttrs();
+
 
   // Wrap the text nodes
   var wrappedTextNodes = toWrapAndReplace.map(function (vNode) {
