@@ -7,6 +7,10 @@
         background-color: cyan;
         border: 1px solid black;
       }
+      .note-barrier {
+        /* Keeps note barriers inline. */
+        display: inline-block;
+      }
     </style>
   </head>
   <body>
@@ -14,12 +18,30 @@
     <script src="../../bower_components/requirejs/require.js"></script>
     <script>
       require.config({
+        baseUrl: '../../../',
         paths: {
           // We have to define a path to Scribe otherwise it will load the file
           // but will not pass along the 'scribe' AMD module.
-          'scribe-common': '../../bower_components/scribe-common',
-          'lodash-amd': '../../bower_components/lodash-amd'
+          'scribe-common': 'bower_components/scribe-common',
+          'lodash-amd': 'bower_components/lodash-amd',
+          'lodash': 'bower_components/lodash/dist/lodash'
         }
+      });
+
+      require(['lodash'], function() {
+        require(
+          ['bower_components/scribe/src/scribe', 'scribe-plugin-toolbar', 'build/scribe-plugin-noting'],
+          function(Scribe, scribePluginToolbar, scribePluginNoting) {
+            var elem = window.document.querySelector('.scribe'),
+                scribe = window.scribe = new Scribe(elem);
+
+            var toolbarElement = document.querySelector('.toolbar');
+            scribe.use(scribePluginToolbar(toolbarElement));
+
+            scribe.use(scribePluginNoting("Example User"));
+
+          }
+        );
       });
     </script>
   </body>

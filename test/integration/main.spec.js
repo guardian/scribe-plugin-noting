@@ -12,11 +12,9 @@ var givenContentOf = helpers.givenContentOf;
 var givenContentAsHTMLOf = helpers.givenContentAsHTMLOf;
 var browserName = helpers.browserName;
 
-var _ = require('lodash');
-
 function loadPlugin() {
   return driver.executeAsyncScript(function (done) {
-    require(['../../src/scribe-plugin-noting'], function (scribePluginNoting) {
+    require(['../../build/scribe-plugin-noting.js'], function (scribePluginNoting) {
       window.scribe.use(scribePluginNoting("A User"));
       done();
     });
@@ -46,7 +44,7 @@ function selectionIsInsideNote() {
      var node = window.getSelection().getRangeAt(0).startContainer;
 
      return domWalkUpCheck(node, function(node) {
-       return node.tagName === 'GU:NOTE';
+       return node.tagName === 'GU-NOTE';
      });
     }
 
@@ -81,7 +79,7 @@ describe('noting plugin', function () {
     when('when we haven\'t pressed any key', function () {
       it('won\'t have any note', function () {
         scribeNode.getInnerHTML().then(function (innerHTML) {
-          expect(innerHTML).to.not.include('</gu:note>');
+          expect(innerHTML).to.not.include('</gu-note>');
         });
       });
     });
@@ -94,11 +92,17 @@ describe('noting plugin', function () {
       it('creates a note', function () {
         note().then(function () {
           scribeNode.getInnerHTML().then(function (innerHTML) {
-            expect(innerHTML).to.include('</gu:note>');
+            expect(innerHTML).to.include('</gu-note>');
 
             // Expect one start and one end attribute
             var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
             var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
+            expect(numberOfNoteStartAttributes).to.equal(1);
+            expect(numberOfNoteEndAttributes).to.equal(1);
+
+            // Expect one start and one end note barrier
+            var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
+            var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
             expect(numberOfNoteStartAttributes).to.equal(1);
             expect(numberOfNoteEndAttributes).to.equal(1);
 
@@ -120,11 +124,17 @@ describe('noting plugin', function () {
           it('wraps the text in a note', function () {
             note().then(function () {
               scribeNode.getInnerHTML().then(function (innerHTML) {
-                expect(innerHTML).to.include('February, 1815, </gu:note>');
+                expect(innerHTML).to.include('February, 1815, </gu-note>');
 
                 // Expect one start and one end attribute
                 var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
                 var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
+                expect(numberOfNoteStartAttributes).to.equal(1);
+                expect(numberOfNoteEndAttributes).to.equal(1);
+
+                // Expect one start and one end note barrier
+                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
 
@@ -143,14 +153,20 @@ describe('noting plugin', function () {
           it('wraps the text in a note', function () {
             note().then(function () {
               scribeNode.getInnerHTML().then(function (innerHTML) {
-                expect(innerHTML).to.include('February</gu:note></b>');
-                expect(innerHTML).to.include('The </gu:note><b><i>');
-                expect(innerHTML).to.include('look-out</gu:note></i></b>');
-                expect(innerHTML).to.include(' at </gu:note>');
+                expect(innerHTML).to.include('February</gu-note></b>');
+                expect(innerHTML).to.include('The </gu-note><b><i>');
+                expect(innerHTML).to.include('look-out</gu-note></i></b>');
+                expect(innerHTML).to.include(' at </gu-note>');
 
                 // Expect one start and one end attribute
                 var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
                 var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
+                expect(numberOfNoteStartAttributes).to.equal(1);
+                expect(numberOfNoteEndAttributes).to.equal(1);
+
+                // Expect one start and one end note barrier
+                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
 
@@ -164,13 +180,44 @@ describe('noting plugin', function () {
     });
 
     when('we are inside a note and haven\'t selected anything', function() {
-      givenContentOf('<p>On the 24th of <gu:note class="note">Febr|uary, 1815, </gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+      givenContentOf('<p>On the 24th of <gu-note class="note">Febr|uary, 1815, </gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
         when('we press the noting key', function() {
           it('the note is unnoted', function () {
             note().then(function () {
               scribeNode.getInnerHTML().then(function (innerHTML) {
-                expect(innerHTML).to.not.include('</gu:note>');
+                expect(innerHTML).to.not.include('</gu-note>');
                 expect(innerHTML).to.include('February, 1815, ');
+              });
+            });
+          });
+        });
+      });
+    });
+
+    when('when the start of our selection is within a note and the end is within another note', function() {
+      givenContentOf('<p><gu-note class="note">On the |24th of</gu-note> February, the look-out at <gu-note class="note">Notre-Dame de| la Garde</gu-note> signalled the three-master, the Pharaon from Smyrna</p>', function() {
+        when('we press the noting key', function() {
+          it('merges the two notes together with the text inbetween', function () {
+            note().then(function () {
+              scribeNode.getInnerHTML().then(function (innerHTML) {
+                expect(innerHTML).to.include('the 24th of</gu-note>');
+                expect(innerHTML).to.include('look-out at </gu-note>');
+                expect(innerHTML).to.include('Notre-Dame de la Garde</gu-note>');
+
+                // Expect one start and one end attribute
+                var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
+                expect(numberOfNoteStartAttributes).to.equal(1);
+                expect(numberOfNoteEndAttributes).to.equal(1);
+
+                // Expect one start and one end note barrier
+                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
+                expect(numberOfNoteStartAttributes).to.equal(1);
+                expect(numberOfNoteEndAttributes).to.equal(1);
+
+                expect(innerHTML).to.include('data-note-edited-by');
+                expect(innerHTML).to.include('data-note-edited-date');
               });
             });
           });
@@ -186,7 +233,7 @@ describe('noting plugin', function () {
     */
 
     when('we select some text within a note', function() {
-      givenContentOf('<p>On the 24th of <gu:note class="note">Febr|uary|, 1815, </gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+      givenContentOf('<p>On the 24th of <gu-note class="note">Febr|uary|, 1815, </gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
         when('we press the noting key', function() {
           it('the selected part within the note is unnoted', function () {
             note().then(function () {
@@ -194,6 +241,12 @@ describe('noting plugin', function () {
                 // Expect two notes with note--start and note--end classes.
                 var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
                 var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
+                expect(numberOfNoteStartAttributes).to.equal(2);
+                expect(numberOfNoteEndAttributes).to.equal(2);
+
+                // Expect two notes with start and end note barriers
+                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
                 expect(numberOfNoteStartAttributes).to.equal(2);
                 expect(numberOfNoteEndAttributes).to.equal(2);
 
@@ -205,7 +258,7 @@ describe('noting plugin', function () {
     });
 
     when('we select some text at the start of a note', function() {
-      givenContentOf('<p>On the 24th of <gu:note class="note">|February|, 1815, </gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+      givenContentOf('<p>On the 24th of <gu-note class="note">|February|, 1815, </gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
         when('we press the noting key', function() {
           it('the selected part within the note is unnoted', function () {
             note().then(function () {
@@ -213,6 +266,12 @@ describe('noting plugin', function () {
                 // Expect two notes with note--start and note--end classes.
                 var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
                 var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
+                expect(numberOfNoteStartAttributes).to.equal(1);
+                expect(numberOfNoteEndAttributes).to.equal(1);
+
+                // Expect one start and one end note barrier
+                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
               });
@@ -223,7 +282,7 @@ describe('noting plugin', function () {
     });
 
     when('we select some text at the end of a note', function() {
-      givenContentOf('<p>On the 24th of <gu:note class="note">February|, 1815, |</gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+      givenContentOf('<p>On the 24th of <gu-note class="note">February|, 1815, |</gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
         when('we press the noting key', function() {
           it('the selected part within the note is unnoted', function () {
             note().then(function () {
@@ -231,6 +290,12 @@ describe('noting plugin', function () {
                 // Expect two notes with note--start and note--end classes.
                 var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
                 var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
+                expect(numberOfNoteStartAttributes).to.equal(1);
+                expect(numberOfNoteEndAttributes).to.equal(1);
+
+                // Expect one start and one end note barrier
+                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
+                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
               });
@@ -241,12 +306,12 @@ describe('noting plugin', function () {
     });
 
     // when('we select the contents of a note', function() {
-    //   givenContentOf('<p>On the 24th of <gu:note class="note">|February, 1815, |</gu:note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+    //   givenContentOf('<p>On the 24th of <gu-note class="note">|February, 1815, |</gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
     //     when('we press the noting key', function() {
     //       it('unnotes the note', function () {
     //         note().then(function () {
     //           scribeNode.getInnerHTML().then(function (innerHTML) {
-    //             expect(innerHTML).to.not.include('</gu:note>');
+    //             expect(innerHTML).to.not.include('</gu-note>');
     //           });
     //         });
     //       });

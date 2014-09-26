@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="../build/skins/gu-noting.css"/>
+  <style type="text/css">
+    button.active {
+      border-style: inset;
+    }
+    p {
+      line-height: 24px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Scribe noting example</h1>
+  <header class="toolbar">
+    <button data-command-name="note">Add/remove note</button>
+    <button data-command-name="noteCollapseToggle">Collapse/Expand note</button>
+    <button data-command-name="noteCollapseToggleAll">Collapse/Expand all notes</button>
+  </header>
+  <div class="scribe"><h2>Intro</h2><p>This is an example page demonstrating Scribe's noting plugin.</p><p>Press the <b>F10</b> key or click the <i>"Add/remove"</i> note button to toggle creation of a note.</p><p>Spacer...</p><p>Spacer...</p><p>Spacer...</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis eu ipsum interdum, facilisis mauris ac, fringilla turpis. Morbi sit amet lacinia elit. Nulla mollis quam in facilisis luctus. Donec scelerisque sapien ligula. <gu-note id="note:12345" data-note-edited-by="Example User" data-note-edited-date="2014-09-15T09:46:10.940Z" class="note note--start note--end">I am a test note</gu-note> Cras odio mi, aliquam id condimentum non, bibendum et nisl. Aliquam felis elit, ultrices eu justo feugiat, molestie elementum neque. Sed tincidunt magna a ligula commodo, sit amet mattis augue molestie. In facilisis consectetur auctor. Phasellus sit amet maximus neque. Nam consectetur enim tellus, et suscipit tellus cursus nec. Aenean faucibus risus non iaculis imperdiet. Pellentesque ante nunc, consequat non est in, fringilla cursus nisi.</p><p>Spacer...</p><p>Spacer...</p><p>Spacer...</p></div>
+
+  <script src="../bower_components/requirejs/require.js"></script>
+  <script>
+    require.config({
+      baseUrl: '../',
+      paths: {
+        'scribe-plugin-toolbar': 'bower_components/scribe-plugin-toolbar/scribe-plugin-toolbar',
+
+        // We have to define a path to Scribe otherwise it will load the file
+        // but will not pass along the 'scribe' AMD module.
+        'scribe-common': 'bower_components/scribe-common',
+        'lodash-amd': 'bower_components/lodash-amd',
+        'lodash': 'bower_components/lodash/dist/lodash'
+      }
+    });
+
+    require(['lodash'], function() {
+      require(
+        ['bower_components/scribe/src/scribe', 'scribe-plugin-toolbar', 'build/scribe-plugin-noting'],
+        function(Scribe, scribePluginToolbar, scribePluginNoting) {
+          var elem = window.document.querySelector('.scribe'),
+              scribe = window.scribe = new Scribe(elem);
+
+          var toolbarElement = document.querySelector('.toolbar');
+          scribe.use(scribePluginToolbar(toolbarElement));
+
+          scribe.use(scribePluginNoting("Example User"));
+
+        }
+      );
+    });
+  </script>
+
+  <h2>Old:</h2>
+  <svg style="height: 50px" xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 0 0 L 8 0 L 2 6 L 2 20 L 0 20' fill='rgba(41, 131, 182, 1)' stroke='none'/></svg>
+
+  <svg style="height: 50px" xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 8 20 L 0 20 L 6 14 L 6 0 L 8 0' fill='rgba(41, 131, 182, 1)' stroke='none'/></svg>
+
+  <h2>New:</h2>
+  <!-- New borders -->
+  <svg style="height: 50px" xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 0 0 L 6 0 L 0 6 L 0 0 L 2 0 L 2 20 L 0 20' fill='rgba(41, 131, 182, 1)' stroke='none'/></svg>
+
+  <svg style="height: 50px" xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 8 20 L 2 20 L 8 14 L 8 20 L 6 20 L 6 0 L 8 0' fill='rgba(41, 131, 182, 1)' stroke='none'/></svg>
+</body>
+</html>
