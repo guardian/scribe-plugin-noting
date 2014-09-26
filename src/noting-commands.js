@@ -111,9 +111,9 @@ function addNoteToggleListener(scribe) {
   scribe.el.addEventListener('keydown', function (event) {
     var f8 = event.keyCode === 119;
     var f10 = event.keyCode === 121;
-    var altDelete = event.altKey && event.keyCode === 46;
+    var altBackspace = event.altKey && event.keyCode === 8;
 
-    if (f8 || f10 || altDelete) {
+    if (f8 || f10 || altBackspace) {
       event.preventDefault();
       scribe.getCommand('note').execute();
     }
