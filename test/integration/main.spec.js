@@ -12,11 +12,9 @@ var givenContentOf = helpers.givenContentOf;
 var givenContentAsHTMLOf = helpers.givenContentAsHTMLOf;
 var browserName = helpers.browserName;
 
-var _ = require('lodash');
-
 function loadPlugin() {
   return driver.executeAsyncScript(function (done) {
-    require(['../../dist/scribe-plugin-noting'], function (scribePluginNoting) {
+    require(['../../build/scribe-plugin-noting.js'], function (scribePluginNoting) {
       window.scribe.use(scribePluginNoting("A User"));
       done();
     });
