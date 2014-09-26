@@ -79,29 +79,30 @@ function updateNoteProperties(noteSegments) {
 // `note--start` class and that the last (and only the last)
 // note segment has a `note--end` class.
 function updateStartAndEndClasses(noteSegments) {
-  function addStartAndEndClasses(noteSegments) {
-    function addUniqueVNodeClass(vNode, name) {
-      var classes = vNode.properties.className.split(' ');
-      classes.push(name);
+  function addUniqueVNodeClass(vNode, name) {
+    var classes = vNode.properties.className.split(' ');
+    classes.push(name);
 
-      vNode.properties.className = _.uniq(classes).join(' ');
+    vNode.properties.className = _.uniq(classes).join(' ');
+  }
+
+  function removeVNodeClass(vNode, name) {
+    var classes = vNode.properties.className.split(' ');
+    var classId = classes.indexOf(name);
+
+    if (classId != -1) {
+      classes.splice(classId, 1);
+      vNode.properties.className = classes.join(' ');
     }
+  }
 
+
+  function addStartAndEndClasses(noteSegments) {
     addUniqueVNodeClass(noteSegments[0].vNode, 'note--start');
     addUniqueVNodeClass(noteSegments[noteSegments.length - 1].vNode, 'note--end');
   }
 
   function removeStartAndEndClasses(noteSegments) {
-    function removeVNodeClass(vNode, name) {
-      var classes = vNode.properties.className.split(' ');
-      var classId = classes.indexOf(name);
-
-      if (classId != -1) {
-        classes.splice(classId, 1);
-        vNode.properties.className = classes.join(' ');
-      }
-    }
-
     noteSegments.forEach(function(segment) {
       removeVNodeClass(segment.vNode, 'note--start');
       removeVNodeClass(segment.vNode, 'note--end');
