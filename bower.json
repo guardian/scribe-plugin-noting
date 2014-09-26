@@ -6,10 +6,10 @@
     "robin.edman@theguardian.com"
   ],
   "description": "Adds notes to scribe",
-  "main": "dist/scribe-plugin-noting",
+  "main": "scribe-plugin-noting",
   "dependencies": {
     "scribe-common": "~0.0.5",
-    "lodash-amd": "2.4.1"
+    "lodash": "2.4.1"
   },
   "devDependencies": {
     "requirejs": "~2.1.9",

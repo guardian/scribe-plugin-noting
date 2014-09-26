@@ -25,7 +25,8 @@ module.exports = function(pipelines) {
     glob('scribe-plugin-noting.js'),
 
     browserify({
-      standalone: 'scribe-plugin-noting'
+      standalone: 'scribe-plugin-noting',
+      external: ['lodash']
     }),
 
     writeBoth

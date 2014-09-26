@@ -31,23 +31,26 @@
         // We have to define a path to Scribe otherwise it will load the file
         // but will not pass along the 'scribe' AMD module.
         'scribe-common': 'bower_components/scribe-common',
-        'lodash-amd': 'bower_components/lodash-amd'
+        'lodash-amd': 'bower_components/lodash-amd',
+        'lodash': 'bower_components/lodash/dist/lodash'
       }
     });
 
-    require(
-      ['bower_components/scribe/src/scribe', 'scribe-plugin-toolbar', 'build/scribe-plugin-noting'],
-      function(Scribe, scribePluginToolbar, scribePluginNoting) {
-        var elem = window.document.querySelector('.scribe'),
-            scribe = window.scribe = new Scribe(elem);
+    require(['lodash'], function() {
+      require(
+        ['bower_components/scribe/src/scribe', 'scribe-plugin-toolbar', 'build/scribe-plugin-noting'],
+        function(Scribe, scribePluginToolbar, scribePluginNoting) {
+          var elem = window.document.querySelector('.scribe'),
+              scribe = window.scribe = new Scribe(elem);
 
-        var toolbarElement = document.querySelector('.toolbar');
-        scribe.use(scribePluginToolbar(toolbarElement));
+          var toolbarElement = document.querySelector('.toolbar');
+          scribe.use(scribePluginToolbar(toolbarElement));
 
-        scribe.use(scribePluginNoting("Example User"));
+          scribe.use(scribePluginNoting("Example User"));
 
-      }
-    );
+        }
+      );
+    });
   </script>
 
   <h2>Old:</h2>
