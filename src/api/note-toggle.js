@@ -305,7 +305,7 @@ function unnotePartOfNote(treeFocus) {
   var userAndTime = userAndTimeAsDatasetAttrs();
 
 
-  // Wrap the text nodes
+  // Wrap the text nodes.
   var wrappedTextNodes = toWrapAndReplace.map(function (vNode) {
     return wrapInNote(vNode, userAndTime);
   });
@@ -318,9 +318,7 @@ function unnotePartOfNote(treeFocus) {
     focus.replace(replacementVNode);
   });
 
-  vdom.removeVirtualScribeMarkers(treeFocus);
-
-  // Unwrap previously existing note
+  // Unwrap previously existing note.
   entireNote.forEach(unwrap);
 
 
@@ -339,10 +337,13 @@ function unnotePartOfNote(treeFocus) {
   updateNoteProperties(righty);
 
 
-  // Place marker immediately before the note to the right. Both Chrome and
+  // Place marker immediately before the note to the right (this way of doing
+  // that seems to be the most reliable for some reason). Both Chrome and
   // Firefox have issues with this however. To force them to behave we insert
-  // an empty SPAN inbetween.
-  startOfRighty.insertBefore([createVirtualScribeMarker(), h('span')]);
+  // an empty span element inbetween.
+  var markers = vdom.findMarkers(treeFocus.refresh());
+  _.last(markers).insertAfter(h('span'));
+  markers[0].remove();
 }
 
 
