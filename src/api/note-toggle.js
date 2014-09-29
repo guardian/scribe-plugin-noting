@@ -178,13 +178,6 @@ function updateNoteBarriers(treeFocus) {
   insertNoteBarriers(treeFocus);
 }
 
-function removeVirtualScribeMarkers(treeFocus) {
-  treeFocus.forEach(function(focus) {
-    if (vdom.isScribeMarker(focus.vNode)) focus.remove();
-  });
-}
-
-
 
 // tree - tree containing a marker.
 // Note that we will mutate the tree.
@@ -233,15 +226,17 @@ function createNoteFromSelection(treeFocus) {
 
   // We want to place the caret after the note. First we have to remove the
   // existing markers.
-  removeVirtualScribeMarkers(treeFocus);
+  vdom.removeVirtualScribeMarkers(treeFocus);
 
   // (We also insert a note barrier at the start.)
   var firstNoteSegment = vdom.findFirstNoteSegment(toWrapAndReplace[0]);
   firstNoteSegment.next().insertBefore(createNoteBarrier());
 
   // Then we place a new marker. (And a note barrier at the end.)
+  // We have to have an element in between the note barrier and the marker,
+  // or Chrome will place the caret inside the note.
   var lastNoteSegment = vdom.findLastNoteSegment(toWrapAndReplace[0]);
-  lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
+  lastNoteSegment.insertAfter([createNoteBarrier(), new VText('\u200B'), createVirtualScribeMarker()]);
 
 
   var noteSegments = vdom.findEntireNote(lastNoteSegment);
@@ -310,7 +305,7 @@ function unnotePartOfNote(treeFocus) {
   var userAndTime = userAndTimeAsDatasetAttrs();
 
 
-  // Wrap the text nodes
+  // Wrap the text nodes.
   var wrappedTextNodes = toWrapAndReplace.map(function (vNode) {
     return wrapInNote(vNode, userAndTime);
   });
@@ -323,9 +318,7 @@ function unnotePartOfNote(treeFocus) {
     focus.replace(replacementVNode);
   });
 
-  removeVirtualScribeMarkers(treeFocus);
-
-  // Unwrap previously existing note
+  // Unwrap previously existing note.
   entireNote.forEach(unwrap);
 
 
@@ -344,9 +337,13 @@ function unnotePartOfNote(treeFocus) {
   updateNoteProperties(righty);
 
 
-  // Place marker at the end of the unnoted text.
-  var endOfUnnotedText = righty[0].prev();
-  endOfUnnotedText.insertAfter(createVirtualScribeMarker());
+  // Place marker immediately before the note to the right (this way of doing
+  // that seems to be the most reliable for some reason). Both Chrome and
+  // Firefox have issues with this however. To force them to behave we insert
+  // an empty span element inbetween.
+  var markers = vdom.findMarkers(treeFocus.refresh());
+  _.last(markers).insertAfter(h('span'));
+  markers[0].remove();
 }
 
 
