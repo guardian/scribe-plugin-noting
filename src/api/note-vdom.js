@@ -195,9 +195,21 @@ function selectionEntirelyWithinNote(markers) {
 }
 
 
+/**
+* Noting: Various
+*/
+
+function removeVirtualScribeMarkers(treeFocus) {
+  treeFocus.filter(focusOnMarker).forEach(function (marker) {
+    marker.remove();
+  });
+}
+
+
 // Export the following functions
 //   TODO: streamline these so that dependant modules use more generic functions
 exports.focusAndDescendants = focusAndDescendants;
+exports.focusOnMarker = focusOnMarker;
 exports.focusOnNote = focusOnNote;
 exports.focusOnNoteBarrier = focusOnNoteBarrier;
 exports.focusOnTextNode = focusOnTextNode;
@@ -214,4 +226,5 @@ exports.findMarkers = findMarkers;
 exports.isScribeMarker = isScribeMarker;
 exports.findAncestorNoteSegment = findAncestorNoteSegment;
 exports.findTextNodeFocusesBetweenMarkers = findTextNodeFocusesBetweenMarkers;
+exports.removeVirtualScribeMarkers = removeVirtualScribeMarkers;
 exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;

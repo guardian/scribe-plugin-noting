@@ -178,13 +178,6 @@ function updateNoteBarriers(treeFocus) {
   insertNoteBarriers(treeFocus);
 }
 
-function removeVirtualScribeMarkers(treeFocus) {
-  treeFocus.forEach(function(focus) {
-    if (vdom.isScribeMarker(focus.vNode)) focus.remove();
-  });
-}
-
-
 
 // tree - tree containing a marker.
 // Note that we will mutate the tree.
@@ -233,7 +226,7 @@ function createNoteFromSelection(treeFocus) {
 
   // We want to place the caret after the note. First we have to remove the
   // existing markers.
-  removeVirtualScribeMarkers(treeFocus);
+  vdom.removeVirtualScribeMarkers(treeFocus);
 
   // (We also insert a note barrier at the start.)
   var firstNoteSegment = vdom.findFirstNoteSegment(toWrapAndReplace[0]);
@@ -323,7 +316,7 @@ function unnotePartOfNote(treeFocus) {
     focus.replace(replacementVNode);
   });
 
-  removeVirtualScribeMarkers(treeFocus);
+  vdom.removeVirtualScribeMarkers(treeFocus);
 
   // Unwrap previously existing note
   entireNote.forEach(unwrap);
