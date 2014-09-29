@@ -337,9 +337,10 @@ function unnotePartOfNote(treeFocus) {
   updateNoteProperties(righty);
 
 
-  // Place marker at the end of the unnoted text.
-  var endOfUnnotedText = righty[0].prev();
-  endOfUnnotedText.insertAfter(createVirtualScribeMarker());
+  // Place marker immediately before the note to the right. Both Chrome and
+  // Firefox have issues with this however. To force them to behave we insert
+  // an empty SPAN inbetween.
+  startOfRighty.insertBefore([createVirtualScribeMarker(), h('span')]);
 }
 
 
