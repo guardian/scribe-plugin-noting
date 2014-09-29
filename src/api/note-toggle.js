@@ -233,8 +233,10 @@ function createNoteFromSelection(treeFocus) {
   firstNoteSegment.next().insertBefore(createNoteBarrier());
 
   // Then we place a new marker. (And a note barrier at the end.)
+  // We have to have an element in between the note barrier and the marker,
+  // or Chrome will place the caret inside the note.
   var lastNoteSegment = vdom.findLastNoteSegment(toWrapAndReplace[0]);
-  lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
+  lastNoteSegment.insertAfter([createNoteBarrier(), new VText('\u200B'), createVirtualScribeMarker()]);
 
 
   var noteSegments = vdom.findEntireNote(lastNoteSegment);
