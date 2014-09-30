@@ -1465,9 +1465,9 @@ function isThunk(t) {
 
 },{}],37:[function(require,module,exports){
 module.exports=require(4)
-},{"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":4}],38:[function(require,module,exports){
+},{"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":4}],38:[function(require,module,exports){
 module.exports=require(5)
-},{"./version":41,"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":5}],39:[function(require,module,exports){
+},{"./version":41,"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":5}],39:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -1478,13 +1478,13 @@ function isVirtualText(x) {
 
 },{"./version":41}],40:[function(require,module,exports){
 module.exports=require(6)
-},{"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":6}],41:[function(require,module,exports){
+},{"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":6}],41:[function(require,module,exports){
 module.exports=require(7)
-},{"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":7}],42:[function(require,module,exports){
+},{"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":7}],42:[function(require,module,exports){
 module.exports=require(8)
-},{"./is-vhook":37,"./is-vnode":38,"./is-widget":40,"./version":41,"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":8}],43:[function(require,module,exports){
+},{"./is-vhook":37,"./is-vnode":38,"./is-widget":40,"./version":41,"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":8}],43:[function(require,module,exports){
 module.exports=require(9)
-},{"./version":41,"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":9}],44:[function(require,module,exports){
+},{"./version":41,"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":9}],44:[function(require,module,exports){
 var classIdSplit = /([\.#]?[a-zA-Z0-9_:-]+)/
 var notClassId = /^\.|#/
 
@@ -1926,21 +1926,21 @@ function renderThunk(thunk, previous) {
 
 },{"./is-thunk":47,"./is-vnode":49,"./is-vtext":50,"./is-widget":51}],47:[function(require,module,exports){
 module.exports=require(36)
-},{"/mnt/host/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":36}],48:[function(require,module,exports){
+},{"/home/vagrant/Development/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":36}],48:[function(require,module,exports){
 module.exports=require(4)
-},{"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":4}],49:[function(require,module,exports){
+},{"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":4}],49:[function(require,module,exports){
 module.exports=require(5)
-},{"./version":54,"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":5}],50:[function(require,module,exports){
+},{"./version":54,"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":5}],50:[function(require,module,exports){
 module.exports=require(39)
-},{"./version":54,"/mnt/host/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":39}],51:[function(require,module,exports){
+},{"./version":54,"/home/vagrant/Development/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":39}],51:[function(require,module,exports){
 module.exports=require(6)
-},{"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":6}],52:[function(require,module,exports){
+},{"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":6}],52:[function(require,module,exports){
 module.exports=require(11)
-},{"/mnt/host/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":11}],53:[function(require,module,exports){
+},{"/home/vagrant/Development/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":11}],53:[function(require,module,exports){
 module.exports=require(19)
-},{"/mnt/host/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":19}],54:[function(require,module,exports){
+},{"/home/vagrant/Development/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":19}],54:[function(require,module,exports){
 module.exports=require(7)
-},{"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":7}],55:[function(require,module,exports){
+},{"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":7}],55:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -1966,7 +1966,7 @@ VirtualPatch.prototype.type = "VirtualPatch"
 
 },{"./version":54}],56:[function(require,module,exports){
 module.exports=require(9)
-},{"./version":54,"/mnt/host/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":9}],57:[function(require,module,exports){
+},{"./version":54,"/home/vagrant/Development/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":9}],57:[function(require,module,exports){
 var hiddenStore = require('./hidden-store.js');
 
 module.exports = createStore;
@@ -2243,13 +2243,6 @@ function updateNoteBarriers(treeFocus) {
   insertNoteBarriers(treeFocus);
 }
 
-function removeVirtualScribeMarkers(treeFocus) {
-  treeFocus.forEach(function(focus) {
-    if (vdom.isScribeMarker(focus.vNode)) focus.remove();
-  });
-}
-
-
 
 // tree - tree containing a marker.
 // Note that we will mutate the tree.
@@ -2298,15 +2291,17 @@ function createNoteFromSelection(treeFocus) {
 
   // We want to place the caret after the note. First we have to remove the
   // existing markers.
-  removeVirtualScribeMarkers(treeFocus);
+  vdom.removeVirtualScribeMarkers(treeFocus);
 
   // (We also insert a note barrier at the start.)
   var firstNoteSegment = vdom.findFirstNoteSegment(toWrapAndReplace[0]);
   firstNoteSegment.next().insertBefore(createNoteBarrier());
 
   // Then we place a new marker. (And a note barrier at the end.)
+  // We have to have an element in between the note barrier and the marker,
+  // or Chrome will place the caret inside the note.
   var lastNoteSegment = vdom.findLastNoteSegment(toWrapAndReplace[0]);
-  lastNoteSegment.insertAfter([createNoteBarrier(), createVirtualScribeMarker()]);
+  lastNoteSegment.insertAfter([createNoteBarrier(), new VText('\u200B'), createVirtualScribeMarker()]);
 
 
   var noteSegments = vdom.findEntireNote(lastNoteSegment);
@@ -2375,7 +2370,7 @@ function unnotePartOfNote(treeFocus) {
   var userAndTime = userAndTimeAsDatasetAttrs();
 
 
-  // Wrap the text nodes
+  // Wrap the text nodes.
   var wrappedTextNodes = toWrapAndReplace.map(function (vNode) {
     return wrapInNote(vNode, userAndTime);
   });
@@ -2388,9 +2383,7 @@ function unnotePartOfNote(treeFocus) {
     focus.replace(replacementVNode);
   });
 
-  removeVirtualScribeMarkers(treeFocus);
-
-  // Unwrap previously existing note
+  // Unwrap previously existing note.
   entireNote.forEach(unwrap);
 
 
@@ -2409,9 +2402,13 @@ function unnotePartOfNote(treeFocus) {
   updateNoteProperties(righty);
 
 
-  // Place marker at the end of the unnoted text.
-  var endOfUnnotedText = righty[0].prev();
-  endOfUnnotedText.insertAfter(createVirtualScribeMarker());
+  // Place marker immediately before the note to the right (this way of doing
+  // that seems to be the most reliable for some reason). Both Chrome and
+  // Firefox have issues with this however. To force them to behave we insert
+  // an empty span element inbetween.
+  var markers = vdom.findMarkers(treeFocus.refresh());
+  _.last(markers).insertAfter(h('span'));
+  markers[0].remove();
 }
 
 
@@ -2781,9 +2778,21 @@ function selectionEntirelyWithinNote(markers) {
 }
 
 
+/**
+* Noting: Various
+*/
+
+function removeVirtualScribeMarkers(treeFocus) {
+  treeFocus.filter(focusOnMarker).forEach(function (marker) {
+    marker.remove();
+  });
+}
+
+
 // Export the following functions
 //   TODO: streamline these so that dependant modules use more generic functions
 exports.focusAndDescendants = focusAndDescendants;
+exports.focusOnMarker = focusOnMarker;
 exports.focusOnNote = focusOnNote;
 exports.focusOnNoteBarrier = focusOnNoteBarrier;
 exports.focusOnTextNode = focusOnTextNode;
@@ -2800,6 +2809,7 @@ exports.findMarkers = findMarkers;
 exports.isScribeMarker = isScribeMarker;
 exports.findAncestorNoteSegment = findAncestorNoteSegment;
 exports.findTextNodeFocusesBetweenMarkers = findTextNodeFocusesBetweenMarkers;
+exports.removeVirtualScribeMarkers = removeVirtualScribeMarkers;
 exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
 
 },{"lodash":"lodash","vtree/is-vtext":50}],63:[function(require,module,exports){
