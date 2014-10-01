@@ -68,12 +68,12 @@ VFocus.prototype.canUp = function() {
 VFocus.prototype.next = function() {
   function upThenRightWhenPossible(vFocus) {
     // Terminate if we've visited all nodes.
-    if (vFocus === null) return null;
+    if (!vFocus) return null;
 
     return vFocus.right() || upThenRightWhenPossible(vFocus.up());
   }
 
-  return this.down() || this.right() || upThenRightWhenPossible(this.up());
+  return this.down() || this.right() || upThenRightWhenPossible(this);
 };
 
 // Focus previous (pre-order)
