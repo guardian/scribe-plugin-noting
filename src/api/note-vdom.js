@@ -153,21 +153,15 @@ function findEntireNoteTextNodeFocuses(noteSegment) {
 }
 
 // Returns an array of arrays of note segments
-function findAllNotes(focus) {
-  var treeFocus = focus.top();
+function findAllNotes(treeFocus) {
+  return treeFocus.filter(focusOnNote).map(findEntireNote).reduce(function(uniqueNotes, note) {
+    // First iteration: Add the note.
+    if (uniqueNotes.length === 0) return uniqueNotes.concat([note]);
 
-  var notes = [];
-
-  focus = treeFocus;
-  var firstNoteSegment;
-  while (firstNoteSegment = focus.find(focusOnNote)) {
-    var note = findEntireNote(firstNoteSegment);
-    notes.push(note);
-
-    focus = note[note.length - 1].next();
-  }
-  return notes;
-};
+    // Subsequent iterations: Add the note if it hasn't already been added.
+    return _.last(uniqueNotes)[0].vNode === note[0].vNode ? uniqueNotes : uniqueNotes.concat([note]);
+  }, []);
+}
 
 function focusOnlyTextNodes (focuses) {
   return focuses.filter(focusOnTextNode);
