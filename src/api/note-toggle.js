@@ -291,11 +291,13 @@ function unnotePartOfNote(treeFocus) {
 
   var focusesToUnnote = vdom.findTextNodeFocusesBetweenMarkers(treeFocus);
   var entireNote = vdom.findEntireNote(focusesToUnnote[0]);
-  var entireNoteTextNodeFocuses = vdom.findEntireNoteTextNodeFocuses(entireNote[0]);
 
 
-  var entireNoteTextNodes = _(entireNote).map(function (focus) { return focus.vNode.children; })
-    .flatten().filter(isVText).value();
+  var entireNoteTextNodeFocuses = _(entireNote).map(vdom.focusAndDescendants)
+    .flatten().value().filter(vdom.focusOnTextNode);
+
+  var entireNoteTextNodes = entireNoteTextNodeFocuses.map(function (focus) { return focus.vNode; });
+
 
   var textNodesToUnnote = focusesToUnnote.map(function (focus) { return focus.vNode; });
   var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
@@ -342,7 +344,7 @@ function unnotePartOfNote(treeFocus) {
   // Firefox have issues with this however. To force them to behave we insert
   // an empty span element inbetween.
   var markers = vdom.findMarkers(treeFocus.refresh());
-  _.last(markers).insertAfter(h('span'));
+  _.last(markers).insertAfter(new VText('\u200B'));
   markers[0].remove();
 }
 
