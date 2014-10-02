@@ -324,19 +324,23 @@ function unnotePartOfNote(treeFocus) {
   entireNote.forEach(unwrap);
 
 
-  // Notes to the left and right of the selection may have been created.
-  // We need to update their attributes and CSS classes.
+  // Unless the user selected the entire note contents, notes to the left
+  // and/or right of the selection will have been created. We need to update
+  // their attributes and CSS classes.
+  var onlyPartOfContentsSelected = focusesToNote[0] && focusesToNote[focusesToNote.length - 1];
 
-  // Note: refresh() is necessary here. Maybe possible to avoid somehow,
-  // but as of now the focusesToNote focuses are not reliable.
-  var startOfLefty = focusesToNote[0].refresh()
-  var lefty = vdom.findEntireNote(startOfLefty);
+  if (onlyPartOfContentsSelected) {
+    // Note: refresh() is necessary here. Maybe possible to avoid somehow,
+    // but as of now the focusesToNote focuses are not reliable.
+    var startOfLefty = focusesToNote[0].refresh()
+    var lefty = vdom.findEntireNote(startOfLefty);
 
-  var startOfRighty = focusesToNote[focusesToNote.length - 1].refresh();
-  var righty = vdom.findEntireNote(startOfRighty);
+    var startOfRighty = focusesToNote[focusesToNote.length - 1].refresh();
+    var righty = vdom.findEntireNote(startOfRighty);
 
-  updateNoteProperties(lefty);
-  updateNoteProperties(righty);
+    updateNoteProperties(lefty);
+    updateNoteProperties(righty);
+  }
 
 
   // Place marker immediately before the note to the right (this way of doing
