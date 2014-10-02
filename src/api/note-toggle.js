@@ -327,19 +327,11 @@ function unnotePartOfNote(treeFocus) {
   // Unless the user selected the entire note contents, notes to the left
   // and/or right of the selection will have been created. We need to update
   // their attributes and CSS classes.
-  var onlyPartOfContentsSelected = focusesToNote[0] && focusesToNote[focusesToNote.length - 1];
+  var onlyPartOfContentsSelected = focusesToNote[0];
 
   if (onlyPartOfContentsSelected) {
-    // Note: refresh() is necessary here. Maybe possible to avoid somehow,
-    // but as of now the focusesToNote focuses are not reliable.
-    var startOfLefty = focusesToNote[0].refresh()
-    var lefty = vdom.findEntireNote(startOfLefty);
-
-    var startOfRighty = focusesToNote[focusesToNote.length - 1].refresh();
-    var righty = vdom.findEntireNote(startOfRighty);
-
-    updateNoteProperties(lefty);
-    updateNoteProperties(righty);
+    var treeFocus = focusesToNote[0].top();
+    exports.ensureNoteIntegrity(treeFocus);
   }
 
 
