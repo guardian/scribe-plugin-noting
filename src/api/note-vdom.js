@@ -105,15 +105,15 @@ function findMarkers(treeFocus) {
   return treeFocus.filter(focusOnMarker);
 }
 
-function findFirstNoteSegment(fNoteSegment) {
+function findFirstNoteSegment(noteSegment) {
   return _.last(
-    fNoteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
+    noteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
   );
 }
 
-function findLastNoteSegment(fNoteSegment) {
+function findLastNoteSegment(noteSegment) {
   return _.last(
-    fNoteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
+    noteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
   );
 }
 
@@ -134,10 +134,6 @@ function withEmptyTextNode(focus) {
   return focusAndDescendants(focus).filter(focusOnTextNode).every(focusOnEmptyTextNode);
 }
 
-function containsNote(focus) {
-  return _(focusAndDescendants(focus)).rest().value().some(focusOnNote);
-}
-
 // Find the rest of a note.
 // We identify notes based on 'adjacency' rather than giving them an id.
 // This is because people may press RETURN or copy and paste part of a note.
@@ -147,10 +143,6 @@ function findEntireNote(noteSegment) {
   return findFirstNoteSegment(noteSegment)
     .takeWhile(stillWithinNote).filter(focusOnNote);
 };
-
-function findEntireNoteTextNodeFocuses(noteSegment) {
-  return findFirstNoteSegment(noteSegment).takeWhile(stillWithinNote).filter(focusOnTextNode).filter(function (focus) { return ! focusOnEmptyTextNode(focus); });
-}
 
 // Returns an array of arrays of note segments
 function findAllNotes(treeFocus) {
@@ -177,11 +169,11 @@ function findSelectedNote(treeFocus) {
 
 function selectionEntirelyWithinNote(markers) {
   if (markers.length === 2) {
-    // We have to exclude tags that contain a note since only part of that
-    // tag might be noted. E.g:
-    // <b>Some |text <gu-note class="note">and some noted |text</gu-note></b>
+    // We need the focusOnTextNode filter so we don't include P tags that
+    // contains notes for example.
     var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker)
-      .filter(function (focus) { return ! containsNote(focus); });
+      .filter(focusOnTextNode);
+
     return betweenMarkers.every(findAncestorNoteSegment);
   } else {
     return !!findAncestorNoteSegment(markers[0]);
@@ -210,7 +202,6 @@ exports.focusOnTextNode = focusOnTextNode;
 exports.withoutText = withoutText;
 exports.withEmptyTextNode = withEmptyTextNode;
 exports.findLastNoteSegment = findLastNoteSegment;
-exports.findEntireNoteTextNodeFocuses = findEntireNoteTextNodeFocuses;
 exports.focusOutsideNote = focusOutsideNote;
 exports.findSelectedNote = findSelectedNote;
 exports.findAllNotes = findAllNotes;

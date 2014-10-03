@@ -291,11 +291,13 @@ function unnotePartOfNote(treeFocus) {
 
   var focusesToUnnote = vdom.findTextNodeFocusesBetweenMarkers(treeFocus);
   var entireNote = vdom.findEntireNote(focusesToUnnote[0]);
-  var entireNoteTextNodeFocuses = vdom.findEntireNoteTextNodeFocuses(entireNote[0]);
 
 
-  var entireNoteTextNodes = _(entireNote).map(function (focus) { return focus.vNode.children; })
-    .flatten().filter(isVText).value();
+  var entireNoteTextNodeFocuses = _(entireNote).map(vdom.focusAndDescendants)
+    .flatten().value().filter(vdom.focusOnTextNode);
+
+  var entireNoteTextNodes = entireNoteTextNodeFocuses.map(function (focus) { return focus.vNode; });
+
 
   var textNodesToUnnote = focusesToUnnote.map(function (focus) { return focus.vNode; });
   var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
@@ -322,19 +324,15 @@ function unnotePartOfNote(treeFocus) {
   entireNote.forEach(unwrap);
 
 
-  // Notes to the left and right of the selection may have been created.
-  // We need to update their attributes and CSS classes.
+  // Unless the user selected the entire note contents, notes to the left
+  // and/or right of the selection will have been created. We need to update
+  // their attributes and CSS classes.
+  var onlyPartOfContentsSelected = focusesToNote[0];
 
-  // Note: refresh() is necessary here. Maybe possible to avoid somehow,
-  // but as of now the focusesToNote focuses are not reliable.
-  var startOfLefty = focusesToNote[0].refresh()
-  var lefty = vdom.findEntireNote(startOfLefty);
-
-  var startOfRighty = focusesToNote[focusesToNote.length - 1].refresh();
-  var righty = vdom.findEntireNote(startOfRighty);
-
-  updateNoteProperties(lefty);
-  updateNoteProperties(righty);
+  if (onlyPartOfContentsSelected) {
+    var treeFocus = focusesToNote[0].top();
+    exports.ensureNoteIntegrity(treeFocus);
+  }
 
 
   // Place marker immediately before the note to the right (this way of doing
@@ -342,7 +340,7 @@ function unnotePartOfNote(treeFocus) {
   // Firefox have issues with this however. To force them to behave we insert
   // an empty span element inbetween.
   var markers = vdom.findMarkers(treeFocus.refresh());
-  _.last(markers).insertAfter(h('span'));
+  _.last(markers).insertAfter(new VText('\u200B'));
   markers[0].remove();
 }
 
