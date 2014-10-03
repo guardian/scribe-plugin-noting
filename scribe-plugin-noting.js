@@ -370,13 +370,6 @@ var diff = require("vtree/diff")
 module.exports = diff
 
 },{"vtree/diff":47}],10:[function(require,module,exports){
-module.exports = isObject
-
-function isObject(x) {
-    return typeof x === "object" && x !== null
-}
-
-},{}],11:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("vtree/is-vhook")
 
@@ -470,7 +463,7 @@ function getPrototype(value) {
     }
 }
 
-},{"is-object":10,"vtree/is-vhook":50}],12:[function(require,module,exports){
+},{"is-object":14,"vtree/is-vhook":50}],11:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -518,7 +511,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"./apply-properties":11,"global/document":14,"vtree/handle-thunk":48,"vtree/is-vnode":51,"vtree/is-vtext":52,"vtree/is-widget":53}],13:[function(require,module,exports){
+},{"./apply-properties":10,"global/document":13,"vtree/handle-thunk":48,"vtree/is-vnode":51,"vtree/is-vtext":52,"vtree/is-widget":53}],12:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -605,7 +598,7 @@ function ascending(a, b) {
     return a > b ? 1 : -1
 }
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -624,7 +617,14 @@ if (typeof document !== 'undefined') {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"min-document":1}],15:[function(require,module,exports){
+},{"min-document":1}],14:[function(require,module,exports){
+module.exports = isObject
+
+function isObject(x) {
+    return typeof x === "object" && x !== null
+}
+
+},{}],15:[function(require,module,exports){
 var applyProperties = require("./apply-properties")
 
 var isWidget = require("vtree/is-widget")
@@ -794,7 +794,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"./apply-properties":11,"./create-element":12,"./update-widget":17,"vtree/is-widget":53,"vtree/vpatch":57}],16:[function(require,module,exports){
+},{"./apply-properties":10,"./create-element":11,"./update-widget":17,"vtree/is-widget":53,"vtree/vpatch":57}],16:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -872,7 +872,7 @@ function patchIndices(patches) {
     return indices
 }
 
-},{"./dom-index":13,"./patch-op":15,"global/document":14,"x-is-array":18}],17:[function(require,module,exports){
+},{"./dom-index":12,"./patch-op":15,"global/document":13,"x-is-array":18}],17:[function(require,module,exports){
 var isWidget = require("vtree/is-widget")
 
 module.exports = updateWidget
@@ -1972,8 +1972,8 @@ module.exports=require(41)
 },{"./version":56,"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":41}],53:[function(require,module,exports){
 module.exports=require(5)
 },{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],54:[function(require,module,exports){
-module.exports=require(10)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":10}],55:[function(require,module,exports){
+module.exports=require(14)
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/vdom/node_modules/is-object/index.js":14}],55:[function(require,module,exports){
 module.exports=require(18)
 },{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":18}],56:[function(require,module,exports){
 module.exports=require(6)
@@ -2356,11 +2356,13 @@ function unnotePartOfNote(treeFocus) {
 
   var focusesToUnnote = vdom.findTextNodeFocusesBetweenMarkers(treeFocus);
   var entireNote = vdom.findEntireNote(focusesToUnnote[0]);
-  var entireNoteTextNodeFocuses = vdom.findEntireNoteTextNodeFocuses(entireNote[0]);
 
 
-  var entireNoteTextNodes = _(entireNote).map(function (focus) { return focus.vNode.children; })
-    .flatten().filter(isVText).value();
+  var entireNoteTextNodeFocuses = _(entireNote).map(vdom.focusAndDescendants)
+    .flatten().value().filter(vdom.focusOnTextNode);
+
+  var entireNoteTextNodes = entireNoteTextNodeFocuses.map(function (focus) { return focus.vNode; });
+
 
   var textNodesToUnnote = focusesToUnnote.map(function (focus) { return focus.vNode; });
   var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
@@ -2387,19 +2389,15 @@ function unnotePartOfNote(treeFocus) {
   entireNote.forEach(unwrap);
 
 
-  // Notes to the left and right of the selection may have been created.
-  // We need to update their attributes and CSS classes.
+  // Unless the user selected the entire note contents, notes to the left
+  // and/or right of the selection will have been created. We need to update
+  // their attributes and CSS classes.
+  var onlyPartOfContentsSelected = focusesToNote[0];
 
-  // Note: refresh() is necessary here. Maybe possible to avoid somehow,
-  // but as of now the focusesToNote focuses are not reliable.
-  var startOfLefty = focusesToNote[0].refresh()
-  var lefty = vdom.findEntireNote(startOfLefty);
-
-  var startOfRighty = focusesToNote[focusesToNote.length - 1].refresh();
-  var righty = vdom.findEntireNote(startOfRighty);
-
-  updateNoteProperties(lefty);
-  updateNoteProperties(righty);
+  if (onlyPartOfContentsSelected) {
+    var treeFocus = focusesToNote[0].top();
+    exports.ensureNoteIntegrity(treeFocus);
+  }
 
 
   // Place marker immediately before the note to the right (this way of doing
@@ -2407,7 +2405,7 @@ function unnotePartOfNote(treeFocus) {
   // Firefox have issues with this however. To force them to behave we insert
   // an empty span element inbetween.
   var markers = vdom.findMarkers(treeFocus.refresh());
-  _.last(markers).insertAfter(h('span'));
+  _.last(markers).insertAfter(new VText('\u200B'));
   markers[0].remove();
 }
 
@@ -2688,15 +2686,15 @@ function findMarkers(treeFocus) {
   return treeFocus.filter(focusOnMarker);
 }
 
-function findFirstNoteSegment(fNoteSegment) {
+function findFirstNoteSegment(noteSegment) {
   return _.last(
-    fNoteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
+    noteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
   );
 }
 
-function findLastNoteSegment(fNoteSegment) {
+function findLastNoteSegment(noteSegment) {
   return _.last(
-    fNoteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
+    noteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
   );
 }
 
@@ -2717,10 +2715,6 @@ function withEmptyTextNode(focus) {
   return focusAndDescendants(focus).filter(focusOnTextNode).every(focusOnEmptyTextNode);
 }
 
-function containsNote(focus) {
-  return _(focusAndDescendants(focus)).rest().value().some(focusOnNote);
-}
-
 // Find the rest of a note.
 // We identify notes based on 'adjacency' rather than giving them an id.
 // This is because people may press RETURN or copy and paste part of a note.
@@ -2730,10 +2724,6 @@ function findEntireNote(noteSegment) {
   return findFirstNoteSegment(noteSegment)
     .takeWhile(stillWithinNote).filter(focusOnNote);
 };
-
-function findEntireNoteTextNodeFocuses(noteSegment) {
-  return findFirstNoteSegment(noteSegment).takeWhile(stillWithinNote).filter(focusOnTextNode).filter(function (focus) { return ! focusOnEmptyTextNode(focus); });
-}
 
 // Returns an array of arrays of note segments
 function findAllNotes(treeFocus) {
@@ -2760,11 +2750,11 @@ function findSelectedNote(treeFocus) {
 
 function selectionEntirelyWithinNote(markers) {
   if (markers.length === 2) {
-    // We have to exclude tags that contain a note since only part of that
-    // tag might be noted. E.g:
-    // <b>Some |text <gu-note class="note">and some noted |text</gu-note></b>
+    // We need the focusOnTextNode filter so we don't include P tags that
+    // contains notes for example.
     var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker)
-      .filter(function (focus) { return ! containsNote(focus); });
+      .filter(focusOnTextNode);
+
     return betweenMarkers.every(findAncestorNoteSegment);
   } else {
     return !!findAncestorNoteSegment(markers[0]);
@@ -2793,7 +2783,6 @@ exports.focusOnTextNode = focusOnTextNode;
 exports.withoutText = withoutText;
 exports.withEmptyTextNode = withEmptyTextNode;
 exports.findLastNoteSegment = findLastNoteSegment;
-exports.findEntireNoteTextNodeFocuses = findEntireNoteTextNodeFocuses;
 exports.focusOutsideNote = focusOutsideNote;
 exports.findSelectedNote = findSelectedNote;
 exports.findAllNotes = findAllNotes;
