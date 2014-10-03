@@ -57,19 +57,11 @@ function focusOnEmptyTextNode(focus) {
   return isVText(vNode) && consideredEmpty(vNode.text);
 }
 
-function focusOnNoteBarrier(focus) {
-  return isNoteBarrier(focus.vNode);
-}
-
 // Whether a DOM node or vNode is a note.
 // Case insensitive to work with both DOM nodes and vNodes
 // (which can be lowercase).
 function isNote(node) {
   return node.tagName && node.tagName.toLowerCase() === TAG;
-}
-
-function isNoteBarrier(node) {
-  return node.tagName && node.tagName.toLowerCase() === NOTE_BARRIER_TAG;
 }
 
 function isScribeMarker(vNode) {
@@ -89,7 +81,7 @@ function hasNoteId(vNode, value) {
 }
 
 function stillWithinNote(focus) {
-  return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || focusOnNoteBarrier(focus) || findAncestorNoteSegment(focus);
+  return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
 }
 
 
@@ -222,13 +214,30 @@ function removeVirtualScribeMarkers(treeFocus) {
   });
 }
 
+function removeEmptyNotes(treeFocus) {
+  var allNoteSegments = _.flatten(findAllNotes(treeFocus));
+  var noteSegmentsWithDescendants = allNoteSegments.map(focusAndDescendants);
+
+  noteSegmentsWithDescendants.forEach(function (segmentWithDescendants) {
+    var segment = segmentWithDescendants[0];
+    var descendants = _.rest(segmentWithDescendants);
+
+    var hasOnlyEmptyTextNodes = descendants.filter(focusOnTextNode)
+      .every(focusOnEmptyTextNode);
+
+    if (segment.vNode.children.length === 0 || hasOnlyEmptyTextNodes) {
+      segment.remove();
+    }
+  });
+}
+
 
 // Export the following functions
 //   TODO: streamline these so that dependant modules use more generic functions
 exports.focusAndDescendants = focusAndDescendants;
+exports.focusOnEmptyTextNode = focusOnEmptyTextNode;
 exports.focusOnMarker = focusOnMarker;
 exports.focusOnNote = focusOnNote;
-exports.focusOnNoteBarrier = focusOnNoteBarrier;
 exports.focusOnTextNode = focusOnTextNode;
 exports.withoutText = withoutText;
 exports.withEmptyTextNode = withEmptyTextNode;
@@ -243,5 +252,6 @@ exports.findMarkers = findMarkers;
 exports.isScribeMarker = isScribeMarker;
 exports.findAncestorNoteSegment = findAncestorNoteSegment;
 exports.findTextNodeFocusesBetweenMarkers = findTextNodeFocusesBetweenMarkers;
+exports.removeEmptyNotes = removeEmptyNotes;
 exports.removeVirtualScribeMarkers = removeVirtualScribeMarkers;
 exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
