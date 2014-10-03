@@ -74,13 +74,14 @@ function removeVNodeClass(vNode, name) {
   var classes = vNode.properties.className.split(' ');
   var classId = classes.indexOf(name);
 
-  if (classId != -1) {
+  if (classId !== -1) {
     classes.splice(classId, 1);
     vNode.properties.className = classes.join(' ');
   }
 }
 
 function generateUUID(){
+  /* jshint bitwise:false */
   var d = new Date().getTime();
   var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = (d + Math.random()*16)%16 | 0;
