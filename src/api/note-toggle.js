@@ -63,6 +63,34 @@ function unwrap(focus) {
   focus.parent = focus.parent.parent;
 }
 
+function addUniqueVNodeClass(vNode, name) {
+  var classes = vNode.properties.className.split(' ');
+  classes.push(name);
+
+  vNode.properties.className = _.uniq(classes).join(' ');
+}
+
+function removeVNodeClass(vNode, name) {
+  var classes = vNode.properties.className.split(' ');
+  var classId = classes.indexOf(name);
+
+  if (classId !== -1) {
+    classes.splice(classId, 1);
+    vNode.properties.className = classes.join(' ');
+  }
+}
+
+function generateUUID(){
+  /* jshint bitwise:false */
+  var d = new Date().getTime();
+  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = (d + Math.random()*16)%16 | 0;
+      d = Math.floor(d/16);
+      return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+  });
+  return uuid;
+};
+
 // Update note properties, adding them if they aren't already there.
 // Note that this is also a way of merging notes, as we update the
 // start and end classes as well as give the segments the same edited
@@ -70,6 +98,11 @@ function unwrap(focus) {
 function updateNoteProperties(noteSegments) {
   updateStartAndEndClasses(noteSegments);
   noteSegments.forEach(updateEditedBy);
+
+  var uuid = generateUUID();
+  noteSegments.forEach(function (segment) {
+    segment.vNode.properties.dataset['noteId'] = uuid;
+  });
 
   var treeFocus = noteSegments[0].top();
   updateNoteBarriers(treeFocus);
@@ -79,24 +112,6 @@ function updateNoteProperties(noteSegments) {
 // `note--start` class and that the last (and only the last)
 // note segment has a `note--end` class.
 function updateStartAndEndClasses(noteSegments) {
-  function addUniqueVNodeClass(vNode, name) {
-    var classes = vNode.properties.className.split(' ');
-    classes.push(name);
-
-    vNode.properties.className = _.uniq(classes).join(' ');
-  }
-
-  function removeVNodeClass(vNode, name) {
-    var classes = vNode.properties.className.split(' ');
-    var classId = classes.indexOf(name);
-
-    if (classId != -1) {
-      classes.splice(classId, 1);
-      vNode.properties.className = classes.join(' ');
-    }
-  }
-
-
   function addStartAndEndClasses(noteSegments) {
     addUniqueVNodeClass(noteSegments[0].vNode, 'note--start');
     addUniqueVNodeClass(noteSegments[noteSegments.length - 1].vNode, 'note--end');
@@ -247,8 +262,10 @@ function unnote(treeFocus) {
   // We assume the caller knows there's only one marker.
   var marker = vdom.findMarkers(treeFocus)[0];
 
+  // We can't use findEntireNote here since it'll sometimes give us the wrong result.
+  // See `findEntireNote` documentation. Instead we look the note up by its ID.
   var noteSegment = vdom.findAncestorNoteSegment(marker);
-  var noteSegments = vdom.findEntireNote(noteSegment);
+  var noteSegments = vdom.findNote(treeFocus, noteSegment.vNode.properties.dataset.noteId);
 
   noteSegments.forEach(unwrap);
 
