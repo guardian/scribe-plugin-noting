@@ -8,7 +8,7 @@
   "description": "Adds notes to scribe",
   "main": "scribe-plugin-noting",
   "dependencies": {
-    "scribe-common": "~0.0.5",
+    "scribe-common": "~0.0.11",
     "lodash": "2.4.1"
   },
   "devDependencies": {
