@@ -35,7 +35,6 @@ function focusOutsideNote(focus) {
   return ! findAncestorNoteSegment(focus);
 }
 
-
 function consideredEmpty(s) {
   var zeroWidthSpace = '\u200B';
   var nonBreakingSpace = '\u00a0';
@@ -78,8 +77,15 @@ function isScribeMarker(vNode) {
 };
 
 // Check if VNode has class
+// TODO: Currently not working on nodes with multiple classes (not an
+// issue at the moment).
 function hasClass(vNode, value) {
   return (vNode.properties && vNode.properties.className === value);
+}
+
+function hasNoteId(vNode, value) {
+  return !!(vNode.properties && vNode.properties.dataset &&
+    vNode.properties.dataset.noteId === value);
 }
 
 function stillWithinNote(focus) {
@@ -138,10 +144,35 @@ function withEmptyTextNode(focus) {
 // We identify notes based on 'adjacency' rather than giving them an id.
 // This is because people may press RETURN or copy and paste part of a note.
 // In such cases we don't want that to keep being the same note.
+//
+// This has a caveat when:
+// 1. A note covers 3 paragraphs.
+// 2. Part of a note in paragraph 2 is unnoted.
+// 3. The caret is placed in paragraph 3.
+// 4. The noting key is pressed.
+// findFirstNoteSegment will then move backwards over a P
+// and into the first note. We will then unnote the first
+// note rather than the second.
+//
 // noteSegment: focus on note
 function findEntireNote(noteSegment) {
   return findFirstNoteSegment(noteSegment)
     .takeWhile(stillWithinNote).filter(focusOnNote);
+};
+
+// Find a note based on its ID. Will not always give the same result as `findEntireNote` ,
+// since that'll recognize that a note is adjacent to another one. But when a note
+// covers several paragraphs we can't be sure findEntireNote
+// will give us the right result (see comment for findEntireNote).
+//
+// TODO: Redo findEntireNote to be based on findNote and IDs? Could perhaps
+// find adjacent notes with the help of focus.prev() and focus.next().
+function findNote(treeFocus, noteId) {
+  var allNoteSegments = _.flatten(findAllNotes(treeFocus));
+
+  return allNoteSegments.filter(function (segment) {
+    return hasNoteId(segment.vNode, noteId);
+  });
 };
 
 // Returns an array of arrays of note segments
@@ -206,6 +237,7 @@ exports.focusOutsideNote = focusOutsideNote;
 exports.findSelectedNote = findSelectedNote;
 exports.findAllNotes = findAllNotes;
 exports.findEntireNote = findEntireNote;
+exports.findNote = findNote;
 exports.findFirstNoteSegment = findFirstNoteSegment;
 exports.findMarkers = findMarkers;
 exports.isScribeMarker = isScribeMarker;
