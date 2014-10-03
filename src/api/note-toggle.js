@@ -154,7 +154,7 @@ function updateEditedBy(noteSegment) {
 function userAndTimeAsDatasetAttrs() {
   var dataset = {};
   dataset[DATA_NAME_CAMEL] = exports.user;
-  dataset[DATA_DATE_CAMEL] = new Date().toISOString(); // how deal with timezone?
+  dataset[DATA_DATE_CAMEL] = new Date().toISOString();
 
   return dataset;
 }
@@ -163,15 +163,9 @@ function createVirtualScribeMarker() {
   return h('em.scribe-marker', []);
 }
 
+// We need these to make it possible to place the caret immediately
+// inside/outside of a note.
 function createNoteBarrier() {
-  // Note that the note barrier must be empty. This prevents the web
-  // browser from ever placing the caret inside of the tag. The problem
-  // with allowing the caret to be placed inside of the tag is that we'll
-  // end up with text within the note barriers.
-  //
-  // However, keeping it empty makes it necessary to specify the CSS
-  // ".note-barrier { display: inline-block }" or browsers will render
-  // a line break after each note barrier.
   return new VText('\u200B');
 }
 
