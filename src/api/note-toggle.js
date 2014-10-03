@@ -261,6 +261,8 @@ function unnote(treeFocus) {
   // We assume the caller knows there's only one marker.
   var marker = vdom.findMarkers(treeFocus)[0];
 
+  // We can't use findEntireNote here since it'll sometimes give us the wrong result.
+  // See `findEntireNote` documentation. Instead we look the note up by its ID.
   var noteSegment = vdom.findAncestorNoteSegment(marker);
   var noteSegments = vdom.findNote(treeFocus, noteSegment.vNode.properties.dataset.noteId);
 
