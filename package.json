@@ -1,6 +1,6 @@
 {
   "name": "scribe-plugin-noting",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "main": "dist/scribe-plugin-noting.js",
   "dependencies": {
     "vdom-virtualize": "git://github.com/marcelklehr/vdom-virtualize.git#38c9027e35d194502f74455be721ae49fb31621c",
