@@ -38,7 +38,7 @@
             var toolbarElement = document.querySelector('.toolbar');
             scribe.use(scribePluginToolbar(toolbarElement));
 
-            scribe.use(scribePluginNoting("Example User"));
+            scribe.use(scribePluginNoting({ user: "Example User", scribeInstancesSelector: '.scribe' }));
 
           }
         );

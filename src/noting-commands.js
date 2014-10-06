@@ -9,6 +9,7 @@
 var noteToggle = require('./api/note-toggle');
 var noteCollapse = require('./api/note-collapse');
 var vdom = require('./noting-vdom');
+var _ = require('lodash');
 
 
 /**
@@ -16,10 +17,13 @@ var vdom = require('./noting-vdom');
  * @param  {Scribe} scribe
  * @param  {String} user  Current user string.
  */
-exports.init = function(scribe, user) {
-
+exports.init = function(scribe, config) {
   // initialise current user for Noting API
-  noteToggle.user = user;
+  noteToggle.user = config.user;
+
+  // initialise scribe element selector
+  // TODO: Extract the configuration varialbles into its own module.
+  noteCollapse.scribeInstancesSelector = config.scribeInstancesSelector;
 
   scribe.commands.note = createNoteToggleCommand(scribe);
   scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);
@@ -84,13 +88,24 @@ function createCollapseToggleAllCommand(scribe) {
 
   // *** toggle collapse all command ***
   collapseAllCommand.execute = function() {
-    var state = !this._state;
+    // This command is a bit special in the sense that it will operate on all
+    // Scribe instances on the page.
+    //
+    // We use a global variable to keep track of the state since we need this
+    // to be available to all Scribe instances. Otherwise the state in different
+    // instances can get out of sync.
+    var state = !window._scribe_plugin_noting__noteCollapsedState,
+        scribeInstances = _.toArray(document.querySelectorAll(noteCollapse.scribeInstancesSelector));
 
-    vdom.mutate(scribe.el, function(treeFocus) {
-      noteCollapse.collapseToggleAllNotes(treeFocus, state);
+    scribeInstances.forEach(function (instance) {
+
+      vdom.mutate(instance, function(treeFocus) {
+        noteCollapse.collapseToggleAllNotes(treeFocus, state);
+      });
+
     });
 
-    this._state = state;
+    window._scribe_plugin_noting__noteCollapsedState = state;
   };
 
   collapseAllCommand.queryEnabled = function() {
@@ -99,7 +114,7 @@ function createCollapseToggleAllCommand(scribe) {
   };
 
   collapseAllCommand.queryState = function() {
-    return this.queryEnabled() && !!this._state;
+    return this.queryEnabled() && !!window._scribe_plugin_noting__noteCollapsedState;
   };
 
   return collapseAllCommand;

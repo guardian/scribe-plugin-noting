@@ -14,7 +14,7 @@ var NODE_NAME = 'GU-NOTE';
 var TAG = 'gu-note';
 
 var CLASS_NAME = 'note';
-var DATA_NAME = 'data-node-edited-by';
+var DATA_NAME = 'data-note-edited-by';
 var DATA_NAME_CAMEL = 'noteEditedBy';
 var DATA_DATE = 'data-note-edited-date';
 var DATA_DATE_CAMEL = 'noteEditedDate';

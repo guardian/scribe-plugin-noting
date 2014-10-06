@@ -2,8 +2,13 @@
 
 var notingCommands = require('./src/noting-commands');
 
-module.exports = function(user) {
+module.exports = function(config) {
   return function(scribe) {
-    notingCommands.init(scribe, user);
+    var config = config || {
+            user: 'Unknown user',
+            scribeInstancesSelector: '.ui-rich-text-editor__input'
+        }
+                                    }
+    notingCommands.init(scribe, config);
   };
 };
