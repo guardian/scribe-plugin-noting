@@ -100,12 +100,6 @@ describe('noting plugin', function () {
             expect(numberOfNoteStartAttributes).to.equal(1);
             expect(numberOfNoteEndAttributes).to.equal(1);
 
-            // Expect one start and one end note barrier
-            var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
-            var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
-            expect(numberOfNoteStartAttributes).to.equal(1);
-            expect(numberOfNoteEndAttributes).to.equal(1);
-
             expect(innerHTML).to.include('data-note-edited-by');
             expect(innerHTML).to.include('data-note-edited-date');
 
@@ -132,12 +126,6 @@ describe('noting plugin', function () {
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
 
-                // Expect one start and one end note barrier
-                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
-                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
-                expect(numberOfNoteStartAttributes).to.equal(1);
-                expect(numberOfNoteEndAttributes).to.equal(1);
-
                 expect(innerHTML).to.include('data-note-edited-by');
                 expect(innerHTML).to.include('data-note-edited-date');
               });
@@ -161,12 +149,6 @@ describe('noting plugin', function () {
                 // Expect one start and one end attribute
                 var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
                 var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
-                expect(numberOfNoteStartAttributes).to.equal(1);
-                expect(numberOfNoteEndAttributes).to.equal(1);
-
-                // Expect one start and one end note barrier
-                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
-                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
 
@@ -210,12 +192,6 @@ describe('noting plugin', function () {
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
 
-                // Expect one start and one end note barrier
-                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
-                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
-                expect(numberOfNoteStartAttributes).to.equal(1);
-                expect(numberOfNoteEndAttributes).to.equal(1);
-
                 expect(innerHTML).to.include('data-note-edited-by');
                 expect(innerHTML).to.include('data-note-edited-date');
               });
@@ -243,13 +219,6 @@ describe('noting plugin', function () {
                 var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
                 expect(numberOfNoteStartAttributes).to.equal(2);
                 expect(numberOfNoteEndAttributes).to.equal(2);
-
-                // Expect two notes with start and end note barriers
-                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
-                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
-                expect(numberOfNoteStartAttributes).to.equal(2);
-                expect(numberOfNoteEndAttributes).to.equal(2);
-
               });
             });
           });
@@ -266,12 +235,6 @@ describe('noting plugin', function () {
                 // Expect two notes with note--start and note--end classes.
                 var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
                 var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
-                expect(numberOfNoteStartAttributes).to.equal(1);
-                expect(numberOfNoteEndAttributes).to.equal(1);
-
-                // Expect one start and one end note barrier
-                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
-                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
               });
@@ -292,12 +255,6 @@ describe('noting plugin', function () {
                 var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
                 expect(numberOfNoteStartAttributes).to.equal(1);
                 expect(numberOfNoteEndAttributes).to.equal(1);
-
-                // Expect one start and one end note barrier
-                var numberOfNoteStartAttributes = innerHTML.match(/note-barrier--start/g).length;
-                var numberOfNoteEndAttributes = innerHTML.match(/note-barrier--end/g).length;
-                expect(numberOfNoteStartAttributes).to.equal(1);
-                expect(numberOfNoteEndAttributes).to.equal(1);
               });
             });
           });
@@ -305,19 +262,33 @@ describe('noting plugin', function () {
       });
     });
 
-    // when('we select the contents of a note', function() {
-    //   givenContentOf('<p>On the 24th of <gu-note class="note">|February, 1815, |</gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
-    //     when('we press the noting key', function() {
-    //       it('unnotes the note', function () {
-    //         note().then(function () {
-    //           scribeNode.getInnerHTML().then(function (innerHTML) {
-    //             expect(innerHTML).to.not.include('</gu-note>');
-    //           });
-    //         });
-    //       });
-    //     });
-    //   });
-    // });
+    when('we select the contents of a note', function() {
+      givenContentOf('<p>On the 24th of <gu-note class="note">|February, 1815, |</gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+        when('we press the noting key', function() {
+          it('unnotes the note', function () {
+            note().then(function () {
+              scribeNode.getInnerHTML().then(function (innerHTML) {
+                expect(innerHTML).to.not.include('</gu-note>');
+              });
+            });
+          });
+        });
+      });
+    });
+
+    when('we select the contents of a note except for a space', function() {
+      givenContentOf('<p>On the 24th of <gu-note class="note"> |February, 1815, |</gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+        when('we press the noting key', function() {
+          it('unnotes the note', function () {
+            note().then(function () {
+              scribeNode.getInnerHTML().then(function (innerHTML) {
+                expect(innerHTML).to.not.include('</gu-note>');
+              });
+            });
+          });
+        });
+      });
+    });
 
     // Merge notes
 

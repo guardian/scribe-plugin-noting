@@ -154,7 +154,7 @@ function updateEditedBy(noteSegment) {
 function userAndTimeAsDatasetAttrs() {
   var dataset = {};
   dataset[DATA_NAME_CAMEL] = exports.user;
-  dataset[DATA_DATE_CAMEL] = new Date().toISOString(); // how deal with timezone?
+  dataset[DATA_DATE_CAMEL] = new Date().toISOString();
 
   return dataset;
 }
@@ -163,29 +163,23 @@ function createVirtualScribeMarker() {
   return h('em.scribe-marker', []);
 }
 
-function createNoteBarrier(startOrEnd) {
-  // Note that the note barrier must be empty. This prevents the web
-  // browser from ever placing the caret inside of the tag. The problem
-  // with allowing the caret to be placed inside of the tag is that we'll
-  // end up with text within the note barriers.
-  //
-  // However, keeping it empty makes it necessary to specify the CSS
-  // ".note-barrier { display: inline-block }" or browsers will render
-  // a line break after each note barrier.
-  return h(NOTE_BARRIER_TAG + '.note-barrier' + '.note-barrier--' + startOrEnd);
+// We need these to make it possible to place the caret immediately
+// inside/outside of a note.
+function createNoteBarrier() {
+  return new VText('\u200B');
 }
 
 function updateNoteBarriers(treeFocus) {
   function removeNoteBarriers(treeFocus) {
-    treeFocus.filter(vdom.focusOnNoteBarrier).forEach(function (barrier) {
-      barrier.remove();
+    treeFocus.filter(vdom.focusOnTextNode).forEach(function (focus) {
+      focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
     });
   }
 
   function insertNoteBarriers(treeFocus) {
     vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
-      _.first(noteSegments).next().insertBefore(createNoteBarrier('start'));
-      _.last(noteSegments).insertAfter(createNoteBarrier('end'));
+      _.first(noteSegments).next().insertBefore(createNoteBarrier());
+      _.last(noteSegments).insertAfter(createNoteBarrier());
     });
   }
 
@@ -359,6 +353,11 @@ function unnotePartOfNote(treeFocus) {
   var markers = vdom.findMarkers(treeFocus.refresh());
   _.last(markers).insertAfter(new VText('\u200B'));
   markers[0].remove();
+
+
+  // If the user selected everything but a space (or zero width space), we remove
+  // the remaining note. Most likely that's what our user intended.
+  vdom.removeEmptyNotes(treeFocus.refresh());
 }
 
 
