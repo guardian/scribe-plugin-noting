@@ -2010,6 +2010,11 @@ var notingCommands = require('./src/noting-commands');
 
 module.exports = function(config) {
   return function(scribe) {
+    var config = config || {
+        user: 'Unknown user',
+        scribeInstancesSelector: '.ui-rich-text-editor__input'
+    };
+
     notingCommands.init(scribe, config);
   };
 };
@@ -2944,6 +2949,12 @@ function createCollapseToggleAllCommand(scribe) {
 
   // *** toggle collapse all command ***
   collapseAllCommand.execute = function() {
+    // This command is a bit special in the sense that it will operate on all
+    // Scribe instances on the page.
+    //
+    // We use a global variable to keep track of the state since we need this
+    // to be available to all Scribe instances. Otherwise the state in different
+    // instances can get out of sync.
     var state = !window._scribe_plugin_noting__noteCollapsedState,
         scribeInstances = _.toArray(document.querySelectorAll(noteCollapse.scribeInstancesSelector));
 
@@ -3061,25 +3072,27 @@ exports.mutate = function(domElement, callback) {
 exports.mutateScribe = function(scribe, callback) {
   var selection = new scribe.api.Selection();
 
-  // Place markers and create virtual trees.
-  // We'll use the markers to determine where a selection starts and ends.
-  selection.placeMarkers();
+  scribe.transactionManager.run(function () {
+    // Place markers and create virtual trees.
+    // We'll use the markers to determine where a selection starts and ends.
+    selection.placeMarkers();
 
-  exports.mutate(scribe.el, function(treeFocus) {
+    exports.mutate(scribe.el, function(treeFocus) {
 
-    callback(treeFocus, selection);
+      callback(treeFocus, selection);
 
+    });
+
+    // Place caret (necessary to do this explicitly for FF).
+    // Currently works by selecting before and after real DOM elements, so
+    // cannot use VDOM for this, yet.
+    selection.selectMarkers();
+
+    // We need to make sure we clean up after ourselves by removing markers
+    // when we're done, as our functions assume there's either one or two
+    // markers present.
+    selection.removeMarkers();
   });
-
-  // Place caret (necessary to do this explicitly for FF).
-  // Currently works by selecting before and after real DOM elements, so
-  // cannot use VDOM for this, yet.
-  selection.selectMarkers();
-
-  // We need to make sure we clean up after ourselves by removing markers
-  // when we're done, as our functions assume there's either one or two
-  // markers present.
-  selection.removeMarkers();
 };
 
 },{"./vfocus":65,"lodash":"lodash","vdom-virtualize":2,"virtual-dom/diff":9,"virtual-dom/patch":19,"vtree/is-vtext":52}],65:[function(require,module,exports){
