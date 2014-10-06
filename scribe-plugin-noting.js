@@ -2008,9 +2008,9 @@ module.exports=require(8)
 
 var notingCommands = require('./src/noting-commands');
 
-module.exports = function(user) {
+module.exports = function(config) {
   return function(scribe) {
-    notingCommands.init(scribe, user);
+    notingCommands.init(scribe, config);
   };
 };
 
@@ -2079,7 +2079,7 @@ var NODE_NAME = 'GU-NOTE';
 var TAG = 'gu-note';
 
 var CLASS_NAME = 'note';
-var DATA_NAME = 'data-node-edited-by';
+var DATA_NAME = 'data-note-edited-by';
 var DATA_NAME_CAMEL = 'noteEditedBy';
 var DATA_DATE = 'data-note-edited-date';
 var DATA_DATE_CAMEL = 'noteEditedDate';
@@ -2865,6 +2865,7 @@ exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
 var noteToggle = require('./api/note-toggle');
 var noteCollapse = require('./api/note-collapse');
 var vdom = require('./noting-vdom');
+var _ = require('lodash');
 
 
 /**
@@ -2872,10 +2873,13 @@ var vdom = require('./noting-vdom');
  * @param  {Scribe} scribe
  * @param  {String} user  Current user string.
  */
-exports.init = function(scribe, user) {
-
+exports.init = function(scribe, config) {
   // initialise current user for Noting API
-  noteToggle.user = user;
+  noteToggle.user = config.user;
+
+  // initialise scribe element selector
+  // TODO: Extract the configuration varialbles into its own module.
+  noteCollapse.scribeInstancesSelector = config.scribeInstancesSelector;
 
   scribe.commands.note = createNoteToggleCommand(scribe);
   scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);
@@ -2940,13 +2944,18 @@ function createCollapseToggleAllCommand(scribe) {
 
   // *** toggle collapse all command ***
   collapseAllCommand.execute = function() {
-    var state = !this._state;
+    var state = !window._scribe_plugin_noting__noteCollapsedState,
+        scribeInstances = _.toArray(document.querySelectorAll(noteCollapse.scribeInstancesSelector));
 
-    vdom.mutate(scribe.el, function(treeFocus) {
-      noteCollapse.collapseToggleAllNotes(treeFocus, state);
+    scribeInstances.forEach(function (instance) {
+
+      vdom.mutate(instance, function(treeFocus) {
+        noteCollapse.collapseToggleAllNotes(treeFocus, state);
+      });
+
     });
 
-    this._state = state;
+    window._scribe_plugin_noting__noteCollapsedState = state;
   };
 
   collapseAllCommand.queryEnabled = function() {
@@ -2955,7 +2964,7 @@ function createCollapseToggleAllCommand(scribe) {
   };
 
   collapseAllCommand.queryState = function() {
-    return this.queryEnabled() && !!this._state;
+    return this.queryEnabled() && !!window._scribe_plugin_noting__noteCollapsedState;
   };
 
   return collapseAllCommand;
@@ -3007,7 +3016,7 @@ function addContentChangedListener(scribe) {
   });
 }
 
-},{"./api/note-collapse":60,"./api/note-toggle":61,"./noting-vdom":64}],64:[function(require,module,exports){
+},{"./api/note-collapse":60,"./api/note-toggle":61,"./noting-vdom":64,"lodash":"lodash"}],64:[function(require,module,exports){
 /**
  * Virtual DOM parser / serializer for Noting plugin.
  */
