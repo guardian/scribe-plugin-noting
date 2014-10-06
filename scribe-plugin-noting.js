@@ -2219,7 +2219,7 @@ function updateEditedBy(noteSegment) {
 function userAndTimeAsDatasetAttrs() {
   var dataset = {};
   dataset[DATA_NAME_CAMEL] = exports.user;
-  dataset[DATA_DATE_CAMEL] = new Date().toISOString(); // how deal with timezone?
+  dataset[DATA_DATE_CAMEL] = new Date().toISOString();
 
   return dataset;
 }
@@ -2228,29 +2228,23 @@ function createVirtualScribeMarker() {
   return h('em.scribe-marker', []);
 }
 
-function createNoteBarrier(startOrEnd) {
-  // Note that the note barrier must be empty. This prevents the web
-  // browser from ever placing the caret inside of the tag. The problem
-  // with allowing the caret to be placed inside of the tag is that we'll
-  // end up with text within the note barriers.
-  //
-  // However, keeping it empty makes it necessary to specify the CSS
-  // ".note-barrier { display: inline-block }" or browsers will render
-  // a line break after each note barrier.
-  return h(NOTE_BARRIER_TAG + '.note-barrier' + '.note-barrier--' + startOrEnd);
+// We need these to make it possible to place the caret immediately
+// inside/outside of a note.
+function createNoteBarrier() {
+  return new VText('\u200B');
 }
 
 function updateNoteBarriers(treeFocus) {
   function removeNoteBarriers(treeFocus) {
-    treeFocus.filter(vdom.focusOnNoteBarrier).forEach(function (barrier) {
-      barrier.remove();
+    treeFocus.filter(vdom.focusOnTextNode).forEach(function (focus) {
+      focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
     });
   }
 
   function insertNoteBarriers(treeFocus) {
     vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
-      _.first(noteSegments).next().insertBefore(createNoteBarrier('start'));
-      _.last(noteSegments).insertAfter(createNoteBarrier('end'));
+      _.first(noteSegments).next().insertBefore(createNoteBarrier());
+      _.last(noteSegments).insertAfter(createNoteBarrier());
     });
   }
 
@@ -2424,6 +2418,11 @@ function unnotePartOfNote(treeFocus) {
   var markers = vdom.findMarkers(treeFocus.refresh());
   _.last(markers).insertAfter(new VText('\u200B'));
   markers[0].remove();
+
+
+  // If the user selected everything but a space (or zero width space), we remove
+  // the remaining note. Most likely that's what our user intended.
+  vdom.removeEmptyNotes(treeFocus.refresh());
 }
 
 
@@ -2655,19 +2654,11 @@ function focusOnEmptyTextNode(focus) {
   return isVText(vNode) && consideredEmpty(vNode.text);
 }
 
-function focusOnNoteBarrier(focus) {
-  return isNoteBarrier(focus.vNode);
-}
-
 // Whether a DOM node or vNode is a note.
 // Case insensitive to work with both DOM nodes and vNodes
 // (which can be lowercase).
 function isNote(node) {
   return node.tagName && node.tagName.toLowerCase() === TAG;
-}
-
-function isNoteBarrier(node) {
-  return node.tagName && node.tagName.toLowerCase() === NOTE_BARRIER_TAG;
 }
 
 function isScribeMarker(vNode) {
@@ -2687,7 +2678,7 @@ function hasNoteId(vNode, value) {
 }
 
 function stillWithinNote(focus) {
-  return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || focusOnNoteBarrier(focus) || findAncestorNoteSegment(focus);
+  return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
 }
 
 
@@ -2820,13 +2811,30 @@ function removeVirtualScribeMarkers(treeFocus) {
   });
 }
 
+function removeEmptyNotes(treeFocus) {
+  var allNoteSegments = _.flatten(findAllNotes(treeFocus));
+  var noteSegmentsWithDescendants = allNoteSegments.map(focusAndDescendants);
+
+  noteSegmentsWithDescendants.forEach(function (segmentWithDescendants) {
+    var segment = segmentWithDescendants[0];
+    var descendants = _.rest(segmentWithDescendants);
+
+    var hasOnlyEmptyTextNodes = descendants.filter(focusOnTextNode)
+      .every(focusOnEmptyTextNode);
+
+    if (segment.vNode.children.length === 0 || hasOnlyEmptyTextNodes) {
+      segment.remove();
+    }
+  });
+}
+
 
 // Export the following functions
 //   TODO: streamline these so that dependant modules use more generic functions
 exports.focusAndDescendants = focusAndDescendants;
+exports.focusOnEmptyTextNode = focusOnEmptyTextNode;
 exports.focusOnMarker = focusOnMarker;
 exports.focusOnNote = focusOnNote;
-exports.focusOnNoteBarrier = focusOnNoteBarrier;
 exports.focusOnTextNode = focusOnTextNode;
 exports.withoutText = withoutText;
 exports.withEmptyTextNode = withEmptyTextNode;
@@ -2841,6 +2849,7 @@ exports.findMarkers = findMarkers;
 exports.isScribeMarker = isScribeMarker;
 exports.findAncestorNoteSegment = findAncestorNoteSegment;
 exports.findTextNodeFocusesBetweenMarkers = findTextNodeFocusesBetweenMarkers;
+exports.removeEmptyNotes = removeEmptyNotes;
 exports.removeVirtualScribeMarkers = removeVirtualScribeMarkers;
 exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
 
