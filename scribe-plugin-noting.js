@@ -2249,7 +2249,11 @@ function updateNoteBarriers(treeFocus) {
   function insertNoteBarriers(treeFocus) {
     vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
       _.first(noteSegments).next().insertBefore(createNoteBarrier());
-      _.last(noteSegments).insertAfter(createNoteBarrier());
+
+      // This is necessarily complex (been through a few iterations) because
+      // of Chrome's lack of flexibility when it comes to placing the caret.
+      var afterNote = _.last(noteSegments).find(vdom.focusOutsideNote).find(vdom.focusOnNonEmptyTextNode);
+      if (afterNote) afterNote.vNode.text = '\u200B' + afterNote.vNode.text;
     });
   }
 
@@ -2307,19 +2311,16 @@ function createNoteFromSelection(treeFocus) {
   // existing markers.
   vdom.removeVirtualScribeMarkers(treeFocus);
 
-  // (We also insert a note barrier at the start.)
-  var firstNoteSegment = vdom.findFirstNoteSegment(toWrapAndReplace[0]);
-  firstNoteSegment.next().insertBefore(createNoteBarrier());
-
-  // Then we place a new marker. (And a note barrier at the end.)
-  // We have to have an element in between the note barrier and the marker,
-  // or Chrome will place the caret inside the note.
+  // Update note properties (merges if necessary).
   var lastNoteSegment = vdom.findLastNoteSegment(toWrapAndReplace[0]);
-  lastNoteSegment.insertAfter([createNoteBarrier(), new VText('\u200B'), createVirtualScribeMarker()]);
-
 
   var noteSegments = vdom.findEntireNote(lastNoteSegment);
   updateNoteProperties(noteSegments);
+
+  // To place a marker we have to place an element inbetween the note barrier
+  // and the marker, or Chrome will place the caret inside the note.
+  _.last(noteSegments).find(vdom.focusOutsideNote)
+    .insertBefore([new VText('\u200B'), createVirtualScribeMarker()]);
 }
 
 function unnote(treeFocus) {
@@ -2659,6 +2660,10 @@ function focusOnEmptyTextNode(focus) {
   return isVText(vNode) && consideredEmpty(vNode.text);
 }
 
+function focusOnNonEmptyTextNode(focus) {
+  return focusOnTextNode(focus) && !focusOnEmptyTextNode(focus);
+}
+
 // Whether a DOM node or vNode is a note.
 // Case insensitive to work with both DOM nodes and vNodes
 // (which can be lowercase).
@@ -2838,6 +2843,7 @@ function removeEmptyNotes(treeFocus) {
 //   TODO: streamline these so that dependant modules use more generic functions
 exports.focusAndDescendants = focusAndDescendants;
 exports.focusOnEmptyTextNode = focusOnEmptyTextNode;
+exports.focusOnNonEmptyTextNode = focusOnNonEmptyTextNode;
 exports.focusOnMarker = focusOnMarker;
 exports.focusOnNote = focusOnNote;
 exports.focusOnTextNode = focusOnTextNode;
