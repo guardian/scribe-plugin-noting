@@ -6,6 +6,6 @@
   ],
   "description": "Adds notes to scribe",
   "main": "src/scribe-plugin-noting",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "license": "Apache 2"
 }
