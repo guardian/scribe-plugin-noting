@@ -57,6 +57,10 @@ function focusOnEmptyTextNode(focus) {
   return isVText(vNode) && consideredEmpty(vNode.text);
 }
 
+function focusOnNonEmptyTextNode(focus) {
+  return focusOnTextNode(focus) && !focusOnEmptyTextNode(focus);
+}
+
 // Whether a DOM node or vNode is a note.
 // Case insensitive to work with both DOM nodes and vNodes
 // (which can be lowercase).
@@ -236,6 +240,7 @@ function removeEmptyNotes(treeFocus) {
 //   TODO: streamline these so that dependant modules use more generic functions
 exports.focusAndDescendants = focusAndDescendants;
 exports.focusOnEmptyTextNode = focusOnEmptyTextNode;
+exports.focusOnNonEmptyTextNode = focusOnNonEmptyTextNode;
 exports.focusOnMarker = focusOnMarker;
 exports.focusOnNote = focusOnNote;
 exports.focusOnTextNode = focusOnTextNode;
