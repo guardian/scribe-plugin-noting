@@ -225,11 +225,13 @@ function createNoteFromSelection(treeFocus) {
   // already been wrapped.
   var toWrapAndReplace = vdom.findTextNodeFocusesBetweenMarkers(treeFocus).filter(vdom.focusOutsideNote);
 
+
   // Wrap the text nodes.
   var userAndTime = userAndTimeAsDatasetAttrs();
   var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
     return wrapInNote(focus.vNode, userAndTime);
   });
+
 
   // Replace the nodes in the tree with the wrapped versions.
   _.zip(toWrapAndReplace, wrappedTextNodes).forEach(function(focusAndReplacementVNode) {
@@ -239,13 +241,16 @@ function createNoteFromSelection(treeFocus) {
     focus.replace(replacementVNode);
   });
 
+
   // If we end up with an empty note a <BR> tag would be created. We have to do
   // this before we remove the markers.
   preventBrTags(treeFocus);
 
+
   // We want to place the caret after the note. First we have to remove the
   // existing markers.
   vdom.removeVirtualScribeMarkers(treeFocus);
+
 
   // Update note properties (merges if necessary).
   var lastNoteSegment = vdom.findLastNoteSegment(toWrapAndReplace[0]);
@@ -254,13 +259,30 @@ function createNoteFromSelection(treeFocus) {
   updateNoteProperties(noteSegments);
 
 
-  // To place a marker we have to place an element inbetween the note barrier
-  // and the marker, or Chrome will place the caret inside the note.
-  //
-  // We guard against the case when the user notes the last piece of text in a
-  // Scribe instance.
+  // Now let's place that caret.
   var outsideNoteFocus = _.last(noteSegments).find(vdom.focusOutsideNote);
-  if (outsideNoteFocus) outsideNoteFocus.insertBefore([new VText('\u200B'), createVirtualScribeMarker()]);
+
+  // We guard against the case when the user notes the last piece of text in a
+  // Scribe instance. In that case we don't bother placing the cursor.
+  // (What behaviour would a user expect?)
+  if (outsideNoteFocus) {
+    if (! vdom.focusOnParagraph(outsideNoteFocus)) {
+      // The user's selection ends within a paragraph.
+
+      // To place a marker we have to place an element inbetween the note barrier
+      // and the marker, or Chrome will place the caret inside the note.
+      outsideNoteFocus.insertBefore([new VText('\u200B'), createVirtualScribeMarker()]);
+
+    } else {
+
+      // The user's selection ends with a whole paragraph being selected. Now
+      // we need to place the caret in a different manner (or we will end up
+      // with a new empty paragraph). So we place the caret at the start of the
+      // next paragraph.
+      var focus = outsideNoteFocus.find(vdom.focusOnNonEmptyTextNode);
+      if (focus) focus.insertBefore(createVirtualScribeMarker());
+    }
+  }
 
   vdom.removeEmptyNotes(treeFocus);
 }
