@@ -2,10 +2,11 @@
   "name": "scribe-plugin-noting",
   "homepage": "https://github.com/guardian/scribe-plugin-noting",
   "authors": [
+    "robin.edman@theguardian.com",
     "hugo.gibson@theguardian.com"
   ],
   "description": "Adds notes to scribe",
   "main": "./scribe-plugin-noting.js",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "license": "Apache 2"
 }
