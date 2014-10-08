@@ -61,6 +61,10 @@ function focusOnNonEmptyTextNode(focus) {
   return focusOnTextNode(focus) && !focusOnEmptyTextNode(focus);
 }
 
+function focusOnParagraph(focus) {
+    return focus.vNode.tagName && focus.vNode.tagName.toLowerCase() === 'p';
+  }
+
 // Whether a DOM node or vNode is a note.
 // Case insensitive to work with both DOM nodes and vNodes
 // (which can be lowercase).
@@ -243,6 +247,7 @@ exports.focusOnEmptyTextNode = focusOnEmptyTextNode;
 exports.focusOnNonEmptyTextNode = focusOnNonEmptyTextNode;
 exports.focusOnMarker = focusOnMarker;
 exports.focusOnNote = focusOnNote;
+exports.focusOnParagraph = focusOnParagraph;
 exports.focusOnTextNode = focusOnTextNode;
 exports.withoutText = withoutText;
 exports.withEmptyTextNode = withEmptyTextNode;
