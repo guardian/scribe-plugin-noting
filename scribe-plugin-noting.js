@@ -2250,10 +2250,16 @@ function updateNoteBarriers(treeFocus) {
     vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
       _.first(noteSegments).next().insertBefore(createNoteBarrier());
 
+
       // This is necessarily complex (been through a few iterations) because
       // of Chrome's lack of flexibility when it comes to placing the caret.
-      var afterNote = _.last(noteSegments).find(vdom.focusOutsideNote).find(vdom.focusOnNonEmptyTextNode);
-      if (afterNote) afterNote.vNode.text = '\u200B' + afterNote.vNode.text;
+      var afterNote = _.last(noteSegments).find(vdom.focusOutsideNote);
+      var textNodeAfterNoteFocus = afterNote && afterNote.find(vdom.focusOnNonEmptyTextNode);
+
+      if (textNodeAfterNoteFocus) {
+        textNodeAfterNoteFocus.vNode.text = '\u200B' + textNodeAfterNoteFocus.vNode.text;
+      }
+
     });
   }
 
@@ -2317,10 +2323,16 @@ function createNoteFromSelection(treeFocus) {
   var noteSegments = vdom.findEntireNote(lastNoteSegment);
   updateNoteProperties(noteSegments);
 
+
   // To place a marker we have to place an element inbetween the note barrier
   // and the marker, or Chrome will place the caret inside the note.
-  _.last(noteSegments).find(vdom.focusOutsideNote)
-    .insertBefore([new VText('\u200B'), createVirtualScribeMarker()]);
+  //
+  // We guard against the case when the user notes the last piece of text in a
+  // Scribe instance.
+  var outsideNoteFocus = _.last(noteSegments).find(vdom.focusOutsideNote);
+  if (outsideNoteFocus) outsideNoteFocus.insertBefore([new VText('\u200B'), createVirtualScribeMarker()]);
+
+  vdom.removeEmptyNotes(treeFocus);
 }
 
 function unnote(treeFocus) {
@@ -2481,10 +2493,11 @@ function mergeIfNecessary(treeFocus) {
 }
 
 
-// In a contenteditable, browsers insert a <BR> tag into any empty element.
+// In a contenteditable, Scribe currently insert a <BR> tag into empty elements.
 // This causes styling issues when the user deletes a part of a note,
 // e.g. using backspace. This function provides a workaround and should be run
 // anytime a note segment might be empty (as defined by `vdom.consideredEmpty`).
+// TODO: Fix this in Scribe.
 function preventBrTags(treeFocus) {
   function isTrue(obj) { return !!obj; }
 
