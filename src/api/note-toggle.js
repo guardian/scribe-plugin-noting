@@ -298,6 +298,10 @@ function unnote(treeFocus) {
 
   noteSegments.forEach(unwrap);
 
+  // Take care of any leftover note barriers, which can prevent double clicking
+  // a word from selecting the whole word).
+  updateNoteBarriers(treeFocus);
+
   // The marker is where we want it to be (the same position) so we'll
   // just leave it.
 }
