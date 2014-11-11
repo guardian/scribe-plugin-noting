@@ -157,11 +157,13 @@ function addNoteCollapseListener(scribe) {
 
 
 function addContentChangedListener(scribe) {
-  scribe.el.addEventListener('input', function() {
+    function mutateScribe() {
+        vdom.mutateScribe(scribe, function(treeFocus) {
+            noteToggle.ensureNoteIntegrity(treeFocus);
+        });
+    }
 
-    vdom.mutateScribe(scribe, function(treeFocus) {
-      noteToggle.ensureNoteIntegrity(treeFocus);
-    });
+    var throttled = _.throttle(mutateScribe, 750);
 
-  });
+    scribe.el.addEventListener('input', throttled);
 }
