@@ -3066,13 +3066,15 @@ function addNoteCollapseListener(scribe) {
 
 
 function addContentChangedListener(scribe) {
-  scribe.el.addEventListener('input', function() {
+    function mutateScribe() {
+        vdom.mutateScribe(scribe, function(treeFocus) {
+            noteToggle.ensureNoteIntegrity(treeFocus);
+        });
+    }
 
-    vdom.mutateScribe(scribe, function(treeFocus) {
-      noteToggle.ensureNoteIntegrity(treeFocus);
-    });
+    var throttled = _.throttle(mutateScribe, 2000);
 
-  });
+    scribe.el.addEventListener('input', throttled);
 }
 
 },{"./api/note-collapse":60,"./api/note-toggle":61,"./noting-vdom":64,"lodash":"lodash"}],64:[function(require,module,exports){
