@@ -163,7 +163,7 @@ function addContentChangedListener(scribe) {
         });
     }
 
-    var throttled = _.throttle(mutateScribe, 750);
+    var throttled = _.throttle(mutateScribe, 2000);
 
     scribe.el.addEventListener('input', throttled);
 }
