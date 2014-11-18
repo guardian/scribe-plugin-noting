@@ -23,3 +23,7 @@ to have `ChromeDriver` installed. If you're on OS X and have Homebrew then `brew
 To run the integration tests:
 
 `$ npm test`
+
+This will run tests on chrome only. To run tests on Firefox:
+
+`$ npm run test-firefox`
