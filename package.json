@@ -28,7 +28,7 @@
     "selenium-webdriver": "~2.41.0"
   },
   "scripts": {
-    "test": "./run-tests.sh",
+    "test": "SERVER_PORT=3000 BROWSER_NAME='chrome' ./run-tests.sh",
     "postinstall": "./setup.sh",
     "build": "plumber build"
   },
