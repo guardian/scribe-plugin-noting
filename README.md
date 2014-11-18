@@ -22,8 +22,4 @@ to have `ChromeDriver` installed. If you're on OS X and have Homebrew then `brew
 
 To run the integration tests:
 
-`$ env SERVER_PORT=3000 BROWSER_NAME="firefox" ./run-tests.sh`
-
-`$ env SERVER_PORT=3000 BROWSER_NAME="chrome" ./run-tests.sh`
-
-
+`$ npm test`
