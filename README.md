@@ -3,7 +3,7 @@
 ## Setup
 To install dependecies:
 
-`$ ./setup.sh`
+`$ npm install`
 
 
 ## Building
