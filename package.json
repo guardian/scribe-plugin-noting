@@ -25,13 +25,14 @@
     "plumber-uglifyjs": "~0.3.0",
     "plumber-write": "~0.3.0",
     "scribe-test-harness": "~0.0.6",
-    "selenium-webdriver": "^2.44.0"
+    "selenium-webdriver": "^2.44.0",
+    "webdriver-manager": "^1.0.1"
   },
   "scripts": {
     "test-firefox": "TEST_SERVER_PORT=9090 BROWSER_NAME='firefox' ./run-tests.sh",
     "test-chrome": "TEST_SERVER_PORT=9090 BROWSER_NAME='chrome' ./run-tests.sh",
     "test": "npm run test-chrome",
-    "postinstall": "./setup.sh",
+    "postinstall": "bower install",
     "build": "plumber build"
   },
   "repository": {
