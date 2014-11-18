@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./node_modules/.bin/http-server -p $SERVER_PORT --silent &
+./node_modules/.bin/http-server -p $TEST_SERVER_PORT --silent &
 PID=$!
 node test/integration/runner
 TEST_RUNNER_EXIT=$?
