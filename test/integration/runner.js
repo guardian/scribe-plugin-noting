@@ -9,6 +9,10 @@ var mocha = new Mocha();
 mocha.timeout(15 * 1000);
 mocha.timeout(1200000);
 mocha.reporter('spec');
+
+
+mocha.addFile(__dirname + '/setup.js');
+mocha.addFile(__dirname + '/no-note.spec.js');
 mocha.addFile(__dirname + '/main.spec.js');
 
 createRunner(mocha);

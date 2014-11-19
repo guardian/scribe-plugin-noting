@@ -12,47 +12,13 @@ var givenContentOf = helpers.givenContentOf;
 var givenContentAsHTMLOf = helpers.givenContentAsHTMLOf;
 var browserName = helpers.browserName;
 
-function loadPlugin() {
-  return driver.executeAsyncScript(function (done) {
-    require(['../../build/scribe-plugin-noting.js'], function (scribePluginNoting) {
-      window.scribe.use(scribePluginNoting("A User"));
-      done();
-    });
-  });
-}
-
-// Press the noting key. Returns promise.
-function note() {
-  return scribeNode.sendKeys(webdriver.Key.F10);
-}
-
-
 /**
  *  Helpers
  */
 
-function selectionIsInsideNote() {
-  return driver.executeScript(function () {
-    function domWalkUpCheck(node, predicate) {
-     if (!node.parentNode) { return false; }
-
-     return predicate(node) ? true : domWalkUpCheck(node.parentNode, predicate);
-    }
-
-    // Checks whether our selection is within another note.
-    function insideNote() {
-     var node = window.getSelection().getRangeAt(0).startContainer;
-
-     return domWalkUpCheck(node, function(node) {
-       return node.tagName === 'GU-NOTE';
-     });
-    }
-
-    return insideNote();
-  });
-}
-
-
+var loadPlugin = require('./helpers/load-plugin');
+var note = require('./helpers/create-note');
+var selectionIsInsideNote = require('./helpers/selection-within-note');
 
 
 
@@ -70,19 +36,6 @@ beforeEach(function () {
 
 describe('noting plugin', function () {
   given('we are in a text area', function () {
-    beforeEach(function () {
-      return initializeScribe();
-    });
-
-    beforeEach(loadPlugin);
-
-    when('when we haven\'t pressed any key', function () {
-      it('won\'t have any note', function () {
-        scribeNode.getInnerHTML().then(function (innerHTML) {
-          expect(innerHTML).to.not.include('</gu-note>');
-        });
-      });
-    });
 
     /**
     * Feature: Add note
