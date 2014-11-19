@@ -3,11 +3,12 @@
   "version": "0.2.13",
   "main": "scribe-plugin-noting.js",
   "dependencies": {
+    "glob": "^4.1.5",
+    "lodash": "2.4.1",
     "vdom-virtualize": "git://github.com/marcelklehr/vdom-virtualize.git#38c9027e35d194502f74455be721ae49fb31621c",
     "virtual-dom": "0.0.20",
-    "vtree": "0.0.20",
     "virtual-hyperscript": "4.4.0",
-    "lodash": "2.4.1"
+    "vtree": "0.0.20"
   },
   "devDependencies": {
     "browserify": "^5.0.7",

@@ -1,3 +1,5 @@
+var path = require('path');
+var glob = require('glob');
 var Mocha = require('mocha');
 var createRunner = require('scribe-test-harness/create-runner');
 
@@ -10,11 +12,16 @@ mocha.timeout(15 * 1000);
 mocha.timeout(1200000);
 mocha.reporter('spec');
 
+mocha.addFile(path.resolve(__dirname, 'setup.js'));
 
-mocha.addFile(__dirname + '/setup.js');
-mocha.addFile(__dirname + '/no-note.spec.js');
-mocha.addFile(__dirname + '/create-note.spec.js');
-mocha.addFile(__dirname + '/merge-note.spec.js');
-mocha.addFile(__dirname + '/remove-note.spec.js');
+glob(__dirname + '**/*.spec.js', function (err, files){
+  if(err){process.exit(1);}
 
-createRunner(mocha);
+  files.forEach( function (filePath){
+    mocha.addFile(filePath);
+  })
+
+  createRunner(mocha);
+
+});
+
