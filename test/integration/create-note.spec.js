@@ -67,6 +67,11 @@ describe('Creating Scribe Notes', function() {
 
                 expect(innerHTML).to.include('data-note-edited-by');
                 expect(innerHTML).to.include('data-note-edited-date');
+
+                selectionIsInsideNote().then(function(result) {
+                  expect(result).to.be.false;
+                });
+
               });
             });
           });
