@@ -13,6 +13,8 @@ mocha.reporter('spec');
 
 mocha.addFile(__dirname + '/setup.js');
 mocha.addFile(__dirname + '/no-note.spec.js');
-mocha.addFile(__dirname + '/main.spec.js');
+mocha.addFile(__dirname + '/create-note.spec.js');
+mocha.addFile(__dirname + '/merge-note.spec.js');
+mocha.addFile(__dirname + '/remove-note.spec.js');
 
 createRunner(mocha);

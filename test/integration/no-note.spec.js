@@ -13,7 +13,7 @@ beforeEach(function() {
 });
 
 
-describe('An empty document', function() {
+describe('The Scribe Noting Plugin', function() {
   given('we are in a scribe element', function() {
     when('we haven\'t pressed any key', function() {
       it('should contain no noting elements', function() {
