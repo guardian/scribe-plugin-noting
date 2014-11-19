@@ -3,14 +3,14 @@
 ## Setup
 To install dependecies:
 
-`$ ./setup.sh`
+`$ npm install`
 
 
 ## Building
 
 To build, run:
 
-`$ plumber build`
+`$ npm run build
 
 This will output the built source files into the _build_ directory.
 
@@ -22,8 +22,8 @@ to have `ChromeDriver` installed. If you're on OS X and have Homebrew then `brew
 
 To run the integration tests:
 
-`$ env SERVER_PORT=3000 BROWSER_NAME="firefox" ./run-tests.sh`
+`$ npm test`
 
-`$ env SERVER_PORT=3000 BROWSER_NAME="chrome" ./run-tests.sh`
+This will run tests on chrome only. To run tests on Firefox:
 
-
+`$ npm run test-firefox`
