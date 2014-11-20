@@ -369,7 +369,14 @@ var diff = require("vtree/diff")
 
 module.exports = diff
 
-},{"vtree/diff":47}],10:[function(require,module,exports){
+},{"vtree/diff":42}],10:[function(require,module,exports){
+module.exports = isObject
+
+function isObject(x) {
+    return typeof x === "object" && x !== null
+}
+
+},{}],11:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("vtree/is-vhook")
 
@@ -463,7 +470,7 @@ function getPrototype(value) {
     }
 }
 
-},{"is-object":14,"vtree/is-vhook":50}],11:[function(require,module,exports){
+},{"is-object":10,"vtree/is-vhook":45}],12:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -511,7 +518,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"./apply-properties":10,"global/document":13,"vtree/handle-thunk":48,"vtree/is-vnode":51,"vtree/is-vtext":52,"vtree/is-widget":53}],12:[function(require,module,exports){
+},{"./apply-properties":11,"global/document":14,"vtree/handle-thunk":43,"vtree/is-vnode":46,"vtree/is-vtext":47,"vtree/is-widget":48}],13:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -598,7 +605,7 @@ function ascending(a, b) {
     return a > b ? 1 : -1
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -617,14 +624,7 @@ if (typeof document !== 'undefined') {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"min-document":1}],14:[function(require,module,exports){
-module.exports = isObject
-
-function isObject(x) {
-    return typeof x === "object" && x !== null
-}
-
-},{}],15:[function(require,module,exports){
+},{"min-document":1}],15:[function(require,module,exports){
 var applyProperties = require("./apply-properties")
 
 var isWidget = require("vtree/is-widget")
@@ -794,7 +794,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"./apply-properties":10,"./create-element":11,"./update-widget":17,"vtree/is-widget":53,"vtree/vpatch":57}],16:[function(require,module,exports){
+},{"./apply-properties":11,"./create-element":12,"./update-widget":17,"vtree/is-widget":48,"vtree/vpatch":52}],16:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -872,7 +872,7 @@ function patchIndices(patches) {
     return indices
 }
 
-},{"./dom-index":12,"./patch-op":15,"global/document":13,"x-is-array":18}],17:[function(require,module,exports){
+},{"./dom-index":13,"./patch-op":15,"global/document":14,"x-is-array":18}],17:[function(require,module,exports){
 var isWidget = require("vtree/is-widget")
 
 module.exports = updateWidget
@@ -889,7 +889,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"vtree/is-widget":53}],18:[function(require,module,exports){
+},{"vtree/is-widget":48}],18:[function(require,module,exports){
 var nativeIsArray = Array.isArray
 var toString = Object.prototype.toString
 
@@ -1089,7 +1089,7 @@ function isChildren(x) {
     return typeof x === "string" || Array.isArray(x) || isChild(x)
 }
 
-},{"./hooks/data-set-hook.js":20,"./hooks/ev-hook.js":21,"./hooks/soft-set-hook.js":22,"./parse-tag.js":46,"error/typed":37,"vtree/is-thunk":38,"vtree/is-vhook":39,"vtree/is-vnode":40,"vtree/is-vtext":41,"vtree/is-widget":42,"vtree/vnode.js":44,"vtree/vtext.js":45}],24:[function(require,module,exports){
+},{"./hooks/data-set-hook.js":20,"./hooks/ev-hook.js":21,"./hooks/soft-set-hook.js":22,"./parse-tag.js":41,"error/typed":32,"vtree/is-thunk":33,"vtree/is-vhook":34,"vtree/is-vnode":35,"vtree/is-vtext":36,"vtree/is-widget":37,"vtree/vnode.js":39,"vtree/vtext.js":40}],24:[function(require,module,exports){
 module.exports = createHash
 
 function createHash(elem) {
@@ -1200,6 +1200,7 @@ module.exports = function(obj) {
 
 function walk (obj) {
     if (!obj || typeof obj !== 'object') return obj;
+    if (isDate(obj) || isRegex(obj)) return obj;
     if (isArray(obj)) return map(obj, walk);
     return reduce(objectKeys(obj), function (acc, key) {
         var camel = camelCase(key);
@@ -1210,12 +1211,20 @@ function walk (obj) {
 
 function camelCase(str) {
     return str.replace(/[_.-](\w|$)/g, function (_,x) {
-        return x.toUpperCase()
+        return x.toUpperCase();
     });
 }
 
 var isArray = Array.isArray || function (obj) {
     return Object.prototype.toString.call(obj) === '[object Array]';
+};
+
+var isDate = function (obj) {
+    return Object.prototype.toString.call(obj) === '[object Date]';
+};
+
+var isRegex = function (obj) {
+    return Object.prototype.toString.call(obj) === '[object RegExp]';
 };
 
 var has = Object.prototype.hasOwnProperty;
@@ -1252,7 +1261,7 @@ module.exports = template
 
 function template(string) {
     var args
-    
+
     if (arguments.length === 2 && typeof arguments[1] === "object") {
         args = arguments[1]
     } else {
@@ -1279,171 +1288,25 @@ function template(string) {
         }
     })
 }
+
 },{}],31:[function(require,module,exports){
-module.exports = hasKeys
-
-function hasKeys(source) {
-    return source !== null &&
-        (typeof source === "object" ||
-        typeof source === "function")
-}
-
-},{}],32:[function(require,module,exports){
-var Keys = require("object-keys")
-var hasKeys = require("./has-keys")
-
 module.exports = extend
 
 function extend(target) {
-    var sources = [].slice.call(arguments, 1)
+    for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i]
 
-    for (var i = 0; i < sources.length; i++) {
-        var source = sources[i]
-
-        if (!hasKeys(source)) {
-            continue
-        }
-
-        var keys = Keys(source)
-
-        for (var j = 0; j < keys.length; j++) {
-            var name = keys[j]
-            target[name] = source[name]
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                target[key] = source[key]
+            }
         }
     }
 
     return target
 }
 
-},{"./has-keys":31,"object-keys":34}],33:[function(require,module,exports){
-var hasOwn = Object.prototype.hasOwnProperty;
-var toString = Object.prototype.toString;
-
-var isFunction = function (fn) {
-	var isFunc = (typeof fn === 'function' && !(fn instanceof RegExp)) || toString.call(fn) === '[object Function]';
-	if (!isFunc && typeof window !== 'undefined') {
-		isFunc = fn === window.setTimeout || fn === window.alert || fn === window.confirm || fn === window.prompt;
-	}
-	return isFunc;
-};
-
-module.exports = function forEach(obj, fn) {
-	if (!isFunction(fn)) {
-		throw new TypeError('iterator must be a function');
-	}
-	var i, k,
-		isString = typeof obj === 'string',
-		l = obj.length,
-		context = arguments.length > 2 ? arguments[2] : null;
-	if (l === +l) {
-		for (i = 0; i < l; i++) {
-			if (context === null) {
-				fn(isString ? obj.charAt(i) : obj[i], i, obj);
-			} else {
-				fn.call(context, isString ? obj.charAt(i) : obj[i], i, obj);
-			}
-		}
-	} else {
-		for (k in obj) {
-			if (hasOwn.call(obj, k)) {
-				if (context === null) {
-					fn(obj[k], k, obj);
-				} else {
-					fn.call(context, obj[k], k, obj);
-				}
-			}
-		}
-	}
-};
-
-
-},{}],34:[function(require,module,exports){
-module.exports = Object.keys || require('./shim');
-
-
-},{"./shim":36}],35:[function(require,module,exports){
-var toString = Object.prototype.toString;
-
-module.exports = function isArguments(value) {
-	var str = toString.call(value);
-	var isArguments = str === '[object Arguments]';
-	if (!isArguments) {
-		isArguments = str !== '[object Array]'
-			&& value !== null
-			&& typeof value === 'object'
-			&& typeof value.length === 'number'
-			&& value.length >= 0
-			&& toString.call(value.callee) === '[object Function]';
-	}
-	return isArguments;
-};
-
-
-},{}],36:[function(require,module,exports){
-(function () {
-	"use strict";
-
-	// modified from https://github.com/kriskowal/es5-shim
-	var has = Object.prototype.hasOwnProperty,
-		toString = Object.prototype.toString,
-		forEach = require('./foreach'),
-		isArgs = require('./isArguments'),
-		hasDontEnumBug = !({'toString': null}).propertyIsEnumerable('toString'),
-		hasProtoEnumBug = (function () {}).propertyIsEnumerable('prototype'),
-		dontEnums = [
-			"toString",
-			"toLocaleString",
-			"valueOf",
-			"hasOwnProperty",
-			"isPrototypeOf",
-			"propertyIsEnumerable",
-			"constructor"
-		],
-		keysShim;
-
-	keysShim = function keys(object) {
-		var isObject = object !== null && typeof object === 'object',
-			isFunction = toString.call(object) === '[object Function]',
-			isArguments = isArgs(object),
-			theKeys = [];
-
-		if (!isObject && !isFunction && !isArguments) {
-			throw new TypeError("Object.keys called on a non-object");
-		}
-
-		if (isArguments) {
-			forEach(object, function (value) {
-				theKeys.push(value);
-			});
-		} else {
-			var name,
-				skipProto = hasProtoEnumBug && isFunction;
-
-			for (name in object) {
-				if (!(skipProto && name === 'prototype') && has.call(object, name)) {
-					theKeys.push(name);
-				}
-			}
-		}
-
-		if (hasDontEnumBug) {
-			var ctor = object.constructor,
-				skipConstructor = ctor && ctor.prototype === object;
-
-			forEach(dontEnums, function (dontEnum) {
-				if (!(skipConstructor && dontEnum === 'constructor') && has.call(object, dontEnum)) {
-					theKeys.push(dontEnum);
-				}
-			});
-		}
-		return theKeys;
-	};
-
-	module.exports = keysShim;
-}());
-
-
-},{"./foreach":33,"./isArguments":35}],37:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var camelize = require("camelize")
 var template = require("string-template")
 var extend = require("xtend/mutable")
@@ -1493,18 +1356,18 @@ function TypedError(args) {
 }
 
 
-},{"camelize":29,"string-template":30,"xtend/mutable":32}],38:[function(require,module,exports){
+},{"camelize":29,"string-template":30,"xtend/mutable":31}],33:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],39:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 module.exports=require(3)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],40:[function(require,module,exports){
+},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],35:[function(require,module,exports){
 module.exports=require(4)
-},{"./version":43,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],41:[function(require,module,exports){
+},{"./version":38,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],36:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -1513,15 +1376,15 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":43}],42:[function(require,module,exports){
+},{"./version":38}],37:[function(require,module,exports){
 module.exports=require(5)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],43:[function(require,module,exports){
+},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],38:[function(require,module,exports){
 module.exports=require(6)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],44:[function(require,module,exports){
+},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],39:[function(require,module,exports){
 module.exports=require(7)
-},{"./is-vhook":39,"./is-vnode":40,"./is-widget":42,"./version":43,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":7}],45:[function(require,module,exports){
+},{"./is-vhook":34,"./is-vnode":35,"./is-widget":37,"./version":38,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":7}],40:[function(require,module,exports){
 module.exports=require(8)
-},{"./version":43,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],46:[function(require,module,exports){
+},{"./version":38,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],41:[function(require,module,exports){
 var classIdSplit = /([\.#]?[a-zA-Z0-9_:-]+)/
 var notClassId = /^\.|#/
 
@@ -1572,7 +1435,7 @@ function parseTag(tag, props) {
     return tagName ? tagName.toLowerCase() : "div"
 }
 
-},{}],47:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 var isArray = require("x-is-array")
 var isObject = require("is-object")
 
@@ -1919,7 +1782,7 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"./handle-thunk":48,"./is-thunk":49,"./is-vnode":51,"./is-vtext":52,"./is-widget":53,"./vpatch":57,"is-object":54,"x-is-array":55}],48:[function(require,module,exports){
+},{"./handle-thunk":43,"./is-thunk":44,"./is-vnode":46,"./is-vtext":47,"./is-widget":48,"./vpatch":52,"is-object":49,"x-is-array":50}],43:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -1961,23 +1824,23 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":49,"./is-vnode":51,"./is-vtext":52,"./is-widget":53}],49:[function(require,module,exports){
-module.exports=require(38)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":38}],50:[function(require,module,exports){
+},{"./is-thunk":44,"./is-vnode":46,"./is-vtext":47,"./is-widget":48}],44:[function(require,module,exports){
+module.exports=require(33)
+},{"/web/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":33}],45:[function(require,module,exports){
 module.exports=require(3)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],51:[function(require,module,exports){
+},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],46:[function(require,module,exports){
 module.exports=require(4)
-},{"./version":56,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],52:[function(require,module,exports){
-module.exports=require(41)
-},{"./version":56,"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":41}],53:[function(require,module,exports){
+},{"./version":51,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],47:[function(require,module,exports){
+module.exports=require(36)
+},{"./version":51,"/web/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":36}],48:[function(require,module,exports){
 module.exports=require(5)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],54:[function(require,module,exports){
-module.exports=require(14)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/vdom/node_modules/is-object/index.js":14}],55:[function(require,module,exports){
+},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],49:[function(require,module,exports){
+module.exports=require(10)
+},{"/web/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":10}],50:[function(require,module,exports){
 module.exports=require(18)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":18}],56:[function(require,module,exports){
+},{"/web/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":18}],51:[function(require,module,exports){
 module.exports=require(6)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],57:[function(require,module,exports){
+},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],52:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -2001,9 +1864,9 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":56}],58:[function(require,module,exports){
+},{"./version":51}],53:[function(require,module,exports){
 module.exports=require(8)
-},{"./version":56,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],59:[function(require,module,exports){
+},{"./version":51,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],54:[function(require,module,exports){
 // Scribe noting plugin
 
 var notingCommands = require('./src/noting-commands');
@@ -2017,7 +1880,7 @@ module.exports = function(config) {
   };
 };
 
-},{"./src/noting-commands":63}],60:[function(require,module,exports){
+},{"./src/noting-commands":58}],55:[function(require,module,exports){
 var vdom = require('./note-vdom');
 
 var NOTE_CLASS_COLLAPSED = 'note--collapsed';
@@ -2065,7 +1928,7 @@ exports.collapseToggleAllNotes = function collapseToggleAllNotes(treeFocus, stat
   vdom.findAllNotes(treeFocus).forEach(function(notes) { toggleNotes(notes, state); });
 };
 
-},{"./note-vdom":62}],61:[function(require,module,exports){
+},{"./note-vdom":57}],56:[function(require,module,exports){
 /**
  * Noting API
  *
@@ -2637,7 +2500,7 @@ exports.isSelectionInANote = function isSelectionInANote(selectionRange, parentC
   return domFindAncestorNote(selectionRange.startContainer) && domFindAncestorNote(selectionRange.endContainer) && true;
 };
 
-},{"./note-vdom":62,"lodash":"lodash","virtual-hyperscript":23,"vtree/is-vtext":52,"vtree/vtext":58}],62:[function(require,module,exports){
+},{"./note-vdom":57,"lodash":"lodash","virtual-hyperscript":23,"vtree/is-vtext":47,"vtree/vtext":53}],57:[function(require,module,exports){
 /**
  * Shared note vdom functions.
  */
@@ -2906,7 +2769,7 @@ exports.removeEmptyNotes = removeEmptyNotes;
 exports.removeVirtualScribeMarkers = removeVirtualScribeMarkers;
 exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
 
-},{"lodash":"lodash","vtree/is-vtext":52}],63:[function(require,module,exports){
+},{"lodash":"lodash","vtree/is-vtext":47}],58:[function(require,module,exports){
 /**
  * Noting commands
  *
@@ -3077,7 +2940,7 @@ function addContentChangedListener(scribe) {
     scribe.el.addEventListener('input', throttled);
 }
 
-},{"./api/note-collapse":60,"./api/note-toggle":61,"./noting-vdom":64,"lodash":"lodash"}],64:[function(require,module,exports){
+},{"./api/note-collapse":55,"./api/note-toggle":56,"./noting-vdom":59,"lodash":"lodash"}],59:[function(require,module,exports){
 /**
  * Virtual DOM parser / serializer for Noting plugin.
  */
@@ -3145,7 +3008,7 @@ exports.mutateScribe = function(scribe, callback) {
   });
 };
 
-},{"./vfocus":65,"lodash":"lodash","vdom-virtualize":2,"virtual-dom/diff":9,"virtual-dom/patch":19,"vtree/is-vtext":52}],65:[function(require,module,exports){
+},{"./vfocus":60,"lodash":"lodash","vdom-virtualize":2,"virtual-dom/diff":9,"virtual-dom/patch":19,"vtree/is-vtext":47}],60:[function(require,module,exports){
 /**
 * VFocus: Wrap virtual node in a Focus node.
 *
@@ -3440,5 +3303,5 @@ VFocus.prototype.find = function(predicate, movement) {
   return focus;
 };
 
-},{}]},{},[59])(59)
+},{}]},{},[54])(54)
 });
