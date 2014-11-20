@@ -97,7 +97,10 @@ function generateUUID(){
 // by information.
 function updateNoteProperties(noteSegments) {
   updateStartAndEndClasses(noteSegments);
-  noteSegments.forEach(updateEditedBy);
+
+  // FIXME JP 20/11/14
+  // This is removed as it causes significant performance issues
+  //noteSegments.forEach(updateEditedBy);
 
   var uuid = generateUUID();
   noteSegments.forEach(function (segment) {
