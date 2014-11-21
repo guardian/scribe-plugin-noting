@@ -3,66 +3,66 @@
  */
 
 'use strict';
-
-var isVText = require('vtree/is-vtext');
-
+//const
 var NODE_NAME = 'GU-NOTE';
 var TAG = 'gu-note';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
+
+
 var _ = require('lodash');
+var isVText = require('vtree/is-vtext');
 
 var hasClass = require('../utils/vdom/has-class');
 var hasAttribute = require('../utils/vdom/has-attribute');
 var isTag = require('../utils/vdom/is-tag');
 var isEmpty = require('../utils/vdom/is-empty');
+
 /**
 * Noting: Checks
 */
 
+
+//Detection
+
+//is our selection a note
+function focusOnNote(focus) {
+  return isTag(focus.vNode, TAG);
+}
+
+// is our selection not a note
 function focusOnMarker(focus) {
   return hasClass(focus.vNode, 'scribe-marker');
 }
 
+//is our selection a marker
 function focusNotOnMarker(focus) {
-  return ! focusOnMarker(focus);
+  return !hasClass(focus.vNode, 'scribe-marker');
 }
+
 
 function focusOnTextNode (focus) {
-  return focus.vNode.type === 'VirtualText';
-}
-
-function focusOnNote(focus) {
-  return isNote(focus.vNode);
-}
-
-function focusOutsideNote(focus) {
-  return ! findAncestorNoteSegment(focus);
-}
-
-function consideredEmpty(s) {
-  return isEmpty(s);
+  console.log(focus.vNode, focus.vNode.tagName);
+  return isVText(focus.vNode);
 }
 
 function focusOnEmptyTextNode(focus) {
-  var vNode = focus.vNode;
-  return isVText(vNode) && consideredEmpty(vNode.text);
-}
-
-function focusOnNonEmptyTextNode(focus) {
-  return focusOnTextNode(focus) && !focusOnEmptyTextNode(focus);
+  return isEmpty(focus.vNode);
 }
 
 function focusOnParagraph(focus) {
   return isTag(focus.vNode, 'p');
 }
 
-// Whether a DOM node or vNode is a note.
-// Case insensitive to work with both DOM nodes and vNodes
-// (which can be lowercase).
-function isNote(node) {
-  return isTag(node, TAG);
+
+
+
+function focusOutsideNote(focus) {
+  return ! findAncestorNoteSegment(focus);
 }
 
+function focusOnNonEmptyTextNode(focus) {
+  return focusOnTextNode(focus) && !focusOnEmptyTextNode(focus);
+}
 
 function hasNoteId(vNode, value) {
   return hasAttribute(vNode, 'data-node-id', value);
@@ -106,10 +106,9 @@ function findLastNoteSegment(noteSegment) {
 
 function focusAndDescendants(focus) {
   // TODO: Use a proper algorithm for this.
-  function insideTag(insideOfFocus) {
+  return focus.takeWhile(function(insideOfFocus) {
     return !!insideOfFocus.find(function (f) { return f.vNode === focus.vNode; }, 'up');
-  }
-  return focus.takeWhile(insideTag);
+  });
 }
 
 function withoutText(focus) {
