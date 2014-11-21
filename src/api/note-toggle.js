@@ -297,7 +297,8 @@ function unnote(treeFocus) {
   var noteSegments = vdom.findNote(treeFocus, noteSegment.vNode.properties.dataset.noteId);
 
   noteSegments.forEach(unwrap);
-  exports.ensureNoteIntegrity(treeFocus);
+  updateNoteBarriers(treeFocus);
+//  exports.ensureNoteIntegrity(treeFocus);
 
   // The marker is where we want it to be (the same position) so we'll
   // just leave it.
@@ -375,7 +376,12 @@ function unnotePartOfNote(treeFocus) {
   // and/or right of the selection will have been created. We need to update
   // their attributes and CSS classes.
   var onlyPartOfContentsSelected = focusesToNote[0];
-  var treeFocus = focusesToNote[0].top();
+
+
+  if (onlyPartOfContentsSelected) {
+    var tf = focusesToNote[0].top();
+    exports.ensureNoteIntegrity(tf);
+  }
 
   // Place marker immediately before the note to the right (this way of doing
   // that seems to be the most reliable for some reason). Both Chrome and
@@ -389,7 +395,8 @@ function unnotePartOfNote(treeFocus) {
   // If the user selected everything but a space (or zero width space), we remove
   // the remaining note. Most likely that's what our user intended.
   vdom.removeEmptyNotes(treeFocus.refresh());
-  exports.ensureNoteIntegrity(treeFocus);
+
+  //exports.ensureNoteIntegrity(treefocus);
 }
 
 
@@ -438,7 +445,6 @@ function mergeIfNecessary(treeFocus) {
   // or where there's no start or end property (e.g. when the user has deleted
   // the last note segment of a note).
   function criteria(note) { return inconsistentTimestamps(note) || lacksStartOrEnd(note); }
-
   vdom.findAllNotes(treeFocus).filter(criteria).forEach(updateNoteProperties);
 }
 
@@ -481,7 +487,7 @@ function preventBrTags(treeFocus) {
 
   // We're good to go.
   var marker = markers[0];
-
+  if (!marker) return;
   // Let's find any note segment before or after the marker.
   var segments = [
     marker.find(vdom.focusOnNote, 'prev'),
@@ -506,6 +512,8 @@ function preventBrTags(treeFocus) {
 
 
 exports.ensureNoteIntegrity = function (treeFocus) {
+  //cache must be up to date before running this
+  vdom.updateNotesCache(treeFocus);
   mergeIfNecessary(treeFocus);
   updateNoteBarriers(treeFocus);
   preventBrTags(treeFocus);

@@ -185,7 +185,7 @@ function findNote(treeFocus, noteId) {
 
 function findAllNotes(treeFocus) {
 
-    if (!notesCache) {
+    if (!notesCache || notesCache.length === 0) {
         notesCache = getAllNotes(treeFocus);
     }
 
