@@ -100,7 +100,7 @@ function updateNoteProperties(noteSegments) {
 
   // FIXME JP 20/11/14
   // This is a bug with users not being updated on the right note
-  noteSegments.forEach(updateEditedBy);
+  // noteSegments.forEach(updateEditedBy);
 
   var uuid = generateUUID();
   noteSegments.forEach(function (segment) {
