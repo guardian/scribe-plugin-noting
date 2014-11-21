@@ -1365,9 +1365,9 @@ function isThunk(t) {
 
 },{}],34:[function(require,module,exports){
 module.exports=require(3)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],35:[function(require,module,exports){
+},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],35:[function(require,module,exports){
 module.exports=require(4)
-},{"./version":38,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],36:[function(require,module,exports){
+},{"./version":38,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],36:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -1378,13 +1378,13 @@ function isVirtualText(x) {
 
 },{"./version":38}],37:[function(require,module,exports){
 module.exports=require(5)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],38:[function(require,module,exports){
+},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],38:[function(require,module,exports){
 module.exports=require(6)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],39:[function(require,module,exports){
+},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],39:[function(require,module,exports){
 module.exports=require(7)
-},{"./is-vhook":34,"./is-vnode":35,"./is-widget":37,"./version":38,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":7}],40:[function(require,module,exports){
+},{"./is-vhook":34,"./is-vnode":35,"./is-widget":37,"./version":38,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":7}],40:[function(require,module,exports){
 module.exports=require(8)
-},{"./version":38,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],41:[function(require,module,exports){
+},{"./version":38,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],41:[function(require,module,exports){
 var classIdSplit = /([\.#]?[a-zA-Z0-9_:-]+)/
 var notClassId = /^\.|#/
 
@@ -1826,21 +1826,21 @@ function renderThunk(thunk, previous) {
 
 },{"./is-thunk":44,"./is-vnode":46,"./is-vtext":47,"./is-widget":48}],44:[function(require,module,exports){
 module.exports=require(33)
-},{"/web/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":33}],45:[function(require,module,exports){
+},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":33}],45:[function(require,module,exports){
 module.exports=require(3)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],46:[function(require,module,exports){
+},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],46:[function(require,module,exports){
 module.exports=require(4)
-},{"./version":51,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],47:[function(require,module,exports){
+},{"./version":51,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],47:[function(require,module,exports){
 module.exports=require(36)
-},{"./version":51,"/web/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":36}],48:[function(require,module,exports){
+},{"./version":51,"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":36}],48:[function(require,module,exports){
 module.exports=require(5)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],49:[function(require,module,exports){
+},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],49:[function(require,module,exports){
 module.exports=require(10)
-},{"/web/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":10}],50:[function(require,module,exports){
+},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":10}],50:[function(require,module,exports){
 module.exports=require(18)
-},{"/web/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":18}],51:[function(require,module,exports){
+},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":18}],51:[function(require,module,exports){
 module.exports=require(6)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],52:[function(require,module,exports){
+},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],52:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -1866,7 +1866,7 @@ VirtualPatch.prototype.type = "VirtualPatch"
 
 },{"./version":51}],53:[function(require,module,exports){
 module.exports=require(8)
-},{"./version":51,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],54:[function(require,module,exports){
+},{"./version":51,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],54:[function(require,module,exports){
 // Scribe noting plugin
 
 var notingCommands = require('./src/noting-commands');
@@ -2028,15 +2028,16 @@ function generateUUID(){
 // by information.
 function updateNoteProperties(noteSegments) {
   updateStartAndEndClasses(noteSegments);
-  noteSegments.forEach(updateEditedBy);
+
+  // FIXME JP 20/11/14
+  // This is a bug with users not being updated on the right note
+  // noteSegments.forEach(updateEditedBy);
 
   var uuid = generateUUID();
   noteSegments.forEach(function (segment) {
     segment.vNode.properties.dataset['noteId'] = uuid;
   });
 
-  var treeFocus = noteSegments[0].top();
-  updateNoteBarriers(treeFocus);
 }
 
 // Ensure the first (and only the first) note segment has a
@@ -2109,9 +2110,8 @@ function updateNoteBarriers(treeFocus) {
 
   function insertNoteBarriers(treeFocus) {
     vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
+
       _.first(noteSegments).next().insertBefore(createNoteBarrier());
-
-
       // This is necessarily complex (been through a few iterations) because
       // of Chrome's lack of flexibility when it comes to placing the caret.
       var afterNote = _.last(noteSegments).find(vdom.focusOutsideNote);
@@ -2216,22 +2216,21 @@ function createNoteFromSelection(treeFocus) {
   }
 
   vdom.removeEmptyNotes(treeFocus);
+  exports.ensureNoteIntegrity(treeFocus);
 }
 
 function unnote(treeFocus) {
   // We assume the caller knows there's only one marker.
   var marker = vdom.findMarkers(treeFocus)[0];
-
   // We can't use findEntireNote here since it'll sometimes give us the wrong result.
   // See `findEntireNote` documentation. Instead we look the note up by its ID.
+  vdom.updateNotesCache(treeFocus);
   var noteSegment = vdom.findAncestorNoteSegment(marker);
   var noteSegments = vdom.findNote(treeFocus, noteSegment.vNode.properties.dataset.noteId);
 
   noteSegments.forEach(unwrap);
 
-  // Take care of any leftover note barriers, which can prevent double clicking
-  // a word from selecting the whole word).
-  updateNoteBarriers(treeFocus);
+  exports.ensureNoteIntegrity(treeFocus);
 
   // The marker is where we want it to be (the same position) so we'll
   // just leave it.
@@ -2310,11 +2309,11 @@ function unnotePartOfNote(treeFocus) {
   // their attributes and CSS classes.
   var onlyPartOfContentsSelected = focusesToNote[0];
 
-  if (onlyPartOfContentsSelected) {
-    var treeFocus = focusesToNote[0].top();
-    exports.ensureNoteIntegrity(treeFocus);
-  }
 
+  if (onlyPartOfContentsSelected) {
+    var tf = focusesToNote[0].top();
+    exports.ensureNoteIntegrity(tf);
+  }
 
   // Place marker immediately before the note to the right (this way of doing
   // that seems to be the most reliable for some reason). Both Chrome and
@@ -2328,6 +2327,7 @@ function unnotePartOfNote(treeFocus) {
   // If the user selected everything but a space (or zero width space), we remove
   // the remaining note. Most likely that's what our user intended.
   vdom.removeEmptyNotes(treeFocus.refresh());
+
 }
 
 
@@ -2351,7 +2351,8 @@ function unnotePartOfNote(treeFocus) {
   these notes by merging them. In this case all note segments are now
   listed as being edited by The Count of Monte Cristo and the timestamp
   shows the time when the notes were merged.
-*/
+ */
+
 function mergeIfNecessary(treeFocus) {
 
   function inconsistentTimestamps(note) {
@@ -2375,7 +2376,6 @@ function mergeIfNecessary(treeFocus) {
   // or where there's no start or end property (e.g. when the user has deleted
   // the last note segment of a note).
   function criteria(note) { return inconsistentTimestamps(note) || lacksStartOrEnd(note); }
-
   vdom.findAllNotes(treeFocus).filter(criteria).forEach(updateNoteProperties);
 }
 
@@ -2418,7 +2418,7 @@ function preventBrTags(treeFocus) {
 
   // We're good to go.
   var marker = markers[0];
-
+  if (!marker) return;
   // Let's find any note segment before or after the marker.
   var segments = [
     marker.find(vdom.focusOnNote, 'prev'),
@@ -2443,6 +2443,8 @@ function preventBrTags(treeFocus) {
 
 
 exports.ensureNoteIntegrity = function (treeFocus) {
+  // cache must be up to date before running this
+  vdom.updateNotesCache(treeFocus);
   mergeIfNecessary(treeFocus);
   updateNoteBarriers(treeFocus);
   preventBrTags(treeFocus);
@@ -2471,7 +2473,7 @@ exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, select
 
   var scenarios = {
     caretWithinNote: function (treeFocus) { unnote(treeFocus); },
-    selectionWithinNote: function (treeFocus) {  unnotePartOfNote(treeFocus);  },
+    selectionWithinNote: function (treeFocus) {  unnotePartOfNote(treeFocus); },
     caretOutsideNote: function (treeFocus) { createEmptyNoteAtCaret(treeFocus); },
     selectionOutsideNote: function (treeFocus) { createNoteFromSelection(treeFocus); }
   };
@@ -2514,6 +2516,11 @@ var TAG = 'gu-note';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
 var _ = require('lodash');
 
+
+// cache the notes and update them when new notes are added
+// caching the existing notes prevent needless tree traversal,
+// which have O(n) complexity.
+var notesCache;
 /**
 * Noting: Checks
 */
@@ -2679,14 +2686,29 @@ function findNote(treeFocus, noteId) {
 };
 
 // Returns an array of arrays of note segments
+
+
 function findAllNotes(treeFocus) {
-  return treeFocus.filter(focusOnNote).map(findEntireNote).reduce(function(uniqueNotes, note) {
-    // First iteration: Add the note.
+
+    if (!notesCache || notesCache.length === 0) {
+        notesCache = getAllNotes(treeFocus);
+    }
+
+    return notesCache;
+}
+
+function getAllNotes(treeFocus) {
+    return treeFocus.filter(focusOnNote).map(findEntireNote).reduce(function(uniqueNotes, note) {
+        // First iteration: Add the note.
     if (uniqueNotes.length === 0) return uniqueNotes.concat([note]);
 
-    // Subsequent iterations: Add the note if it hasn't already been added.
-    return _.last(uniqueNotes)[0].vNode === note[0].vNode ? uniqueNotes : uniqueNotes.concat([note]);
-  }, []);
+        // Subsequent iterations: Add the note if it hasn't already been added.
+        return _.last(uniqueNotes)[0].vNode === note[0].vNode ? uniqueNotes : uniqueNotes.concat([note]);
+        }, []);
+}
+
+function updateNotesCache(treeFocus) {
+    notesCache = getAllNotes(treeFocus);
 }
 
 function focusOnlyTextNodes (focuses) {
@@ -2768,6 +2790,7 @@ exports.findTextNodeFocusesBetweenMarkers = findTextNodeFocusesBetweenMarkers;
 exports.removeEmptyNotes = removeEmptyNotes;
 exports.removeVirtualScribeMarkers = removeVirtualScribeMarkers;
 exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
+exports.updateNotesCache = updateNotesCache;
 
 },{"lodash":"lodash","vtree/is-vtext":47}],58:[function(require,module,exports){
 /**
@@ -2935,7 +2958,7 @@ function addContentChangedListener(scribe) {
         });
     }
 
-    var throttled = _.throttle(mutateScribe, 2000);
+    var throttled = _.throttle(mutateScribe, 1000);
 
     scribe.el.addEventListener('input', throttled);
 }
