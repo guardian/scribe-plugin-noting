@@ -18,5 +18,5 @@ module.exports = function(node) {
     text === '\u200B' ||
     text === '\u00a0' ||
     text === ' ' ||
-    (node.children.length <= 0);
+    (node.children && node.children.length <= 0);
 };

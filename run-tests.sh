@@ -1,6 +1,9 @@
 #!/bin/bash
 ./node_modules/.bin/webdriver-manager update;
 
+rm -rf ./build;
+npm run build;
+
 ./node_modules/.bin/http-server -p $TEST_SERVER_PORT --silent &
 HTTP_PID=$!
 

@@ -20,11 +20,15 @@ var isEmpty = require('../utils/vdom/is-empty');
 */
 
 function focusOnMarker(focus) {
-  return isScribeMarker(focus.vNode);
+  return hasClass(focus.vNode, 'scribe-marker');
 }
 
 function focusNotOnMarker(focus) {
   return ! focusOnMarker(focus);
+}
+
+function focusOnTextNode (focus) {
+  return focus.vNode.type === 'VirtualText';
 }
 
 function focusOnNote(focus) {
@@ -58,10 +62,6 @@ function focusOnParagraph(focus) {
 function isNote(node) {
   return isTag(node, TAG);
 }
-
-function isScribeMarker(vNode) {
-  return hasClass(vNode, 'scribe-marker');
-};
 
 
 function hasNoteId(vNode, value) {
@@ -239,7 +239,6 @@ exports.findEntireNote = findEntireNote;
 exports.findNote = findNote;
 exports.findFirstNoteSegment = findFirstNoteSegment;
 exports.findMarkers = findMarkers;
-exports.isScribeMarker = isScribeMarker;
 exports.findAncestorNoteSegment = findAncestorNoteSegment;
 exports.findTextNodeFocusesBetweenMarkers = findTextNodeFocusesBetweenMarkers;
 exports.removeEmptyNotes = removeEmptyNotes;
