@@ -11,6 +11,10 @@ var TAG = 'gu-note';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
 var _ = require('lodash');
 
+var hasClass = require('../utils/vdom/has-class');
+var hasAttribute = require('../utils/vdom/has-attribute');
+var isTag = require('../utils/vdom/is-tag');
+var isEmpty = require('../utils/vdom/is-empty');
 /**
 * Noting: Checks
 */
@@ -23,10 +27,6 @@ function focusNotOnMarker(focus) {
   return ! focusOnMarker(focus);
 }
 
-function focusOnTextNode (focus) {
-  return focus.vNode.type === 'VirtualText';
-}
-
 function focusOnNote(focus) {
   return isNote(focus.vNode);
 }
@@ -36,20 +36,7 @@ function focusOutsideNote(focus) {
 }
 
 function consideredEmpty(s) {
-  var zeroWidthSpace = '\u200B';
-  var nonBreakingSpace = '\u00a0';
-
-  // We incude regular spaces because if we have a note tag that only
-  // includes a a regular space, then the browser will also insert a <BR>.
-  // If we consider a string containing only a regular space as empty we
-  // can remove the note tag to avoid the line break.
-  //
-  // Not ideal since it causes the space to be deleted even though the user
-  // hasn't asked for that. We compensate for this by moving any deleted
-  // space to the previous note segment.
-  var regularSpace = ' ';
-
-  return s === '' || s === zeroWidthSpace || s === nonBreakingSpace || s === regularSpace;
+  return isEmpty(s);
 }
 
 function focusOnEmptyTextNode(focus) {
@@ -62,30 +49,23 @@ function focusOnNonEmptyTextNode(focus) {
 }
 
 function focusOnParagraph(focus) {
-    return focus.vNode.tagName && focus.vNode.tagName.toLowerCase() === 'p';
-  }
+  return isTag(focus.vNode, 'p');
+}
 
 // Whether a DOM node or vNode is a note.
 // Case insensitive to work with both DOM nodes and vNodes
 // (which can be lowercase).
 function isNote(node) {
-  return node.tagName && node.tagName.toLowerCase() === TAG;
+  return isTag(node, TAG);
 }
 
 function isScribeMarker(vNode) {
   return hasClass(vNode, 'scribe-marker');
 };
 
-// Check if VNode has class
-// TODO: Currently not working on nodes with multiple classes (not an
-// issue at the moment).
-function hasClass(vNode, value) {
-  return (vNode.properties && vNode.properties.className === value);
-}
 
 function hasNoteId(vNode, value) {
-  return !!(vNode.properties && vNode.properties.dataset &&
-    vNode.properties.dataset.noteId === value);
+  return hasAttribute(vNode, 'data-node-id', value);
 }
 
 function stillWithinNote(focus) {

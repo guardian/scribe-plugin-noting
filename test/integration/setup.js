@@ -8,4 +8,4 @@ beforeEach(function() {
 
 beforeEach(function() {
   loadPlugin();
-})
+});
