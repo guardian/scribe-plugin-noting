@@ -99,7 +99,7 @@ function updateNoteProperties(noteSegments) {
   updateStartAndEndClasses(noteSegments);
 
   // FIXME JP 20/11/14
-  // This is bug with users not being updated on the right note
+  // This is a bug with users not being updated on the right note
   noteSegments.forEach(updateEditedBy);
 
   var uuid = generateUUID();
@@ -297,8 +297,8 @@ function unnote(treeFocus) {
   var noteSegments = vdom.findNote(treeFocus, noteSegment.vNode.properties.dataset.noteId);
 
   noteSegments.forEach(unwrap);
-  updateNoteBarriers(treeFocus);
-//  exports.ensureNoteIntegrity(treeFocus);
+
+  exports.ensureNoteIntegrity(treeFocus);
 
   // The marker is where we want it to be (the same position) so we'll
   // just leave it.
@@ -396,7 +396,6 @@ function unnotePartOfNote(treeFocus) {
   // the remaining note. Most likely that's what our user intended.
   vdom.removeEmptyNotes(treeFocus.refresh());
 
-  //exports.ensureNoteIntegrity(treefocus);
 }
 
 
