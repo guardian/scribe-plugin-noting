@@ -511,7 +511,7 @@ function preventBrTags(treeFocus) {
 
 
 exports.ensureNoteIntegrity = function (treeFocus) {
-  //cache must be up to date before running this
+  // cache must be up to date before running this
   vdom.updateNotesCache(treeFocus);
   mergeIfNecessary(treeFocus);
   updateNoteBarriers(treeFocus);
