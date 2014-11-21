@@ -11,6 +11,11 @@ var TAG = 'gu-note';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
 var _ = require('lodash');
 
+
+// cache the notes and update them when new notes are added
+// caching the existing notes prevent needless tree traversal,
+// which have O(n) complexity.
+var notesCache;
 /**
 * Noting: Checks
 */
@@ -176,14 +181,29 @@ function findNote(treeFocus, noteId) {
 };
 
 // Returns an array of arrays of note segments
+
+
 function findAllNotes(treeFocus) {
-  return treeFocus.filter(focusOnNote).map(findEntireNote).reduce(function(uniqueNotes, note) {
-    // First iteration: Add the note.
+
+    if (!notesCache || notesCache.length === 0) {
+        notesCache = getAllNotes(treeFocus);
+    }
+
+    return notesCache;
+}
+
+function getAllNotes(treeFocus) {
+    return treeFocus.filter(focusOnNote).map(findEntireNote).reduce(function(uniqueNotes, note) {
+        // First iteration: Add the note.
     if (uniqueNotes.length === 0) return uniqueNotes.concat([note]);
 
-    // Subsequent iterations: Add the note if it hasn't already been added.
-    return _.last(uniqueNotes)[0].vNode === note[0].vNode ? uniqueNotes : uniqueNotes.concat([note]);
-  }, []);
+        // Subsequent iterations: Add the note if it hasn't already been added.
+        return _.last(uniqueNotes)[0].vNode === note[0].vNode ? uniqueNotes : uniqueNotes.concat([note]);
+        }, []);
+}
+
+function updateNotesCache(treeFocus) {
+    notesCache = getAllNotes(treeFocus);
 }
 
 function focusOnlyTextNodes (focuses) {
@@ -265,3 +285,4 @@ exports.findTextNodeFocusesBetweenMarkers = findTextNodeFocusesBetweenMarkers;
 exports.removeEmptyNotes = removeEmptyNotes;
 exports.removeVirtualScribeMarkers = removeVirtualScribeMarkers;
 exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
+exports.updateNotesCache = updateNotesCache;
