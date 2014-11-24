@@ -22,69 +22,94 @@ var isEmpty = require('../utils/vdom/is-empty');
 */
 
 
-//Detection
+//Focus Detection
 
-//is our selection a note
+//is our selection a note?
 function focusOnNote(focus) {
   return isTag(focus.vNode, TAG);
 }
 
-// is our selection not a note
+// is our selection not a note?
 function focusOnMarker(focus) {
   return hasClass(focus.vNode, 'scribe-marker');
 }
 
-//is our selection a marker
+//is our selection a marker?
 function focusNotOnMarker(focus) {
   return !hasClass(focus.vNode, 'scribe-marker');
 }
 
-
+// is our selection on a text node?
 function focusOnTextNode (focus) {
-  console.log(focus.vNode, focus.vNode.tagName);
   return isVText(focus.vNode);
 }
 
+// is our selection on an EMPTY text node?
 function focusOnEmptyTextNode(focus) {
   return isEmpty(focus.vNode);
 }
 
+// is our selection on a paragraph?
 function focusOnParagraph(focus) {
   return isTag(focus.vNode, 'p');
 }
 
-
-
-
-function focusOutsideNote(focus) {
-  return ! findAncestorNoteSegment(focus);
-}
-
+// are we focused on a text node and does it contain text?
 function focusOnNonEmptyTextNode(focus) {
   return focusOnTextNode(focus) && !focusOnEmptyTextNode(focus);
 }
 
+// are we focused outside of a note?
+function focusOutsideNote(focus) {
+  return ! findAncestorNoteSegment(focus);
+}
+
+// is the focus within a note
+function stillWithinNote(focus) {
+//if we are not on a text node
+//OR
+//we are focused on an EMPTY text node
+//OR
+//we find a parent with a note tag
+  return ! focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
+}
+
+//Find
+
+//move up the tree until we find a note
+function findAncestorNoteSegment(focus) {
+  return focus.find(focusOnNote, 'up');
+}
+
+
+//vNode Detection
+
+// is the vNode a note?
 function hasNoteId(vNode, value) {
   return hasAttribute(vNode, 'data-node-id', value);
 }
 
-function stillWithinNote(focus) {
-  return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
+
+//Filters
+
+// return all text nodes within a given  selection
+function focusOnlyTextNodes (focuses) {
+  return focuses.filter(focusOnTextNode);
 }
+
+
+// return all nodes between scribe markers
+function getNodesBetweenScribeMarkers (treeFocus){
+   return treeFocus.find(focusOnMarker).next().takeWhile(focusNotOnMarker);
+}
+
 
 
 /**
 * Noting: Finders and filters
 */
-
-function findAncestorNoteSegment(focus) {
-  return focus.find(focusOnNote, 'up');
-}
-
 function findTextNodeFocusesBetweenMarkers(treeFocus) {
-  return focusOnlyTextNodes(
-    treeFocus.find(focusOnMarker).next().takeWhile(focusNotOnMarker)
-  );
+  return focusOnlyTextNodes(getNodesBetweenScribeMarkers(treeFocus));
 }
 
 function findMarkers(treeFocus) {
@@ -165,10 +190,6 @@ function findAllNotes(treeFocus) {
   }, []);
 }
 
-function focusOnlyTextNodes (focuses) {
-  return focuses.filter(focusOnTextNode);
-}
-
 
 function findSelectedNote(treeFocus) {
   var note = findAncestorNoteSegment(findMarkers(treeFocus)[0]);
@@ -200,6 +221,7 @@ function removeVirtualScribeMarkers(treeFocus) {
     marker.remove();
   });
 }
+
 
 function removeEmptyNotes(treeFocus) {
   var allNoteSegments = _.flatten(findAllNotes(treeFocus));
