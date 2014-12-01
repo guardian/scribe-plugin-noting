@@ -9,14 +9,17 @@
 
 
 var _ = require('lodash');
+var isVText = require('vtree/is-vtext');
 
-module.exports = function isEmpty(node) {
+module.exports = function(node) {
 
-  text = _.isString(node) ? node : node.text;
-
-  return text === '' ||
-    text === '\u200B' ||
-    text === '\u00a0' ||
-    text === ' ' ||
-    (node.children && node.children.length <= 0);
+  if(isVText(node)){
+    var text = node.text;
+    return text === '' ||
+      text === '\u200B' ||
+      text === '\u00a0' ||
+      text === ' ';
+  } else {
+    return node.children.length <= 0;
+  }
 };

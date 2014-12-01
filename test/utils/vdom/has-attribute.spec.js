@@ -5,13 +5,13 @@ var h = require('virtual-hyperscript');
 
 var hasAttribute = require(path.resolve(process.cwd(), 'src/utils/vdom/has-attribute'));
 
-describe.only('hasAttribute()', function() {
+describe('hasAttribute()', function() {
 
   it('should return true for valid attributes', function() {
 
     var div = h('div', {
       dataset: {
-        'data-component': 'my-component'
+        'component': 'my-component'
       },
       'title': 'This is a title'
     });
@@ -21,6 +21,7 @@ describe.only('hasAttribute()', function() {
 
   });
 
+
   it('should return false for in-valid attributes', function() {
 
     var div = h('div');
@@ -28,4 +29,5 @@ describe.only('hasAttribute()', function() {
     expect(hasAttribute(div, 'data-component', 'my-component')).to.be.false;
 
   });
+
 });

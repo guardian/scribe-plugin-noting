@@ -15,7 +15,9 @@ var patch = require('virtual-dom/patch');
 // dependency. Feel free to update to future versions when they're released.
 var virtualize = require('vdom-virtualize');
 
+
 var isVText = require('vtree/is-vtext');
+
 
 var VFocus = require('./vfocus');
 

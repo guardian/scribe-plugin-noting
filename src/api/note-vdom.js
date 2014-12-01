@@ -24,6 +24,9 @@ var focusOnEmptyTextNode = require('../utils/vfocus/is-empty');
 var focusOnParagraph = require('../utils/vfocus/is-paragraph');
 var findAncestorNoteSegment = require('../utils/noting/find-parent-note');
 var hasNoteId = require('../utils/noting/has-note-id');
+var focusOnlyTextNodes = require('../utils/vfocus/find-text-nodes');
+var stillWithinNote = require('../utils/noting/is-within-note');
+
 
 /**
 * Noting: Checks
@@ -48,27 +51,15 @@ function focusOutsideNote(focus) {
 }
 
 
-// is the focus within a note
-function stillWithinNote(focus) {
-//if we are not on a text node
-//OR
-//we are focused on an EMPTY text node
-//OR
-//we find a parent with a note tag
-  return ! focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
-}
-
-//Find
 
 
-//vNode Detection
 
-//Filters
 
-// return all text nodes within a given  selection
-function focusOnlyTextNodes (focuses) {
-  return focuses.filter(focusOnTextNode);
-}
+
+
+
+
+
 
 
 // return all nodes between scribe markers
