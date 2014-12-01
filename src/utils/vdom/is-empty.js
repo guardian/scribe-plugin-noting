@@ -10,7 +10,7 @@
 
 var _ = require('lodash');
 
-module.exports = function(node) {
+module.exports = function isEmpty(node) {
 
   text = _.isString(node) ? node : node.text;
 

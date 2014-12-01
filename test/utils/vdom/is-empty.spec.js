@@ -5,7 +5,7 @@ var h = require('virtual-hyperscript');
 
 var isEmpty = require(path.resolve(process.cwd(), 'src/utils/vdom/is-empty'));
 
-describe('isEmpty Util', function(){
+describe('isEmpty()', function(){
 
   it('should correctly identify nodes which are empty', function(){
 

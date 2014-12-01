@@ -5,7 +5,7 @@ var h = require('virtual-hyperscript');
 
 var isTag = require(path.resolve(process.cwd(), 'src/utils/vdom/is-tag'));
 
-describe('isTag Util', function() {
+describe('isTag()', function() {
 
   it('should identity a correct tag', function() {
     var div = h('div');

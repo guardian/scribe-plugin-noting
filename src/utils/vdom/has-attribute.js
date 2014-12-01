@@ -1,8 +1,14 @@
-module.exports = function(node, attribute, value){
+module.exports = function hasAttribute(vNode, attribute, value){
 
-  var dataSet = /data/.test(attribute)
-    ? node.properties.dataset
-    : node.properties;
+  if(!vNode || !attribute){
+    throw new Error('Incorret arguments passed to hasAttribute');
+  }
+
+  var isTestingDataAttib = /data/.test(attribute);
+
+  var dataSet =
+    ? vNode.properties.dataset
+    : vNode.properties;
 
     return dataSet ? (dataSet[attribute] === value) : false;
 };

@@ -5,7 +5,7 @@ var h  = require('virtual-hyperscript');
 
 var hasClass = require(path.resolve(process.cwd(), 'src/utils/vdom/has-class'));
 
-describe('hasClass Util', function() {
+describe('hasClass()', function() {
 
   it('should return true if a vTree contains a give class', function() {
     var div = h('div.my-class1');

@@ -17,6 +17,14 @@ var hasAttribute = require('../utils/vdom/has-attribute');
 var isTag = require('../utils/vdom/is-tag');
 var isEmpty = require('../utils/vdom/is-empty');
 
+var focusOnNote = require('../utils/noting/is-note');
+var focusOnMarker = require('../utils/noting/is-scribe-marker');
+var focusOnTextNode = require('../utils/vfocus/is-vtext');
+var focusOnEmptyTextNode = require('../utils/vfocus/is-empty');
+var focusOnParagraph = require('../utils/vfocus/is-paragraph');
+var findAncestorNoteSegment = require('../utils/noting/find-parent-note');
+var hasNoteId = require('../utils/noting/has-note-id');
+
 /**
 * Noting: Checks
 */
@@ -24,45 +32,21 @@ var isEmpty = require('../utils/vdom/is-empty');
 
 //Focus Detection
 
-//is our selection a note?
-function focusOnNote(focus) {
-  return isTag(focus.vNode, TAG);
-}
-
-// is our selection not a note?
-function focusOnMarker(focus) {
-  return hasClass(focus.vNode, 'scribe-marker');
-}
-
 //is our selection a marker?
 function focusNotOnMarker(focus) {
-  return !hasClass(focus.vNode, 'scribe-marker');
-}
-
-// is our selection on a text node?
-function focusOnTextNode (focus) {
-  return isVText(focus.vNode);
-}
-
-// is our selection on an EMPTY text node?
-function focusOnEmptyTextNode(focus) {
-  return isEmpty(focus.vNode);
-}
-
-// is our selection on a paragraph?
-function focusOnParagraph(focus) {
-  return isTag(focus.vNode, 'p');
+  return !focusOnMarker(focus);
 }
 
 // are we focused on a text node and does it contain text?
 function focusOnNonEmptyTextNode(focus) {
-  return focusOnTextNode(focus) && !focusOnEmptyTextNode(focus);
+  return !focusOnEmptyTextNode(focus);
 }
 
 // are we focused outside of a note?
 function focusOutsideNote(focus) {
-  return ! findAncestorNoteSegment(focus);
+  return !findAncestorNoteSegment(focus);
 }
+
 
 // is the focus within a note
 function stillWithinNote(focus) {
@@ -76,19 +60,8 @@ function stillWithinNote(focus) {
 
 //Find
 
-//move up the tree until we find a note
-function findAncestorNoteSegment(focus) {
-  return focus.find(focusOnNote, 'up');
-}
-
 
 //vNode Detection
-
-// is the vNode a note?
-function hasNoteId(vNode, value) {
-  return hasAttribute(vNode, 'data-node-id', value);
-}
-
 
 //Filters
 
@@ -103,19 +76,21 @@ function getNodesBetweenScribeMarkers (treeFocus){
    return treeFocus.find(focusOnMarker).next().takeWhile(focusNotOnMarker);
 }
 
+// return all text nodes between scribe markers
+function findTextNodeFocusesBetweenMarkers(treeFocus) {
+  return focusOnlyTextNodes(getNodesBetweenScribeMarkers(treeFocus));
+}
+
+// return scribe markers
+function findMarkers(treeFocus) {
+  return treeFocus.filter(focusOnMarker);
+}
+
 
 
 /**
 * Noting: Finders and filters
 */
-function findTextNodeFocusesBetweenMarkers(treeFocus) {
-  return focusOnlyTextNodes(getNodesBetweenScribeMarkers(treeFocus));
-}
-
-function findMarkers(treeFocus) {
-  return treeFocus.filter(focusOnMarker);
-}
-
 function findFirstNoteSegment(noteSegment) {
   return _.last(
     noteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
@@ -162,7 +137,7 @@ function withEmptyTextNode(focus) {
 function findEntireNote(noteSegment) {
   return findFirstNoteSegment(noteSegment)
     .takeWhile(stillWithinNote).filter(focusOnNote);
-};
+}
 
 // Find a note based on its ID. Will not always give the same result as `findEntireNote` ,
 // since that'll recognize that a note is adjacent to another one. But when a note
@@ -177,7 +152,7 @@ function findNote(treeFocus, noteId) {
   return allNoteSegments.filter(function (segment) {
     return hasNoteId(segment.vNode, noteId);
   });
-};
+}
 
 // Returns an array of arrays of note segments
 function findAllNotes(treeFocus) {
@@ -195,7 +170,7 @@ function findSelectedNote(treeFocus) {
   var note = findAncestorNoteSegment(findMarkers(treeFocus)[0]);
 
   return note && findEntireNote(note) || undefined;
-};
+}
 
 
 function selectionEntirelyWithinNote(markers) {

@@ -5,7 +5,7 @@ var h = require('virtual-hyperscript');
 
 var hasAttribute = require(path.resolve(process.cwd(), 'src/utils/vdom/has-attribute'));
 
-describe('hasAttribute', function() {
+describe.only('hasAttribute()', function() {
 
   it('should return true for valid attributes', function() {
 
