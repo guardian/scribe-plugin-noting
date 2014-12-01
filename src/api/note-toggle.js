@@ -258,6 +258,10 @@ function createNoteFromSelection(treeFocus) {
   var noteSegments = vdom.findEntireNote(lastNoteSegment);
   updateNoteProperties(noteSegments);
 
+  // Before placing the caret, we need to do this (to clear the cache).
+  // There's probably room for improving how merging works.
+  exports.ensureNoteIntegrity(treeFocus);
+
 
   // Now let's place that caret.
   var outsideNoteFocus = _.last(noteSegments).find(vdom.focusOutsideNote);
@@ -285,7 +289,6 @@ function createNoteFromSelection(treeFocus) {
   }
 
   vdom.removeEmptyNotes(treeFocus);
-  exports.ensureNoteIntegrity(treeFocus);
 }
 
 function unnote(treeFocus) {
