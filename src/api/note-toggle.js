@@ -258,9 +258,14 @@ function createNoteFromSelection(treeFocus) {
   var noteSegments = vdom.findEntireNote(lastNoteSegment);
   updateNoteProperties(noteSegments);
 
-  // Before placing the caret, we need to do this (to clear the cache).
-  // There's probably room for improving how merging works.
-  exports.ensureNoteIntegrity(treeFocus);
+
+  // We need to clear the cache, and this has to be done before we place
+  // our markers or we'll end up placing the cursor inside the note instead
+  // of immediately after it.
+  //
+  // TODO: Revisit our caching strategy to make it less of a "foot gun", or
+  // refactor so that we do less tree traversals and remove the caching.
+  vdom.updateNotesCache(treeFocus);
 
 
   // Now let's place that caret.
