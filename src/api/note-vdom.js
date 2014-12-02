@@ -19,147 +19,35 @@ var isEmpty = require('../utils/vdom/is-empty');
 
 var focusOnNote = require('../utils/noting/is-note');
 var focusOnMarker = require('../utils/noting/is-scribe-marker');
+var focusNotOnMarker = require('../utils/noting/is-not-scribe-marker');
 var focusOnTextNode = require('../utils/vfocus/is-vtext');
 var focusOnEmptyTextNode = require('../utils/vfocus/is-empty');
+var focusOnNonEmptyTextNode = require('../utils/vfocus/is-not-empty');
 var focusOnParagraph = require('../utils/vfocus/is-paragraph');
-var findAncestorNoteSegment = require('../utils/noting/find-parent-note');
-var hasNoteId = require('../utils/noting/has-note-id');
 var focusOnlyTextNodes = require('../utils/vfocus/find-text-nodes');
+var focusOutsideNote = require('../utils/noting/is-not-within-note');
+
+var hasNoteId = require('../utils/noting/has-note-id');
 var stillWithinNote = require('../utils/noting/is-within-note');
+var getNodesBetweenScribeMarkers = require('../utils/noting/find-between-scribe-markers');
 
+var findAncestorNoteSegment = require('../utils/noting/find-parent-note');
+var findTextNodeFocusesBetweenMarkers = require('../utils/noting/find-text-between-scribe-markers');
+var findMarkers = require('../utils/noting/find-scribe-markers');
+var findFirstNoteSegment = require('../utils/noting/find-first-note');
+var findLastNoteSegment = require('../utils/noting/find-last-note');
+var focusAndDescendants = require('../utils/vfocus/flatten-tree');
 
-/**
-* Noting: Checks
-*/
+var withoutText = require('../utils/vfocus/has-no-text-children');
+var withEmptyTextNode = require('../utils/vfocus/has-only-empty-text-children');
 
-
-//Focus Detection
-
-//is our selection a marker?
-function focusNotOnMarker(focus) {
-  return !focusOnMarker(focus);
-}
-
-// are we focused on a text node and does it contain text?
-function focusOnNonEmptyTextNode(focus) {
-  return !focusOnEmptyTextNode(focus);
-}
-
-// are we focused outside of a note?
-function focusOutsideNote(focus) {
-  return !findAncestorNoteSegment(focus);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-// return all nodes between scribe markers
-function getNodesBetweenScribeMarkers (treeFocus){
-   return treeFocus.find(focusOnMarker).next().takeWhile(focusNotOnMarker);
-}
-
-// return all text nodes between scribe markers
-function findTextNodeFocusesBetweenMarkers(treeFocus) {
-  return focusOnlyTextNodes(getNodesBetweenScribeMarkers(treeFocus));
-}
-
-// return scribe markers
-function findMarkers(treeFocus) {
-  return treeFocus.filter(focusOnMarker);
-}
-
-
-
-/**
-* Noting: Finders and filters
-*/
-function findFirstNoteSegment(noteSegment) {
-  return _.last(
-    noteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
-  );
-}
-
-function findLastNoteSegment(noteSegment) {
-  return _.last(
-    noteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
-  );
-}
-
-
-function focusAndDescendants(focus) {
-  // TODO: Use a proper algorithm for this.
-  return focus.takeWhile(function(insideOfFocus) {
-    return !!insideOfFocus.find(function (f) { return f.vNode === focus.vNode; }, 'up');
-  });
-}
-
-function withoutText(focus) {
-  return focusAndDescendants(focus).filter(focusOnTextNode).length === 0;
-}
-
-function withEmptyTextNode(focus) {
-  return focusAndDescendants(focus).filter(focusOnTextNode).every(focusOnEmptyTextNode);
-}
-
-// Find the rest of a note.
-// We identify notes based on 'adjacency' rather than giving them an id.
-// This is because people may press RETURN or copy and paste part of a note.
-// In such cases we don't want that to keep being the same note.
-//
-// This has a caveat when:
-// 1. A note covers 3 paragraphs.
-// 2. Part of a note in paragraph 2 is unnoted.
-// 3. The caret is placed in paragraph 3.
-// 4. The noting key is pressed.
-// findFirstNoteSegment will then move backwards over a P
-// and into the first note. We will then unnote the first
-// note rather than the second.
-//
-// noteSegment: focus on note
-function findEntireNote(noteSegment) {
-  return findFirstNoteSegment(noteSegment)
-    .takeWhile(stillWithinNote).filter(focusOnNote);
-}
-
-// Find a note based on its ID. Will not always give the same result as `findEntireNote` ,
-// since that'll recognize that a note is adjacent to another one. But when a note
-// covers several paragraphs we can't be sure findEntireNote
-// will give us the right result (see comment for findEntireNote).
-//
-// TODO: Redo findEntireNote to be based on findNote and IDs? Could perhaps
-// find adjacent notes with the help of focus.prev() and focus.next().
-function findNote(treeFocus, noteId) {
-  var allNoteSegments = _.flatten(findAllNotes(treeFocus));
-
-  return allNoteSegments.filter(function (segment) {
-    return hasNoteId(segment.vNode, noteId);
-  });
-}
-
-// Returns an array of arrays of note segments
-function findAllNotes(treeFocus) {
-  return treeFocus.filter(focusOnNote).map(findEntireNote).reduce(function(uniqueNotes, note) {
-    // First iteration: Add the note.
-    if (uniqueNotes.length === 0) return uniqueNotes.concat([note]);
-
-    // Subsequent iterations: Add the note if it hasn't already been added.
-    return _.last(uniqueNotes)[0].vNode === note[0].vNode ? uniqueNotes : uniqueNotes.concat([note]);
-  }, []);
-}
+var findEntireNote = require('../utils/noting/find-entire-note');
+var findAllNotes = require('../utils/noting/find-all-notes');
+var findNote = require('../utils/noting/find-note-by-id');
 
 
 function findSelectedNote(treeFocus) {
   var note = findAncestorNoteSegment(findMarkers(treeFocus)[0]);
-
   return note && findEntireNote(note) || undefined;
 }
 

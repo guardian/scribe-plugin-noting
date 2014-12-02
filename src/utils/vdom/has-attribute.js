@@ -29,6 +29,12 @@ module.exports = function hasAttribute(vNode, attribute, value) {
   else {
     //console.log('VIRTUALIZE', vNode.properties, attribute, value);
     //console.log('RETURNING',   (vNode.properties[attribute] === value) );
-    return vNode.properties[attribute] === value;
+    if(!vNode.properties[attribute]) return false;
+
+    if(!vNode.properties[attribute].value){
+      return vNode.properties[attribute] === value;
+    }
+
+    return vNode.properties[attribute].value === value;
   }
 };
