@@ -259,6 +259,15 @@ function createNoteFromSelection(treeFocus) {
   updateNoteProperties(noteSegments);
 
 
+  // We need to clear the cache, and this has to be done before we place
+  // our markers or we'll end up placing the cursor inside the note instead
+  // of immediately after it.
+  //
+  // TODO: Revisit our caching strategy to make it less of a "foot gun", or
+  // refactor so that we do less tree traversals and remove the caching.
+  vdom.updateNotesCache(treeFocus);
+
+
   // Now let's place that caret.
   var outsideNoteFocus = _.last(noteSegments).find(vdom.focusOutsideNote);
 
@@ -285,7 +294,6 @@ function createNoteFromSelection(treeFocus) {
   }
 
   vdom.removeEmptyNotes(treeFocus);
-  exports.ensureNoteIntegrity(treeFocus);
 }
 
 function unnote(treeFocus) {
