@@ -1365,9 +1365,9 @@ function isThunk(t) {
 
 },{}],34:[function(require,module,exports){
 module.exports=require(3)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],35:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],35:[function(require,module,exports){
 module.exports=require(4)
-},{"./version":38,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],36:[function(require,module,exports){
+},{"./version":38,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],36:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -1378,13 +1378,13 @@ function isVirtualText(x) {
 
 },{"./version":38}],37:[function(require,module,exports){
 module.exports=require(5)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],38:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],38:[function(require,module,exports){
 module.exports=require(6)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],39:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],39:[function(require,module,exports){
 module.exports=require(7)
-},{"./is-vhook":34,"./is-vnode":35,"./is-widget":37,"./version":38,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":7}],40:[function(require,module,exports){
+},{"./is-vhook":34,"./is-vnode":35,"./is-widget":37,"./version":38,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":7}],40:[function(require,module,exports){
 module.exports=require(8)
-},{"./version":38,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],41:[function(require,module,exports){
+},{"./version":38,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],41:[function(require,module,exports){
 var classIdSplit = /([\.#]?[a-zA-Z0-9_:-]+)/
 var notClassId = /^\.|#/
 
@@ -1826,21 +1826,21 @@ function renderThunk(thunk, previous) {
 
 },{"./is-thunk":44,"./is-vnode":46,"./is-vtext":47,"./is-widget":48}],44:[function(require,module,exports){
 module.exports=require(33)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":33}],45:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":33}],45:[function(require,module,exports){
 module.exports=require(3)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],46:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],46:[function(require,module,exports){
 module.exports=require(4)
-},{"./version":51,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],47:[function(require,module,exports){
+},{"./version":51,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],47:[function(require,module,exports){
 module.exports=require(36)
-},{"./version":51,"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":36}],48:[function(require,module,exports){
+},{"./version":51,"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":36}],48:[function(require,module,exports){
 module.exports=require(5)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],49:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],49:[function(require,module,exports){
 module.exports=require(10)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":10}],50:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":10}],50:[function(require,module,exports){
 module.exports=require(18)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":18}],51:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":18}],51:[function(require,module,exports){
 module.exports=require(6)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],52:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],52:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -1866,7 +1866,7 @@ VirtualPatch.prototype.type = "VirtualPatch"
 
 },{"./version":51}],53:[function(require,module,exports){
 module.exports=require(8)
-},{"./version":51,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],54:[function(require,module,exports){
+},{"./version":51,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],54:[function(require,module,exports){
 // Scribe noting plugin
 
 var notingCommands = require('./src/noting-commands');
@@ -2190,6 +2190,15 @@ function createNoteFromSelection(treeFocus) {
   updateNoteProperties(noteSegments);
 
 
+  // We need to clear the cache, and this has to be done before we place
+  // our markers or we'll end up placing the cursor inside the note instead
+  // of immediately after it.
+  //
+  // TODO: Revisit our caching strategy to make it less of a "foot gun", or
+  // refactor so that we do less tree traversals and remove the caching.
+  vdom.updateNotesCache(treeFocus);
+
+
   // Now let's place that caret.
   var outsideNoteFocus = _.last(noteSegments).find(vdom.focusOutsideNote);
 
@@ -2216,7 +2225,6 @@ function createNoteFromSelection(treeFocus) {
   }
 
   vdom.removeEmptyNotes(treeFocus);
-  exports.ensureNoteIntegrity(treeFocus);
 }
 
 function unnote(treeFocus) {
