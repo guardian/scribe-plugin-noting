@@ -3,15 +3,15 @@
   "version": "0.2.16",
   "main": "scribe-plugin-noting.js",
   "dependencies": {
-    "glob": "^4.1.5",
     "lodash": "2.4.1",
-    "q": "^1.1.2",
     "vdom-virtualize": "git://github.com/marcelklehr/vdom-virtualize.git#38c9027e35d194502f74455be721ae49fb31621c",
     "virtual-dom": "0.0.20",
     "virtual-hyperscript": "4.4.0",
     "vtree": "0.0.20"
   },
   "devDependencies": {
+    "glob": "^4.1.5",
+    "q": "^1.1.2",
     "browserify": "^5.0.7",
     "chai": "~1.9.1",
     "highland": "^1.29.0",
@@ -42,5 +42,5 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/guardian/scribe-plugin-noting.git"
-  }
 }
+  }
