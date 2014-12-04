@@ -15,7 +15,7 @@ module.exports = function isSelectionBetweenNotes(markers) {
 
   //if we get passed the wring argument
   if (!_.isArray(markers)) {
-    throw new Error('only an array of markers can be passed to isSelectionBetweenNotes');
+    throw new Error('Only an array of markers can be passed to isSelectionBetweenNotes');
   }
 
   if(markers.length <= 0) return;

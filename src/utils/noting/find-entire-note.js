@@ -20,7 +20,7 @@ var findFirstNote = require('./find-first-note');
 module.exports = function findEntireNote(focus) {
 
   if (!isVFocus(focus)) {
-    throw new Error('only a valid VFocus element can be passed to findEntirenote');
+    throw new Error('Only a valid VFocus element can be passed to findEntirenote');
   }
 
   var parentNote = findFirstNote(focus);

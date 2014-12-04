@@ -6,7 +6,7 @@ var isTag = require('../vdom/is-tag');
 module.exports = function isNote(vfocus){
 
   if(!isVFocus(vfocus)) {
-    throw new Error('only a VFocus element should be passed to isNote()');
+    throw new Error('Only a VFocus element should be passed to isNote()');
   }
 
   return isTag(vfocus.vNode, 'gu-note');

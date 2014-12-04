@@ -7,7 +7,7 @@ var findEntireNote = require('./find-entire-note');
 module.exports = function findSelectedNote(focus) {
 
   if (!isVFocus(focus)) {
-    throw new Error('only a valid VFocus element can be passed to findSelectedNote');
+    throw new Error('Only a valid VFocus element can be passed to findSelectedNote');
   }
 
   var markers = findScribeMarkers(focus);

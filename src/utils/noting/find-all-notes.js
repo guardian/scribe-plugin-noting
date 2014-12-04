@@ -3,10 +3,12 @@ var isVFocus = require('../vfocus/is-vfocus');
 var isNote = require('./is-note');
 var findEntireNote = require('./find-entire-note');
 
+var cache
+
 module.exports = function findAllNotes(focus) {
 
   if (!isVFocus(focus)) {
-    throw new Error('only a valid VFocus element can be passed to findNoteById');
+    throw new Error('Only a valid VFocus element can be passed to findNoteById');
   }
 
   // Returns an array of arrays of note segments

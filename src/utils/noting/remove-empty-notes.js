@@ -7,8 +7,9 @@ var findAllNotes = require('./find-all-notes');
 var flattenTree = require('../vfocus/flatten-tree');
 
 module.exports = function removeEmptyNotes(focus) {
+
   if (!isVFocus(focus)) {
-    throw new Error('only a valid VFocus can be passed to removeEmptyNotes');
+    throw new Error('Only a valid VFocus can be passed to removeEmptyNotes');
   }
 
   //return all notes from the given tree
