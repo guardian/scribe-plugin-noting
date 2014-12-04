@@ -30,12 +30,15 @@ module.exports = function removeEmptyNotes(focus) {
     //assume we have only empty child elements
     //if one is not change the state of the check
     var childrenAreEmpty = noteSequence.reduce(function(check, childFocus) {
-      if (!isEmpty(childFocus)) return false;
-      else return true;
+      if (!isEmpty(childFocus)) {
+        return false;
+      } else {
+        return true;
+      }
     }, true);
 
-   //if a note is totally empty remove it
-    if(childrenAreEmpty) noteParent.remove();
+    //if a note is totally empty remove it
+    if (childrenAreEmpty) noteParent.remove();
 
   });
 

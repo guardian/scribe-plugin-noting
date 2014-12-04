@@ -25,9 +25,9 @@ module.exports = function hasAttribute(vNode, attribute, value) {
 
   //virtual hyperscript will parse data attributes directly onto the properties hash
   else {
-    if(!vNode.properties[attribute]) return false;
+    if (!vNode.properties[attribute]) return false;
 
-    if(!vNode.properties[attribute].value){
+    if (!vNode.properties[attribute].value) {
       return vNode.properties[attribute] === value;
     }
 

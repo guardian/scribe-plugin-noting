@@ -11,12 +11,16 @@ module.exports = function findSelectedNote(focus) {
   }
 
   var markers = findScribeMarkers(focus);
-  if(markers.length <= 0) return;
+  if (markers.length <= 0) {
+    return;
+  }
 
   var firstMarker = markers[0];
 
   var note = findParentNote(firstMarker);
-  if(!note) return;
+  if (!note) {
+    return;
+  }
 
   return note || findEntireNote(note) || undefined;
 

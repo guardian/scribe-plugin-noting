@@ -3,9 +3,9 @@ var isVFocus = require('../vfocus/is-vfocus');
 var isWithinNote = require('./is-within-note');
 var isNote = require('./is-note');
 
-module.exports = function findFirstNote(focus){
+module.exports = function findFirstNote(focus) {
 
-  if(!isVFocus(focus)){
+  if (!isVFocus(focus)) {
     throw new Error('Only a valid vfocus can be passed to findFirstNote');
   }
 

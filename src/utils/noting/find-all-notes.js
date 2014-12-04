@@ -3,7 +3,7 @@ var isVFocus = require('../vfocus/is-vfocus');
 var isNote = require('./is-note');
 var findEntireNote = require('./find-entire-note');
 
-var cache
+var cache;
 
 module.exports = function findAllNotes(focus) {
 
@@ -13,14 +13,14 @@ module.exports = function findAllNotes(focus) {
 
   // Returns an array of arrays of note segments
   return focus
-  .filter(isNote)
-  .map(findEntireNote)
-  .reduce(function(uniqueNotes, note) {
-    // First iteration: Add the note.
-    if (uniqueNotes.length === 0) return uniqueNotes.concat([note]);
+    .filter(isNote)
+    .map(findEntireNote)
+    .reduce(function(uniqueNotes, note) {
+      // First iteration: Add the note.
+      if (uniqueNotes.length === 0) return uniqueNotes.concat([note]);
 
-    // Subsequent iterations: Add the note if it hasn't already been added.
-    return _.last(uniqueNotes)[0].vNode === note[0].vNode ? uniqueNotes : uniqueNotes.concat([note]);
-  }, []);
+      // Subsequent iterations: Add the note if it hasn't already been added.
+      return _.last(uniqueNotes)[0].vNode === note[0].vNode ? uniqueNotes : uniqueNotes.concat([note]);
+    }, []);
 
 };

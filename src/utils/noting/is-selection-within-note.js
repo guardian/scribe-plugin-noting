@@ -18,7 +18,7 @@ module.exports = function isSelectionBetweenNotes(markers) {
     throw new Error('Only an array of markers can be passed to isSelectionBetweenNotes');
   }
 
-  if(markers.length <= 0) return;
+  if (markers.length <= 0) return;
 
   // if we have two valid markers
   if (markers.length === 2) {
@@ -26,9 +26,9 @@ module.exports = function isSelectionBetweenNotes(markers) {
       .next()
       .takeWhile(isNotScribeMarker)
 
-    // We need the focusOnTextNode filter so we don't include P tags that
-    // contains notes for example.
-    .filter(isVText);
+      // We need the focusOnTextNode filter so we don't include P tags that
+      // contains notes for example.
+      .filter(isVText);
 
     return selection.every(findParentNote);
   }

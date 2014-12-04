@@ -1,4 +1,4 @@
- // We incude regular spaces because if we have a note tag that only
+// We incude regular spaces because if we have a note tag that only
 // includes a a regular space, then the browser will also insert a <BR>.
 // If we consider a string containing only a regular space as empty we
 // can remove the note tag to avoid the line break.
@@ -13,13 +13,13 @@ var isVText = require('vtree/is-vtext');
 
 module.exports = function(node) {
 
-  if(isVText(node)){
-    var text = node.text;
-    return text === '' ||
-      text === '\u200B' ||
-      text === '\u00a0' ||
-      text === ' ';
+  if (isVText(node)) {
+   var text = node.text;
+   return text === '' ||
+     text === '\u200B' ||
+     text === '\u00a0' ||
+     text === ' ';
   } else {
     return node.children.length <= 0;
   }
-};
+ };

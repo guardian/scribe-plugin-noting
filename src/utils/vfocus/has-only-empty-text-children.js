@@ -3,9 +3,9 @@ var flatten = require('./flatten-tree');
 var isVText = require('./is-vtext');
 var isEmpty = require('./is-empty');
 
-module.exports = function hasNoTextChildren(focus){
+module.exports = function hasNoTextChildren(focus) {
 
-  if(!isVFocus(focus)){
+  if (!isVFocus(focus)) {
     throw new Error('Only a valid VFocus can be passes to hasNoTextChildren');
   }
 

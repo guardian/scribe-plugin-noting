@@ -25,7 +25,9 @@ module.exports = function findEntireNote(focus) {
 
   var parentNote = findFirstNote(focus);
 
-  if(!parentNote) return;
+  if(!parentNote) {
+    return;
+  }
 
   return parentNote.takeWhile(isWithinNote).filter(isNote);
 
