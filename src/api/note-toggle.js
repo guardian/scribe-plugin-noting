@@ -99,16 +99,14 @@ function updateNoteProperties(noteSegments) {
   updateStartAndEndClasses(noteSegments);
 
   // FIXME JP 20/11/14
-  // This is removed as it causes significant performance issues
-  //noteSegments.forEach(updateEditedBy);
+  // This is a bug with users not being updated on the right note
+  // noteSegments.forEach(updateEditedBy);
 
   var uuid = generateUUID();
   noteSegments.forEach(function (segment) {
     segment.vNode.properties.dataset['noteId'] = uuid;
   });
 
-  var treeFocus = noteSegments[0].top();
-  updateNoteBarriers(treeFocus);
 }
 
 // Ensure the first (and only the first) note segment has a
@@ -181,9 +179,8 @@ function updateNoteBarriers(treeFocus) {
 
   function insertNoteBarriers(treeFocus) {
     vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
+
       _.first(noteSegments).next().insertBefore(createNoteBarrier());
-
-
       // This is necessarily complex (been through a few iterations) because
       // of Chrome's lack of flexibility when it comes to placing the caret.
       var afterNote = _.last(noteSegments).find(vdom.focusOutsideNote);
@@ -262,6 +259,15 @@ function createNoteFromSelection(treeFocus) {
   updateNoteProperties(noteSegments);
 
 
+  // We need to clear the cache, and this has to be done before we place
+  // our markers or we'll end up placing the cursor inside the note instead
+  // of immediately after it.
+  //
+  // TODO: Revisit our caching strategy to make it less of a "foot gun", or
+  // refactor so that we do less tree traversals and remove the caching.
+  vdom.updateNotesCache(treeFocus);
+
+
   // Now let's place that caret.
   var outsideNoteFocus = _.last(noteSegments).find(vdom.focusOutsideNote);
 
@@ -293,17 +299,15 @@ function createNoteFromSelection(treeFocus) {
 function unnote(treeFocus) {
   // We assume the caller knows there's only one marker.
   var marker = vdom.findMarkers(treeFocus)[0];
-
   // We can't use findEntireNote here since it'll sometimes give us the wrong result.
   // See `findEntireNote` documentation. Instead we look the note up by its ID.
+  vdom.updateNotesCache(treeFocus);
   var noteSegment = vdom.findAncestorNoteSegment(marker);
   var noteSegments = vdom.findNote(treeFocus, noteSegment.vNode.properties.dataset.noteId);
 
   noteSegments.forEach(unwrap);
 
-  // Take care of any leftover note barriers, which can prevent double clicking
-  // a word from selecting the whole word).
-  updateNoteBarriers(treeFocus);
+  exports.ensureNoteIntegrity(treeFocus);
 
   // The marker is where we want it to be (the same position) so we'll
   // just leave it.
@@ -382,11 +386,11 @@ function unnotePartOfNote(treeFocus) {
   // their attributes and CSS classes.
   var onlyPartOfContentsSelected = focusesToNote[0];
 
-  if (onlyPartOfContentsSelected) {
-    var treeFocus = focusesToNote[0].top();
-    exports.ensureNoteIntegrity(treeFocus);
-  }
 
+  if (onlyPartOfContentsSelected) {
+    var tf = focusesToNote[0].top();
+    exports.ensureNoteIntegrity(tf);
+  }
 
   // Place marker immediately before the note to the right (this way of doing
   // that seems to be the most reliable for some reason). Both Chrome and
@@ -400,6 +404,7 @@ function unnotePartOfNote(treeFocus) {
   // If the user selected everything but a space (or zero width space), we remove
   // the remaining note. Most likely that's what our user intended.
   vdom.removeEmptyNotes(treeFocus.refresh());
+
 }
 
 
@@ -423,7 +428,8 @@ function unnotePartOfNote(treeFocus) {
   these notes by merging them. In this case all note segments are now
   listed as being edited by The Count of Monte Cristo and the timestamp
   shows the time when the notes were merged.
-*/
+ */
+
 function mergeIfNecessary(treeFocus) {
 
   function inconsistentTimestamps(note) {
@@ -447,7 +453,6 @@ function mergeIfNecessary(treeFocus) {
   // or where there's no start or end property (e.g. when the user has deleted
   // the last note segment of a note).
   function criteria(note) { return inconsistentTimestamps(note) || lacksStartOrEnd(note); }
-
   vdom.findAllNotes(treeFocus).filter(criteria).forEach(updateNoteProperties);
 }
 
@@ -490,7 +495,7 @@ function preventBrTags(treeFocus) {
 
   // We're good to go.
   var marker = markers[0];
-
+  if (!marker) return;
   // Let's find any note segment before or after the marker.
   var segments = [
     marker.find(vdom.focusOnNote, 'prev'),
@@ -515,6 +520,8 @@ function preventBrTags(treeFocus) {
 
 
 exports.ensureNoteIntegrity = function (treeFocus) {
+  // cache must be up to date before running this
+  vdom.updateNotesCache(treeFocus);
   mergeIfNecessary(treeFocus);
   updateNoteBarriers(treeFocus);
   preventBrTags(treeFocus);
@@ -543,7 +550,7 @@ exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, select
 
   var scenarios = {
     caretWithinNote: function (treeFocus) { unnote(treeFocus); },
-    selectionWithinNote: function (treeFocus) {  unnotePartOfNote(treeFocus);  },
+    selectionWithinNote: function (treeFocus) {  unnotePartOfNote(treeFocus); },
     caretOutsideNote: function (treeFocus) { createEmptyNoteAtCaret(treeFocus); },
     selectionOutsideNote: function (treeFocus) { createNoteFromSelection(treeFocus); }
   };

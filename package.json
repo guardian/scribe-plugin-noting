@@ -1,6 +1,6 @@
 {
   "name": "scribe-plugin-noting",
-  "version": "0.2.13",
+  "version": "0.2.16",
   "main": "scribe-plugin-noting.js",
   "dependencies": {
     "glob": "^4.1.5",

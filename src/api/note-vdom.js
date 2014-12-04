@@ -8,7 +8,6 @@ var NODE_NAME = 'GU-NOTE';
 var TAG = 'gu-note';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
 
-
 var _ = require('lodash');
 var isVText = require('vtree/is-vtext');
 
@@ -42,20 +41,23 @@ var withoutText = require('../utils/vfocus/has-no-text-children');
 var withEmptyTextNode = require('../utils/vfocus/has-only-empty-text-children');
 
 var findEntireNote = require('../utils/noting/find-entire-note');
-var findAllNotes = require('../utils/noting/find-all-notes');
+var getAllNotes = require('../utils/noting/find-all-notes');
 var findNote = require('../utils/noting/find-note-by-id');
 
-var findSelectedNote  = require('../utils/noting/find-selected-note');
+var findSelectedNote = require('../utils/noting/find-selected-note');
 var selectionEntirelyWithinNote = require('../utils/noting/is-selection-within-note');
 var removeVirtualScribeMarkers = require('../utils/noting/remove-scribe-markers');
 var removeEmptyNotes = require('../utils/noting/remove-empty-notes');
 
-/**
-* Noting: Various
-*/
+var notesCache = require('../utils/noting/note-cache');
+var findAllNotes = notesCache.get;
+var updateNotesCache = notesCache.set;
+
+
 
 // Export the following functions
 //   TODO: streamline these so that dependant modules use more generic functions
+
 exports.focusAndDescendants = focusAndDescendants;
 exports.focusOnEmptyTextNode = focusOnEmptyTextNode;
 exports.focusOnNonEmptyTextNode = focusOnNonEmptyTextNode;
@@ -78,3 +80,4 @@ exports.findTextNodeFocusesBetweenMarkers = findTextNodeFocusesBetweenMarkers;
 exports.removeEmptyNotes = removeEmptyNotes;
 exports.removeVirtualScribeMarkers = removeVirtualScribeMarkers;
 exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
+exports.updateNotesCache = updateNotesCache;
