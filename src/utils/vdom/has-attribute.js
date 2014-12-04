@@ -3,7 +3,7 @@ var toCamelCase = require('../to-camel-case');
 module.exports = function hasAttribute(vNode, attribute, value) {
 
   if (!vNode || !attribute) {
-    throw new Error('Incorret arguments passed to hasAttribute');
+    throw new Error('Incorrect arguments passed to hasAttribute');
   }
 
   var isTestingDataAttib = /data/.test(attribute);

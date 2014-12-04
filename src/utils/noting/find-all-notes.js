@@ -3,8 +3,6 @@ var isVFocus = require('../vfocus/is-vfocus');
 var isNote = require('./is-note');
 var findEntireNote = require('./find-entire-note');
 
-var cache;
-
 module.exports = function findAllNotes(focus) {
 
   if (!isVFocus(focus)) {

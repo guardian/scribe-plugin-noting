@@ -13,9 +13,9 @@ module.exports = function isSelectionBetweenNotes(markers) {
     markers = findScribeMarkers(markers);
   }
 
-  //if we get passed the wring argument
+  //if we get passed the wrong argument
   if (!_.isArray(markers)) {
-    throw new Error('Only an array of markers can be passed to isSelectionBetweenNotes');
+    throw new Error('Only an array of markers or a valid VFocus element can be passed to isSelectionBetweenNotes');
   }
 
   if (markers.length <= 0) return;

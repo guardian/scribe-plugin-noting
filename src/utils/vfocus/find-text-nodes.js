@@ -8,7 +8,7 @@ module.exports = function findTextNodes(focuses) {
 
   focuses.forEach(function(focus) {
     if (!isVFocus(focus)) {
-      throw new Error('Only valid VFocus elements should be passes to findTextNodes');
+      throw new Error('Only valid VFocus elements should be passed to findTextNodes');
     }
   });
 
