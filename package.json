@@ -17,6 +17,7 @@
     "http-server": "^0.7.1",
     "mocha": "^2.0.1",
     "mversion": "^1.3.0",
+    "nodemon": "^1.2.1",
     "plumber": "~0.3.0",
     "plumber-all": "~0.3.0",
     "plumber-cli": "~0.3.0",
@@ -34,7 +35,8 @@
     "test-chrome": "TEST_SERVER_PORT=9090 BROWSER_NAME='chrome' ./run-tests.sh",
     "test": "npm run test-chrome",
     "postinstall": "bower install",
-    "build": "plumber build"
+    "build": "plumber build",
+    "watch": "nodemon --watch test --exec 'npm run test'"
   },
   "repository": {
     "type": "git",

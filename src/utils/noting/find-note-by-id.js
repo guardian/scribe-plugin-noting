@@ -16,16 +16,10 @@ module.exports = function findNoteById(focus, noteId){
     throw new Error('only a valid VFocus element can be passed to findNoteById');
   }
 
+
   var allNoteSegments = _.flatten(findAllNotes(focus));
 
-  console.log('IN FUNCTION');
-  console.log('-----------------------');
-  console.log(allNoteSegments);
-  console.log('-----------------------');
-  console.log('IN FUNCTION');
-
   return allNoteSegments.filter(function (segment) {
-    console.log('SEGMENT', segment.vNode);
     return hasNoteId(segment.vNode, noteId);
   });
 

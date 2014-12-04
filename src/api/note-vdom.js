@@ -45,55 +45,14 @@ var findEntireNote = require('../utils/noting/find-entire-note');
 var findAllNotes = require('../utils/noting/find-all-notes');
 var findNote = require('../utils/noting/find-note-by-id');
 
-
-function findSelectedNote(treeFocus) {
-  var note = findAncestorNoteSegment(findMarkers(treeFocus)[0]);
-  return note && findEntireNote(note) || undefined;
-}
-
-
-function selectionEntirelyWithinNote(markers) {
-  if (markers.length === 2) {
-    // We need the focusOnTextNode filter so we don't include P tags that
-    // contains notes for example.
-    var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker)
-      .filter(focusOnTextNode);
-
-    return betweenMarkers.every(findAncestorNoteSegment);
-  } else {
-    return !!findAncestorNoteSegment(markers[0]);
-  }
-}
-
+var findSelectedNote  = require('../utils/noting/find-selected-note');
+var selectionEntirelyWithinNote = require('../utils/noting/is-selection-within-note');
+var removeVirtualScribeMarkers = require('../utils/noting/remove-scribe-markers');
+var removeEmptyNotes = require('../utils/noting/remove-empty-notes');
 
 /**
 * Noting: Various
 */
-
-function removeVirtualScribeMarkers(treeFocus) {
-  treeFocus.filter(focusOnMarker).forEach(function (marker) {
-    marker.remove();
-  });
-}
-
-
-function removeEmptyNotes(treeFocus) {
-  var allNoteSegments = _.flatten(findAllNotes(treeFocus));
-  var noteSegmentsWithDescendants = allNoteSegments.map(focusAndDescendants);
-
-  noteSegmentsWithDescendants.forEach(function (segmentWithDescendants) {
-    var segment = segmentWithDescendants[0];
-    var descendants = _.rest(segmentWithDescendants);
-
-    var hasOnlyEmptyTextNodes = descendants.filter(focusOnTextNode)
-      .every(focusOnEmptyTextNode);
-
-    if (segment.vNode.children.length === 0 || hasOnlyEmptyTextNodes) {
-      segment.remove();
-    }
-  });
-}
-
 
 // Export the following functions
 //   TODO: streamline these so that dependant modules use more generic functions
