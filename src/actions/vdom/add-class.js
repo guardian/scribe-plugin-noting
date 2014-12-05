@@ -10,7 +10,7 @@ module.exports = function addClass(vNode, className) {
     return vNode;
   }
 
-  if(!vNode.properties.className){
+  if (!vNode.properties.className) {
     vNode.properties.className = '';
   }
 

@@ -20,7 +20,7 @@ describe('removeEmptyNotes()', function() {
   });
 
 
-  it('should remove all empty notes', function(){
+  it('should remove all empty notes', function() {
 
     var tree = h('div', [
       h('gu-note'),
@@ -35,7 +35,7 @@ describe('removeEmptyNotes()', function() {
 
   });
 
-  it('should leave notes with children', function(){
+  it('should leave notes with children', function() {
     var tree = h('div', [
       h('gu-note'),
       h('gu-note', [

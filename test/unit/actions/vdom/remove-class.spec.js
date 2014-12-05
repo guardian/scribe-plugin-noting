@@ -7,7 +7,7 @@ var h = require('virtual-hyperscript');
 var removeClass = require(path.resolve(process.cwd(), 'src/actions/vdom/remove-class'));
 
 var div;
-beforeEach(function(){
+beforeEach(function() {
   div = h('.my-class');
 });
 
@@ -18,7 +18,7 @@ describe('removeClass()', function() {
     expect(div.properties.className).to.equal('my-class');
   });
 
-  it('should remove the class if it exists on the VNode', function(){
+  it('should remove the class if it exists on the VNode', function() {
     div = removeClass(div, 'my-class');
     expect(div.properties.className).to.equal('');
   });

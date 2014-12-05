@@ -5,7 +5,7 @@ var removeClass = require('./remove-class');
 
 module.exports = function toggleClass(vNode, className) {
 
-  if(isVFocus(vNode)){
+  if (isVFocus(vNode)) {
     vNode = vNode.vNode;
   }
 

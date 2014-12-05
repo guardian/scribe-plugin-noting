@@ -7,7 +7,7 @@ var h = require('virtual-hyperscript');
 var addClass = require(path.resolve(process.cwd(), 'src/actions/vdom/add-class'));
 
 var div;
-beforeEach(function(){
+beforeEach(function() {
   div = h('.my-class');
 });
 
@@ -18,7 +18,7 @@ describe('addClass()', function() {
     expect(div.properties.className).to.equal('my-class');
   });
 
-  it('should add a class to a vNode', function(){
+  it('should add a class to a vNode', function() {
     div = addClass(div, 'my-class-2');
     expect(div.properties.className).to.equal('my-class my-class-2');
   });

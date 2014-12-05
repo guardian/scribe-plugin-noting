@@ -3,7 +3,7 @@ var toggleClass = require('../vdom/toggle-class');
 
 module.exports = function toggleNoteClasses(notes, className) {
 
-  if(!notes || !className){
+  if (!notes || !className) {
     throw new Error('A valid collection of notes and a valid className must be passes to toggleNoteClasses');
   }
 
@@ -11,7 +11,7 @@ module.exports = function toggleNoteClasses(notes, className) {
   notes = _.flatten(notes);
 
   notes.forEach(function(vNode) {
-   toggleClass(vNode, className);
+    toggleClass(vNode, className);
   });
 
 };

@@ -19,9 +19,9 @@ describe('removeScribeMarkers()', function() {
     expect(div).to.equal(div);
   });
 
-  it('should remove all scribe markers from a tree', function(){
-    var marker1 =  h('em.scrine-marker');
-    var marker2 =  h('em.scrine-marker');
+  it('should remove all scribe markers from a tree', function() {
+    var marker1 = h('em.scrine-marker');
+    var marker2 = h('em.scrine-marker');
 
     var tree = h('div', [
       marker1,

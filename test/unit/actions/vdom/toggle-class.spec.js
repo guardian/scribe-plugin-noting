@@ -7,7 +7,7 @@ var h = require('virtual-hyperscript');
 var toggleClass = require(path.resolve(process.cwd(), 'src/actions/vdom/toggle-class'));
 
 var div;
-beforeEach(function(){
+beforeEach(function() {
   div = h('.my-class');
 });
 
