@@ -46,8 +46,8 @@ var findNote = require('../utils/noting/find-note-by-id');
 
 var findSelectedNote = require('../utils/noting/find-selected-note');
 var selectionEntirelyWithinNote = require('../utils/noting/is-selection-within-note');
-var removeVirtualScribeMarkers = require('../utils/noting/remove-scribe-markers');
-var removeEmptyNotes = require('../utils/noting/remove-empty-notes');
+var removeVirtualScribeMarkers = require('../actions/noting/remove-scribe-markers');
+var removeEmptyNotes = require('../actions/noting/remove-empty-notes');
 
 var notesCache = require('../utils/noting/note-cache');
 var findAllNotes = notesCache.get;

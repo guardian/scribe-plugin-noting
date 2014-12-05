@@ -37,7 +37,7 @@
     "test": "npm run test-chrome",
     "postinstall": "bower install",
     "build": "plumber build",
-    "watch": "nodemon --watch test --exec 'npm run test'"
+    "watch": "nodemon --watch src --watch test --exec 'npm run test'"
   },
   "repository": {
     "type": "git",

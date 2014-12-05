@@ -8,7 +8,7 @@ var VText = require('vtree/vtext');
 var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 
 
-var removeScribemarkers = require(path.resolve(process.cwd(), 'src/utils/noting/remove-scribe-markers'));
+var removeScribemarkers = require(path.resolve(process.cwd(), 'src/actions/noting/remove-scribe-markers'));
 var flattenTree = require(path.resolve(process.cwd(), 'src/utils/vfocus/flatten-tree'));
 
 describe('removeScribeMarkers()', function() {

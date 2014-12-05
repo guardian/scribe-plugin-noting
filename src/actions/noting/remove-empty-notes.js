@@ -1,10 +1,10 @@
 var _ = require('lodash');
-var isVFocus = require('../vfocus/is-vfocus');
-var isVText = require('../vfocus/is-vtext');
-var isEmpty = require('../vfocus/is-empty');
+var isVFocus = require('../../utils/vfocus/is-vfocus');
+var isVText = require('../../utils/vfocus/is-vtext');
+var isEmpty = require('../../utils/vfocus/is-empty');
 
-var findAllNotes = require('./find-all-notes');
-var flattenTree = require('../vfocus/flatten-tree');
+var findAllNotes = require('../../utils/noting/find-all-notes');
+var flattenTree = require('../../utils/vfocus/flatten-tree');
 
 module.exports = function removeEmptyNotes(focus) {
 

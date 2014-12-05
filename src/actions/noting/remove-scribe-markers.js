@@ -1,5 +1,5 @@
-var isVFocus = require('../vfocus/is-vfocus');
-var isScribeMarker = require('./is-scribe-marker');
+var isVFocus = require('../../utils/vfocus/is-vfocus');
+var isScribeMarker = require('../../utils/noting/is-scribe-marker');
 
 module.exports = function removeScribemarkers(focus) {
 

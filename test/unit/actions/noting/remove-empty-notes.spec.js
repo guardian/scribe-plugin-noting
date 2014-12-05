@@ -8,7 +8,7 @@ var VText = require('vtree/vtext');
 var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 
 
-var removeEmptyNotes = require(path.resolve(process.cwd(), 'src/utils/noting/remove-empty-notes'));
+var removeEmptyNotes = require(path.resolve(process.cwd(), 'src/actions/noting/remove-empty-notes'));
 var flattenTree = require(path.resolve(process.cwd(), 'src/utils/vfocus/flatten-tree'));
 
 describe('removeEmptyNotes()', function() {
