@@ -12,6 +12,7 @@ var _ = require('lodash');
 var isVText = require('vtree/is-vtext');
 
 module.exports = function(node) {
+
   if (isVText(node)) {
    var text = node.text;
    return text === '' ||
