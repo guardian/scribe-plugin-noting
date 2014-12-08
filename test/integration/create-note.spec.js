@@ -87,20 +87,20 @@ describe('Creating Scribe Notes', function() {
   given('we already have a note', function(){
 
     var content = [
-      '<gu-note class="note" data-note-is="test">Start</gu-note>',
-      '<gu-note class="note" data-note-is="test">Middle</gu-note>',
-      '<gu-note class="note" data-note-is="test" id="end-note">End</gu-note>'
+      '<gu-note class="note" data-note-id="1234">Start</gu-note>',
+      '<gu-note class="note" data-note-id="1234">Middle</gu-note>',
+      '<gu-note class="note" data-note-id="1234" id="end-note">End</gu-note>'
     ].join('');
 
     givenContentOf(content, function() {
-      it.only('should retain the paragraph after the note has been clicked', function(){
+      it('should retain the paragraph after the note has been clicked', function(){
 
         driver.executeScript(function(){
           document.getElementById('end-note').click();
         });
 
         scribeNode.getInnerHTML().then(function(innerHTML){
-          expect(innerHTML.match(/note--collapsed/).length).to.equal(3);
+          expect(innerHTML.match(/note--collapsed/g).length).to.equal(3);
         });
 
       });

@@ -34,8 +34,11 @@ describe('findSelectedNote()', function() {
     tree = new VFocus(tree);
     var result = findSelectedNote(tree);
 
-    expect(result.vNode.tagName).to.equal('gu-note');
-    expect(result.vNode.children.length).to.equal(3);
+    expect(result[0].vNode.tagName).to.equal('gu-note');
+    expect(result[1].vNode.tagName).to.equal('gu-note');
+    expect(result[2].vNode.tagName).to.equal('gu-note');
+
+    expect(result[1].vNode.children.length).to.equal(3);
 
   });
 
