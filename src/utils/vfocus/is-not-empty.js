@@ -1,4 +1,5 @@
 var isVFocus = require('./is-vfocus');
+var isVText = require('./is-vtext');
 var isEmpty = require('./is-empty.js');
 
 module.exports = function isNotEmpty(focus) {
@@ -7,5 +8,5 @@ module.exports = function isNotEmpty(focus) {
     throw new Error('Only a valid VFocus can be passed to isNotEmpty');
   }
 
-  return !isEmpty(focus);
+  return isVText(focus) && !isEmpty(focus);
 };

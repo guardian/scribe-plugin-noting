@@ -107,6 +107,22 @@ describe('Creating Scribe Notes', function() {
     });
   });
 
+  given('we already have a note', function(){
+    givenContentOf('<p>|This is some content|</p><p>This is some more content</p>', function() {
+      it('should retain the paragraph after the note has been clicked', function(){
+
+        note().then(function(){
+          scribeNode.getInnerHTML().then(function(innerHTML){
+            expect(innerHTML.match(/<p>/g).length).to.equal(2);
+          });
+        });
+
+      });
+    });
+  });
+
+
+
 
   // Create & type
   given('a caret with no text selection', function() {

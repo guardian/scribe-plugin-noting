@@ -11,4 +11,5 @@ module.exports = function isVTextVFocus(vfocus) {
   }
 
   return isVText(vfocus.vNode);
+
 };
