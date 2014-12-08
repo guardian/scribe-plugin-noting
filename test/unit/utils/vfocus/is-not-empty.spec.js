@@ -14,7 +14,7 @@ beforeEach(function() {
   containerP = new VFocus(h('p', 'This is some text'));
 });
 
-describe.only('vfocus isNotEmpty()', function() {
+describe('vfocus isNotEmpty()', function() {
 
   it('should correctly identify a VFocus with children', function() {
     expect(isNotEmptyVFocus(emptyP)).to.be.false;
