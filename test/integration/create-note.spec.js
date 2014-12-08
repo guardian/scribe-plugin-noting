@@ -9,8 +9,10 @@ var given = helpers.given;
 var givenContentOf = helpers.givenContentOf;
 
 var scribeNode;
+var driver;
 beforeEach(function() {
   scribeNode = helpers.scribeNode;
+  driver = helpers.driver;
 });
 
 var note = require('./helpers/create-note');
@@ -80,6 +82,31 @@ describe('Creating Scribe Notes', function() {
     });
 
   });
+
+
+  given('we already have a note', function(){
+
+    var content = [
+      '<gu-note class="note" data-note-is="test">Start</gu-note>',
+      '<gu-note class="note" data-note-is="test">Middle</gu-note>',
+      '<gu-note class="note" data-note-is="test" id="end-note">End</gu-note>'
+    ].join('');
+
+    givenContentOf(content, function() {
+      it.only('should retain the paragraph after the note has been clicked', function(){
+
+        driver.executeScript(function(){
+          document.getElementById('end-note').click();
+        });
+
+        scribeNode.getInnerHTML().then(function(innerHTML){
+          expect(innerHTML.match(/note--collapsed/).length).to.equal(3);
+        });
+
+      });
+    });
+  });
+
 
   // Create & type
   given('a caret with no text selection', function() {
