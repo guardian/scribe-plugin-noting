@@ -11,6 +11,7 @@ var VText = require('vtree/vtext');
 var _ = require('lodash');
 
 var NODE_NAME = 'GU-NOTE';
+
 var TAG = 'gu-note';
 
 var CLASS_NAME = 'note';
@@ -22,6 +23,8 @@ var NOTE_BARRIER_TAG = 'gu-note-barrier';
 
 
 var vdom = require('./note-vdom');
+
+var getEditedByTitleText = require('../utils/get-uk-date');
 
 
 /**
@@ -36,6 +39,8 @@ exports.user = 'unknown';
 
 // Wrap in a note.
 // toWrap can be a vNode, DOM node or a string. One or an array with several.
+
+/*
 function wrapInNote(toWrap, dataAttrs) {
   var nodes = toWrap instanceof Array ? toWrap : [toWrap];
 
@@ -46,7 +51,10 @@ function wrapInNote(toWrap, dataAttrs) {
   var note = h(TAG + '.' + CLASS_NAME, {title: getEditedByTitleText(dataAttrs), dataset: dataAttrs}, nodes);
   return note;
 }
+*/
+var wrapInNote = require('../actions/noting/wrap-in-note');
 
+/*
 function unwrap(focus) {
   var note = focus.vNode;
   var noteContents = note.children;
@@ -62,6 +70,8 @@ function unwrap(focus) {
   focus.vNode = focus.parent.vNode;
   focus.parent = focus.parent.parent;
 }
+*/
+var unwrap = require('../actions/noting/unwrap-note');
 
 function addUniqueVNodeClass(vNode, name) {
   var classes = vNode.properties.className.split(' ');
@@ -129,19 +139,6 @@ function updateStartAndEndClasses(noteSegments) {
   addStartAndEndClasses(noteSegments);
 }
 
-function getEditedByTitleText(dataAttrs) {
-  var date = new Date(dataAttrs[DATA_DATE_CAMEL]),
-
-  // crude formatting avoids a "momentjs" dependency - should be adequate
-  // forced UK formatted time in local timezone:  dd/MM/YYYY at hh:mm
-  formattedDate = [
-    date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(),
-    'at',
-    date.getHours() + ':' + (date.getMinutes() < 9 ? '0' : '') + date.getMinutes()
-  ].join(' ');
-
-  return dataAttrs[DATA_NAME_CAMEL] + '  ' + formattedDate;
-}
 
 function updateEditedBy(noteSegment) {
   var dataset = userAndTimeAsDatasetAttrs();
