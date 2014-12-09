@@ -20,8 +20,10 @@ describe('vfocus isNotEmpty()', function() {
     expect(isNotEmptyVFocus(emptyP)).to.be.false;
   });
 
-  it('should corectly identify an empty VFocus', function(){
-    //expect(isNotEmptyVFocus(containerP)).to.be.true;
+  // JP 9/12/2014
+  //skipped as this seems to return false, contradictory to is-empty.spec.js
+  it.skip('should corectly identify an empty VFocus', function(){
+    expect(isNotEmptyVFocus(containerP)).to.be.true;
   });
 
 });
