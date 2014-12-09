@@ -5,15 +5,16 @@
  */
 'use strict';
 
+exports.user = 'unknown';
+
 var h = require('virtual-hyperscript');
-var isVText = require('vtree/is-vtext');
-var VText = require('vtree/vtext');
 var _ = require('lodash');
 
+var isVText = require('vtree/is-vtext');
+var VText = require('vtree/vtext');
+
 var NODE_NAME = 'GU-NOTE';
-
 var TAG = 'gu-note';
-
 var CLASS_NAME = 'note';
 var DATA_NAME = 'data-note-edited-by';
 var DATA_NAME_CAMEL = 'noteEditedBy';
@@ -21,85 +22,14 @@ var DATA_DATE = 'data-note-edited-date';
 var DATA_DATE_CAMEL = 'noteEditedDate';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
 
-
 var vdom = require('./note-vdom');
-
 var getEditedByTitleText = require('../utils/get-uk-date');
-
-
-/**
- * Current User property must be set.
- * @type {String}
- */
-exports.user = 'unknown';
-
-/**
-* Noting: Create, remove, wrap etc.
-*/
-
-// Wrap in a note.
-// toWrap can be a vNode, DOM node or a string. One or an array with several.
-
-/*
-function wrapInNote(toWrap, dataAttrs) {
-  var nodes = toWrap instanceof Array ? toWrap : [toWrap];
-
-  // Note that we have to clone dataAttrs or several notes might end up
-  // sharing the same dataset object.
-  var dataAttrs = dataAttrs ? _.clone(dataAttrs) : {};
-
-  var note = h(TAG + '.' + CLASS_NAME, {title: getEditedByTitleText(dataAttrs), dataset: dataAttrs}, nodes);
-  return note;
-}
-*/
 var wrapInNote = require('../actions/noting/wrap-in-note');
-
-/*
-function unwrap(focus) {
-  var note = focus.vNode;
-  var noteContents = note.children;
-  var indexOfNode = focus.parent.vNode.children.indexOf(note);
-
-  // Do the unwrapping.
-  focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
-  focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
-
-  // We want the note contents to now have their grandparent as parent.
-  // The safest way we can ensure this is by changing the VFocus object
-  // that previously focused on the note to instead focus on its parent.
-  focus.vNode = focus.parent.vNode;
-  focus.parent = focus.parent.parent;
-}
-*/
 var unwrap = require('../actions/noting/unwrap-note');
+var addUniqueVNodeClass = require('../actions/vdom/add-class');
+var removeVNodeClass = require('../actions/vdom/remove-class');
+var generateUUID = require('../utils/generate-uuid');
 
-function addUniqueVNodeClass(vNode, name) {
-  var classes = vNode.properties.className.split(' ');
-  classes.push(name);
-
-  vNode.properties.className = _.uniq(classes).join(' ');
-}
-
-function removeVNodeClass(vNode, name) {
-  var classes = vNode.properties.className.split(' ');
-  var classId = classes.indexOf(name);
-
-  if (classId !== -1) {
-    classes.splice(classId, 1);
-    vNode.properties.className = classes.join(' ');
-  }
-}
-
-function generateUUID(){
-  /* jshint bitwise:false */
-  var d = new Date().getTime();
-  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = (d + Math.random()*16)%16 | 0;
-      d = Math.floor(d/16);
-      return (c=='x' ? r : (r&0x7|0x8)).toString(16);
-  });
-  return uuid;
-};
 
 // Update note properties, adding them if they aren't already there.
 // Note that this is also a way of merging notes, as we update the
@@ -122,23 +52,7 @@ function updateNoteProperties(noteSegments) {
 // Ensure the first (and only the first) note segment has a
 // `note--start` class and that the last (and only the last)
 // note segment has a `note--end` class.
-function updateStartAndEndClasses(noteSegments) {
-  function addStartAndEndClasses(noteSegments) {
-    addUniqueVNodeClass(noteSegments[0].vNode, 'note--start');
-    addUniqueVNodeClass(noteSegments[noteSegments.length - 1].vNode, 'note--end');
-  }
-
-  function removeStartAndEndClasses(noteSegments) {
-    noteSegments.forEach(function(segment) {
-      removeVNodeClass(segment.vNode, 'note--start');
-      removeVNodeClass(segment.vNode, 'note--end');
-    });
-  }
-
-  removeStartAndEndClasses(noteSegments);
-  addStartAndEndClasses(noteSegments);
-}
-
+var updateStartAndEndClasses = require('../actions/noting/reset-note-segment-classes');
 
 function updateEditedBy(noteSegment) {
   var dataset = userAndTimeAsDatasetAttrs();
@@ -168,6 +82,7 @@ function createNoteBarrier() {
 }
 
 function updateNoteBarriers(treeFocus) {
+
   function removeNoteBarriers(treeFocus) {
     treeFocus.filter(vdom.focusOnTextNode).forEach(function (focus) {
       focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
