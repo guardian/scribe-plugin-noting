@@ -3037,7 +3037,7 @@ module.exports = function findSelectedNote(focus) {
     return;
   }
 
-  return note || findEntireNote(note) || undefined;
+  return note && findEntireNote(note) || undefined;
 
 };
 
@@ -3348,7 +3348,6 @@ var _ = require('lodash');
 var isVText = require('vtree/is-vtext');
 
 module.exports = function(node) {
-
   if (isVText(node)) {
    var text = node.text;
    return text === '' ||
@@ -3442,6 +3441,7 @@ module.exports = function isEmptyVFocus(vfocus) {
 
 },{"../vdom/is-empty":83,"./is-vfocus":92}],90:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
+var isVText = require('./is-vtext');
 var isEmpty = require('./is-empty.js');
 
 module.exports = function isNotEmpty(focus) {
@@ -3450,10 +3450,13 @@ module.exports = function isNotEmpty(focus) {
     throw new Error('Only a valid VFocus can be passed to isNotEmpty');
   }
 
-  return !isEmpty(focus);
+  //checking if an element is text prevents empty text elements
+  //containing elements like breaks being added to the dom when
+  //a note is created
+  return isVText(focus) && !isEmpty(focus);
 };
 
-},{"./is-empty.js":89,"./is-vfocus":92}],91:[function(require,module,exports){
+},{"./is-empty.js":89,"./is-vfocus":92,"./is-vtext":93}],91:[function(require,module,exports){
 var isVFocus = require('./is-vfocus.js');
 var isTag = require('../vdom/is-tag.js');
 
@@ -3487,6 +3490,7 @@ module.exports = function isVTextVFocus(vfocus) {
   }
 
   return isVText(vfocus.vNode);
+
 };
 
 },{"../../vfocus":94,"../vfocus/is-vfocus":92,"vtree/is-vtext":47}],94:[function(require,module,exports){
