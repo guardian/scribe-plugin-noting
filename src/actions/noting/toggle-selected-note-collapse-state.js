@@ -11,6 +11,11 @@ module.exports = function toggleSelectedNoteCollapseState(focus) {
   }
 
   var note = findSelectedNote(focus);
+
+  if (!note){
+    return;
+  }
+
   return toggleNoteClasses(note, NOTE_CLASS_COLLAPSED);
 
 };
