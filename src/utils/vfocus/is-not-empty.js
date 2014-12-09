@@ -1,4 +1,5 @@
 var isVFocus = require('./is-vfocus');
+var isVText = require('./is-vtext');
 var isEmpty = require('./is-empty.js');
 
 module.exports = function isNotEmpty(focus) {
@@ -7,5 +8,8 @@ module.exports = function isNotEmpty(focus) {
     throw new Error('Only a valid VFocus can be passed to isNotEmpty');
   }
 
-  return !isEmpty(focus);
+  //checking if an element is text prevents empty text elements
+  //containing elements like breaks being added to the dom when
+  //a note is created
+  return isVText(focus) && !isEmpty(focus);
 };

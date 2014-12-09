@@ -22,6 +22,6 @@ module.exports = function findSelectedNote(focus) {
     return;
   }
 
-  return note || findEntireNote(note) || undefined;
+  return note && findEntireNote(note) || undefined;
 
 };
