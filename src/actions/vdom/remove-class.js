@@ -10,11 +10,7 @@ module.exports = function removeClass(vNode, className) {
     return vNode;
   }
 
-  var classNames = vNode.properties.className.split(' ');
-  var index = classNames.indexOf(className);
-
-  classNames.splice(index, 1);
-  vNode.properties.className = classNames.join(' ');
-
+  var regex = new RegExp(className, ['g']);
+  vNode.properties.className = vNode.properties.className.replace(regex, '');
   return vNode;
 };
