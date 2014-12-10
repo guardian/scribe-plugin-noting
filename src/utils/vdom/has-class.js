@@ -8,6 +8,7 @@ module.exports = function hasClass(vNode, value) {
     return false;
   }
 
-  return _.contains(vNode.properties.className.split(' '), value);
+  var regEx = new RegExp(value);
+  return regEx.test(vNode.properties.className);
 
 };
