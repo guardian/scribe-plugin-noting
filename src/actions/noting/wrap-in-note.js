@@ -14,7 +14,7 @@ module.exports = function wrapInNote(focus, data){
 
   // Note that we have to clone dataAttrs or several notes might end up
   // sharing the same dataset object.
-  data = data ? _.clone(data) : {};
+  data = (data || {});
 
   var tagName = TAG + '.' + CLASS_NAME;
 
