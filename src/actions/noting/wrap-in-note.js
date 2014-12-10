@@ -12,8 +12,6 @@ module.exports = function wrapInNote(focus, data){
 
   var notes = _.isArray(focus) ? focus : [focus];
 
-  // Note that we have to clone dataAttrs or several notes might end up
-  // sharing the same dataset object.
   data = (data || {});
 
   var tagName = TAG + '.' + CLASS_NAME;
