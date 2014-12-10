@@ -1880,55 +1880,283 @@ module.exports = function(config) {
   };
 };
 
-},{"./src/noting-commands":58}],55:[function(require,module,exports){
-var vdom = require('./note-vdom');
+},{"./src/noting-commands":69}],55:[function(require,module,exports){
+var _ = require('lodash');
+var isVFocus = require('../../utils/vfocus/is-vfocus');
+var isVText = require('../../utils/vfocus/is-vtext');
+var isEmpty = require('../../utils/vfocus/is-empty');
+
+var findAllNotes = require('../../utils/noting/find-all-notes');
+var flattenTree = require('../../utils/vfocus/flatten-tree');
+
+module.exports = function removeEmptyNotes(focus) {
+
+  if (!isVFocus(focus)) {
+    throw new Error('Only a valid VFocus can be passed to removeEmptyNotes');
+  }
+
+  //return all notes from the given tree
+  var allNoteSegments = _.flatten(findAllNotes(focus));
+
+  var noteSequences = allNoteSegments.map(flattenTree);
+
+  noteSequences.forEach(function(noteSequence) {
+
+    var noteParent = noteSequence.splice(0, 1)[0];
+
+    //if we have a totally empty note we have an array of 1
+    if (noteSequence.length <= 0) {
+      noteParent.remove();
+      return;
+    }
+
+    //assume we have only empty child elements
+    //if one is not change the state of the check
+    var childrenAreEmpty = noteSequence.reduce(function(check, childFocus) {
+      if (!isEmpty(childFocus)) {
+        return false;
+      } else {
+        return true;
+      }
+    }, true);
+
+    //if a note is totally empty remove it
+    if (childrenAreEmpty) noteParent.remove();
+
+  });
+
+};
+
+},{"../../utils/noting/find-all-notes":73,"../../utils/vfocus/flatten-tree":97,"../../utils/vfocus/is-empty":100,"../../utils/vfocus/is-vfocus":103,"../../utils/vfocus/is-vtext":104,"lodash":"lodash"}],56:[function(require,module,exports){
+var isVFocus = require('../../utils/vfocus/is-vfocus');
+var isScribeMarker = require('../../utils/noting/is-scribe-marker');
+
+module.exports = function removeScribemarkers(focus) {
+
+  if (!isVFocus(focus)) {
+    throw new Error('Only a valid VFocus can be passed to removeScribemarkers');
+  }
+
+  focus.filter(isScribeMarker).forEach(function(marker) {
+    marker.remove();
+  });
+
+};
+
+},{"../../utils/noting/is-scribe-marker":87,"../../utils/vfocus/is-vfocus":103}],57:[function(require,module,exports){
+var _ = require('lodash');
+var addClass = require('../../actions/vdom/add-class');
+var removeClass = require('../../actions/vdom/remove-class');
+var isVFocus = require('../../utils/vfocus/is-vfocus');
+
+// Ensure the first (and only the first) note segment has a
+// `note--start` class and that the last (and only the last)
+// note segment has a `note--end` class.
+module.exports = function updateStartAndEndClasses(noteSegments) {
+
+  if (!noteSegments) {
+    return;
+  }
+
+  noteSegments = _.isArray(noteSegments) ? noteSegments : [noteSegments];
+
+  noteSegments.forEach(function(note, index) {
+    note = note.vNode ? note.vNode : note;
+    removeClass(note, 'note--start');
+    removeClass(note, 'note--end');
+  });
+
+  addClass(noteSegments[0].vNode, 'note--start');
+  addClass(noteSegments[noteSegments.length -1].vNode, 'note--end');
+
+  return noteSegments;
+};
+
+},{"../../actions/vdom/add-class":63,"../../actions/vdom/remove-class":64,"../../utils/vfocus/is-vfocus":103,"lodash":"lodash"}],58:[function(require,module,exports){
+var isVFocus = require('../../utils/vfocus/is-vfocus');
+var toggleNoteClasses = require('./toggle-note-classes');
+var findAllNotes = require('../../utils/noting/find-all-notes');
 
 var NOTE_CLASS_COLLAPSED = 'note--collapsed';
 
-// TODO: move this somewhere sharable
-function toggleClass(vNode, className, state) {
-  var classes = vNode.properties.className.split(' '),
+module.exports = function toggleAllNoteCollapseState(focus) {
 
-  existingIdx = classes.indexOf(className);
-
-  if (existingIdx !== -1) { // class exists
-    if (state !== true) {
-      classes.splice(existingIdx, 1);
-    }
-
-  } else if (state !== false) { // class doesn't exist
-    classes.push(className);
+  if (!isVFocus(focus)) {
+    throw new Error('Only a valid VFocus can be passed to toggleAllNoteCollapseState');
   }
 
-  vNode.properties.className = classes.join(' ');
-}
-
-
-
-function toggleNotes(note, state) {
-  if (Array.isArray(note)) {
-    note.forEach(function(n) {
-      toggleClass(n.vNode, NOTE_CLASS_COLLAPSED, state);
-    });
-
-  } else {
-    toggleClass(note.vNode, NOTE_CLASS_COLLAPSED, state);
-  }
-}
-
-
-exports.collapseToggleSelectedNote = function collapseToggleSelectedNote(treeFocus) {
-  var selectedNote = vdom.findSelectedNote(treeFocus);
-
-  toggleNotes(selectedNote);
+  var notes = findAllNotes(focus);
+  return toggleNoteClasses(notes, NOTE_CLASS_COLLAPSED);
 
 };
 
-exports.collapseToggleAllNotes = function collapseToggleAllNotes(treeFocus, state) {
-  vdom.findAllNotes(treeFocus).forEach(function(notes) { toggleNotes(notes, state); });
+},{"../../utils/noting/find-all-notes":73,"../../utils/vfocus/is-vfocus":103,"./toggle-note-classes":59}],59:[function(require,module,exports){
+var _ = require('lodash');
+var toggleClass = require('../vdom/toggle-class');
+
+module.exports = function toggleNoteClasses(notes, className) {
+
+  if (!notes || !className) {
+    throw new Error('A valid collection of notes and a valid className must be passed to toggleNoteClasses');
+  }
+
+  notes = _.isArray(notes) ? notes : [notes];
+  notes = _.flatten(notes);
+
+  notes.forEach(function(vNode) {
+    toggleClass(vNode, className);
+  });
+
 };
 
-},{"./note-vdom":57}],56:[function(require,module,exports){
+},{"../vdom/toggle-class":65,"lodash":"lodash"}],60:[function(require,module,exports){
+var isVFocus = require('../../utils/vfocus/is-vfocus');
+var toggleNoteClasses = require('./toggle-note-classes');
+var findSelectedNote = require('../../utils/noting/find-selected-note');
+
+var NOTE_CLASS_COLLAPSED = 'note--collapsed';
+
+module.exports = function toggleSelectedNoteCollapseState(focus) {
+
+  if (!isVFocus(focus)) {
+    throw new Error('Only a valid VFocus can be passed to toggleSelectedNoteCollapseState');
+  }
+
+  var note = findSelectedNote(focus);
+
+  if (!note){
+    return;
+  }
+
+  return toggleNoteClasses(note, NOTE_CLASS_COLLAPSED);
+
+};
+
+},{"../../utils/noting/find-selected-note":81,"../../utils/vfocus/is-vfocus":103,"./toggle-note-classes":59}],61:[function(require,module,exports){
+var _ = require('lodash');
+var isVFocus = require('../../utils/vfocus/is-vfocus');
+var isNote = require('../../utils/noting/is-note');
+
+module.exports = function unWrapNote(focus) {
+
+  if (!isVFocus(focus) || !focus.parent) {
+    throw new Error('Only a valid VFocus element can be passed to unWrapNote');
+  }
+
+  if (!isNote(focus)) {
+    throw new Error('Only a note may be passed to unWrapnote');
+  }
+
+  var note = focus.vNode;
+
+  var tree = !!focus.parent.vNode
+    ? focus.parent.vNode.children
+    : focus.parent.children;
+
+  //remove note and add children
+  tree.splice(tree.indexOf(note), 1, note.children);
+
+  focus.parent.vNode.children = _.flatten(tree);
+
+  // We want the note contents to now have their grandparent as parent.
+  // The safest way we can ensure this is by changing the VFocus object
+  // that previously focused on the note to instead focus on its parent.
+  focus.vNode = focus.parent.vNode;
+  focus.parent = focus.parent.parent;
+  return focus;
+
+};
+
+},{"../../utils/noting/is-note":86,"../../utils/vfocus/is-vfocus":103,"lodash":"lodash"}],62:[function(require,module,exports){
+var TAG = 'gu-note';
+var CLASS_NAME = 'note';
+
+var _ = require('lodash');
+var h = require('virtual-hyperscript');
+
+var getUKDate = require('../../utils/get-uk-date');
+
+// Wrap in a note.
+// toWrap can be a vNode, DOM node or a string. One or an array with several.
+module.exports = function wrapInNote(focus, data){
+
+  var notes = _.isArray(focus) ? focus : [focus];
+
+  // Note that we have to clone dataAttrs or several notes might end up
+  // sharing the same dataset object.
+  data = data ? _.clone(data) : {};
+
+  var tagName = TAG + '.' + CLASS_NAME;
+
+  return h(tagName, {title: getUKDate(data), dataset: data}, notes);
+
+};
+
+},{"../../utils/get-uk-date":72,"lodash":"lodash","virtual-hyperscript":23}],63:[function(require,module,exports){
+var hasClass = require('../../utils/vdom/has-class');
+
+module.exports = function addClass(vNode, className) {
+
+  if (!vNode || !className) {
+    throw new Error('A valid vNode and className must be passed to addClass');
+  }
+
+  if (hasClass(vNode, className)) {
+    return vNode;
+  }
+
+  if (!vNode.properties.className) {
+    vNode.properties.className = className;
+    return vNode;
+  }
+
+  vNode.properties.className = (vNode.properties.className + ' ' + className);
+  return vNode;
+
+};
+
+},{"../../utils/vdom/has-class":93}],64:[function(require,module,exports){
+var hasClass = require('../../utils/vdom/has-class');
+
+module.exports = function removeClass(vNode, className) {
+
+  if (!vNode || !className) {
+    throw new Error('A valid vNode and className must be passed to removeClass');
+  }
+
+  if (!hasClass(vNode, className)) {
+    return vNode;
+  }
+
+  var regex = new RegExp(className, ['g']);
+  vNode.properties.className = vNode.properties.className.replace(regex, '');
+  return vNode;
+};
+
+},{"../../utils/vdom/has-class":93}],65:[function(require,module,exports){
+var isVFocus = require('../../utils/vfocus/is-vfocus');
+var hasClass = require('../../utils/vdom/has-class');
+var addClass = require('./add-class');
+var removeClass = require('./remove-class');
+
+module.exports = function toggleClass(vNode, className) {
+
+  if (isVFocus(vNode)) {
+    vNode = vNode.vNode;
+  }
+
+  if (!vNode || !className) {
+    throw new Error('A valid vNode and className must be passed to toggleClass');
+  }
+
+  return hasClass(vNode, className) ? removeClass(vNode, className) : addClass(vNode, className);
+};
+
+},{"../../utils/vdom/has-class":93,"../../utils/vfocus/is-vfocus":103,"./add-class":63,"./remove-class":64}],66:[function(require,module,exports){
+exports.collapseToggleSelectedNote = require('../actions/noting/toggle-selected-note-collapse-state');
+exports.collapseToggleAllNote = require('../actions/noting/toggle-all-note-collapse-state');
+
+},{"../actions/noting/toggle-all-note-collapse-state":58,"../actions/noting/toggle-selected-note-collapse-state":60}],67:[function(require,module,exports){
 /**
  * Noting API
  *
@@ -1936,14 +2164,16 @@ exports.collapseToggleAllNotes = function collapseToggleAllNotes(treeFocus, stat
  */
 'use strict';
 
+exports.user = 'unknown';
+
 var h = require('virtual-hyperscript');
+var _ = require('lodash');
+
 var isVText = require('vtree/is-vtext');
 var VText = require('vtree/vtext');
-var _ = require('lodash');
 
 var NODE_NAME = 'GU-NOTE';
 var TAG = 'gu-note';
-
 var CLASS_NAME = 'note';
 var DATA_NAME = 'data-note-edited-by';
 var DATA_NAME_CAMEL = 'noteEditedBy';
@@ -1951,76 +2181,14 @@ var DATA_DATE = 'data-note-edited-date';
 var DATA_DATE_CAMEL = 'noteEditedDate';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
 
-
 var vdom = require('./note-vdom');
+var getEditedByTitleText = require('../utils/get-uk-date');
+var wrapInNote = require('../actions/noting/wrap-in-note');
+var unwrap = require('../actions/noting/unwrap-note');
+var addUniqueVNodeClass = require('../actions/vdom/add-class');
+var removeVNodeClass = require('../actions/vdom/remove-class');
+var generateUUID = require('../utils/generate-uuid');
 
-
-/**
- * Current User property must be set.
- * @type {String}
- */
-exports.user = 'unknown';
-
-/**
-* Noting: Create, remove, wrap etc.
-*/
-
-// Wrap in a note.
-// toWrap can be a vNode, DOM node or a string. One or an array with several.
-function wrapInNote(toWrap, dataAttrs) {
-  var nodes = toWrap instanceof Array ? toWrap : [toWrap];
-
-  // Note that we have to clone dataAttrs or several notes might end up
-  // sharing the same dataset object.
-  var dataAttrs = dataAttrs ? _.clone(dataAttrs) : {};
-
-  var note = h(TAG + '.' + CLASS_NAME, {title: getEditedByTitleText(dataAttrs), dataset: dataAttrs}, nodes);
-  return note;
-}
-
-function unwrap(focus) {
-  var note = focus.vNode;
-  var noteContents = note.children;
-  var indexOfNode = focus.parent.vNode.children.indexOf(note);
-
-  // Do the unwrapping.
-  focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
-  focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
-
-  // We want the note contents to now have their grandparent as parent.
-  // The safest way we can ensure this is by changing the VFocus object
-  // that previously focused on the note to instead focus on its parent.
-  focus.vNode = focus.parent.vNode;
-  focus.parent = focus.parent.parent;
-}
-
-function addUniqueVNodeClass(vNode, name) {
-  var classes = vNode.properties.className.split(' ');
-  classes.push(name);
-
-  vNode.properties.className = _.uniq(classes).join(' ');
-}
-
-function removeVNodeClass(vNode, name) {
-  var classes = vNode.properties.className.split(' ');
-  var classId = classes.indexOf(name);
-
-  if (classId !== -1) {
-    classes.splice(classId, 1);
-    vNode.properties.className = classes.join(' ');
-  }
-}
-
-function generateUUID(){
-  /* jshint bitwise:false */
-  var d = new Date().getTime();
-  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = (d + Math.random()*16)%16 | 0;
-      d = Math.floor(d/16);
-      return (c=='x' ? r : (r&0x7|0x8)).toString(16);
-  });
-  return uuid;
-};
 
 // Update note properties, adding them if they aren't already there.
 // Note that this is also a way of merging notes, as we update the
@@ -2043,36 +2211,7 @@ function updateNoteProperties(noteSegments) {
 // Ensure the first (and only the first) note segment has a
 // `note--start` class and that the last (and only the last)
 // note segment has a `note--end` class.
-function updateStartAndEndClasses(noteSegments) {
-  function addStartAndEndClasses(noteSegments) {
-    addUniqueVNodeClass(noteSegments[0].vNode, 'note--start');
-    addUniqueVNodeClass(noteSegments[noteSegments.length - 1].vNode, 'note--end');
-  }
-
-  function removeStartAndEndClasses(noteSegments) {
-    noteSegments.forEach(function(segment) {
-      removeVNodeClass(segment.vNode, 'note--start');
-      removeVNodeClass(segment.vNode, 'note--end');
-    });
-  }
-
-  removeStartAndEndClasses(noteSegments);
-  addStartAndEndClasses(noteSegments);
-}
-
-function getEditedByTitleText(dataAttrs) {
-  var date = new Date(dataAttrs[DATA_DATE_CAMEL]),
-
-  // crude formatting avoids a "momentjs" dependency - should be adequate
-  // forced UK formatted time in local timezone:  dd/MM/YYYY at hh:mm
-  formattedDate = [
-    date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(),
-    'at',
-    date.getHours() + ':' + (date.getMinutes() < 9 ? '0' : '') + date.getMinutes()
-  ].join(' ');
-
-  return dataAttrs[DATA_NAME_CAMEL] + '  ' + formattedDate;
-}
+var updateStartAndEndClasses = require('../actions/noting/reset-note-segment-classes');
 
 function updateEditedBy(noteSegment) {
   var dataset = userAndTimeAsDatasetAttrs();
@@ -2102,6 +2241,7 @@ function createNoteBarrier() {
 }
 
 function updateNoteBarriers(treeFocus) {
+
   function removeNoteBarriers(treeFocus) {
     treeFocus.filter(vdom.focusOnTextNode).forEach(function (focus) {
       focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
@@ -2510,7 +2650,7 @@ exports.isSelectionInANote = function isSelectionInANote(selectionRange, parentC
   return domFindAncestorNote(selectionRange.startContainer) && domFindAncestorNote(selectionRange.endContainer) && true;
 };
 
-},{"./note-vdom":57,"lodash":"lodash","virtual-hyperscript":23,"vtree/is-vtext":47,"vtree/vtext":53}],57:[function(require,module,exports){
+},{"../actions/noting/reset-note-segment-classes":57,"../actions/noting/unwrap-note":61,"../actions/noting/wrap-in-note":62,"../actions/vdom/add-class":63,"../actions/vdom/remove-class":64,"../utils/generate-uuid":71,"../utils/get-uk-date":72,"./note-vdom":68,"lodash":"lodash","virtual-hyperscript":23,"vtree/is-vtext":47,"vtree/vtext":53}],68:[function(require,module,exports){
 /**
  * Shared note vdom functions.
  */
@@ -2559,8 +2699,8 @@ var findNote = require('../utils/noting/find-note-by-id');
 
 var findSelectedNote = require('../utils/noting/find-selected-note');
 var selectionEntirelyWithinNote = require('../utils/noting/is-selection-within-note');
-var removeVirtualScribeMarkers = require('../utils/noting/remove-scribe-markers');
-var removeEmptyNotes = require('../utils/noting/remove-empty-notes');
+var removeVirtualScribeMarkers = require('../actions/noting/remove-scribe-markers');
+var removeEmptyNotes = require('../actions/noting/remove-empty-notes');
 
 var notesCache = require('../utils/noting/note-cache');
 var findAllNotes = notesCache.get;
@@ -2595,7 +2735,7 @@ exports.removeVirtualScribeMarkers = removeVirtualScribeMarkers;
 exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
 exports.updateNotesCache = updateNotesCache;
 
-},{"../utils/noting/find-all-notes":60,"../utils/noting/find-between-scribe-markers":61,"../utils/noting/find-entire-note":62,"../utils/noting/find-first-note":63,"../utils/noting/find-last-note":64,"../utils/noting/find-note-by-id":65,"../utils/noting/find-parent-note":66,"../utils/noting/find-scribe-markers":67,"../utils/noting/find-selected-note":68,"../utils/noting/find-text-between-scribe-markers":69,"../utils/noting/has-note-id":70,"../utils/noting/is-not-scribe-marker":71,"../utils/noting/is-not-within-note":72,"../utils/noting/is-note":73,"../utils/noting/is-scribe-marker":74,"../utils/noting/is-selection-within-note":75,"../utils/noting/is-within-note":76,"../utils/noting/note-cache":77,"../utils/noting/remove-empty-notes":78,"../utils/noting/remove-scribe-markers":79,"../utils/vdom/has-attribute":81,"../utils/vdom/has-class":82,"../utils/vdom/is-empty":83,"../utils/vdom/is-tag":84,"../utils/vfocus/find-text-nodes":85,"../utils/vfocus/flatten-tree":86,"../utils/vfocus/has-no-text-children":87,"../utils/vfocus/has-only-empty-text-children":88,"../utils/vfocus/is-empty":89,"../utils/vfocus/is-not-empty":90,"../utils/vfocus/is-paragraph":91,"../utils/vfocus/is-vtext":93,"lodash":"lodash","vtree/is-vtext":47}],58:[function(require,module,exports){
+},{"../actions/noting/remove-empty-notes":55,"../actions/noting/remove-scribe-markers":56,"../utils/noting/find-all-notes":73,"../utils/noting/find-between-scribe-markers":74,"../utils/noting/find-entire-note":75,"../utils/noting/find-first-note":76,"../utils/noting/find-last-note":77,"../utils/noting/find-note-by-id":78,"../utils/noting/find-parent-note":79,"../utils/noting/find-scribe-markers":80,"../utils/noting/find-selected-note":81,"../utils/noting/find-text-between-scribe-markers":82,"../utils/noting/has-note-id":83,"../utils/noting/is-not-scribe-marker":84,"../utils/noting/is-not-within-note":85,"../utils/noting/is-note":86,"../utils/noting/is-scribe-marker":87,"../utils/noting/is-selection-within-note":88,"../utils/noting/is-within-note":89,"../utils/noting/note-cache":90,"../utils/vdom/has-attribute":92,"../utils/vdom/has-class":93,"../utils/vdom/is-empty":94,"../utils/vdom/is-tag":95,"../utils/vfocus/find-text-nodes":96,"../utils/vfocus/flatten-tree":97,"../utils/vfocus/has-no-text-children":98,"../utils/vfocus/has-only-empty-text-children":99,"../utils/vfocus/is-empty":100,"../utils/vfocus/is-not-empty":101,"../utils/vfocus/is-paragraph":102,"../utils/vfocus/is-vtext":104,"lodash":"lodash","vtree/is-vtext":47}],69:[function(require,module,exports){
 /**
  * Noting commands
  *
@@ -2766,7 +2906,7 @@ function addContentChangedListener(scribe) {
     scribe.el.addEventListener('input', throttled);
 }
 
-},{"./api/note-collapse":55,"./api/note-toggle":56,"./noting-vdom":59,"lodash":"lodash"}],59:[function(require,module,exports){
+},{"./api/note-collapse":66,"./api/note-toggle":67,"./noting-vdom":70,"lodash":"lodash"}],70:[function(require,module,exports){
 /**
  * Virtual DOM parser / serializer for Noting plugin.
  */
@@ -2834,7 +2974,49 @@ exports.mutateScribe = function(scribe, callback) {
   });
 };
 
-},{"./vfocus":94,"lodash":"lodash","vdom-virtualize":2,"virtual-dom/diff":9,"virtual-dom/patch":19,"vtree/is-vtext":47}],60:[function(require,module,exports){
+},{"./vfocus":105,"lodash":"lodash","vdom-virtualize":2,"virtual-dom/diff":9,"virtual-dom/patch":19,"vtree/is-vtext":47}],71:[function(require,module,exports){
+module.exports = function generateUUID(){
+  /* jshint bitwise:false */
+  var d = new Date().getTime();
+  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = (d + Math.random()*16)%16 | 0;
+      d = Math.floor(d/16);
+      return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+  });
+  return uuid;
+};
+
+
+
+},{}],72:[function(require,module,exports){
+var DATA_NAME_CAMEL = 'noteEditedBy';
+var DATA_DATE_CAMEL = 'noteEditedDate';
+
+module.exports = function getUKDate(data){
+
+  data = (data || {});
+
+  var date = data[DATA_DATE_CAMEL]
+    ? new Date(data[DATA_DATE_CAMEL])
+    : new Date();
+
+  var name = data[DATA_NAME_CAMEL]
+    ? data[DATA_NAME_CAMEL]
+    : 'unknown';
+
+  // crude formatting avoids a "momentjs" dependency - should be adequate
+  // forced UK formatted time in local timezone:  dd/MM/YYYY at hh:mm
+  var formattedDate = [
+    date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(),
+    'at',
+    date.getHours() + ':' + (date.getMinutes() < 9 ? '0' : '') + date.getMinutes()
+  ].join(' ');
+
+  return name + ' ' + formattedDate;
+
+};
+
+},{}],73:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isNote = require('./is-note');
@@ -2860,7 +3042,7 @@ module.exports = function findAllNotes(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":92,"./find-entire-note":62,"./is-note":73,"lodash":"lodash"}],61:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"./find-entire-note":75,"./is-note":86,"lodash":"lodash"}],74:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var isScribeMarker = require('./is-scribe-marker');
 var isNotScribeMarker = require('./is-not-scribe-marker');
@@ -2884,7 +3066,7 @@ module.exports = function findBetweenScribeMarkers(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":92,"./is-not-scribe-marker":71,"./is-scribe-marker":74}],62:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"./is-not-scribe-marker":84,"./is-scribe-marker":87}],75:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var isWithinNote = require('./is-within-note');
 var isNote = require('./is-note');
@@ -2920,7 +3102,7 @@ module.exports = function findEntireNote(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":92,"./find-first-note":63,"./is-note":73,"./is-within-note":76}],63:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"./find-first-note":76,"./is-note":86,"./is-within-note":89}],76:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isWithinNote = require('./is-within-note');
@@ -2939,7 +3121,7 @@ module.exports = function findFirstNote(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":92,"./is-note":73,"./is-within-note":76,"lodash":"lodash"}],64:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"./is-note":86,"./is-within-note":89,"lodash":"lodash"}],77:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isWithinNote = require('./is-within-note');
@@ -2958,7 +3140,7 @@ module.exports = function findFirstNote(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":92,"./is-note":73,"./is-within-note":76,"lodash":"lodash"}],65:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"./is-note":86,"./is-within-note":89,"lodash":"lodash"}],78:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var hasNoteId = require('./has-note-id');
@@ -2986,7 +3168,7 @@ module.exports = function findNoteById(focus, noteId) {
 
 };
 
-},{"../vfocus/is-vfocus":92,"./find-all-notes":60,"./has-note-id":70,"lodash":"lodash"}],66:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"./find-all-notes":73,"./has-note-id":83,"lodash":"lodash"}],79:[function(require,module,exports){
 var isNote = require('../noting/is-note');
 var isVFocus = require('../vfocus/is-vfocus');
 
@@ -2999,7 +3181,7 @@ module.exports = function findParentNote(focus) {
   return focus.find(isNote, 'up');
 };
 
-},{"../noting/is-note":73,"../vfocus/is-vfocus":92}],67:[function(require,module,exports){
+},{"../noting/is-note":86,"../vfocus/is-vfocus":103}],80:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var isScribeMarker = require('./is-scribe-marker');
 
@@ -3012,7 +3194,7 @@ module.exports = function findScribeMarkers(focus) {
   return focus.filter(isScribeMarker);
 };
 
-},{"../vfocus/is-vfocus":92,"./is-scribe-marker":74}],68:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"./is-scribe-marker":87}],81:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var VFocus = require('../../vfocus');
 var findScribeMarkers = require('./find-scribe-markers');
@@ -3041,7 +3223,7 @@ module.exports = function findSelectedNote(focus) {
 
 };
 
-},{"../../vfocus":94,"../vfocus/is-vfocus":92,"./find-entire-note":62,"./find-parent-note":66,"./find-scribe-markers":67}],69:[function(require,module,exports){
+},{"../../vfocus":105,"../vfocus/is-vfocus":103,"./find-entire-note":75,"./find-parent-note":79,"./find-scribe-markers":80}],82:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var findBetweenScribeMarkers = require('./find-between-scribe-markers');
 var findTextNodes = require('../vfocus/find-text-nodes');
@@ -3057,7 +3239,7 @@ module.exports = function findTextBetweenScribeMarkers(focus) {
 
 };
 
-},{"../vfocus/find-text-nodes":85,"../vfocus/is-vfocus":92,"./find-between-scribe-markers":61}],70:[function(require,module,exports){
+},{"../vfocus/find-text-nodes":96,"../vfocus/is-vfocus":103,"./find-between-scribe-markers":74}],83:[function(require,module,exports){
 var hasAttribute = require('../vdom/has-attribute');
 var isVFocus = require('../vfocus/is-vfocus');
 
@@ -3065,14 +3247,14 @@ module.exports = function hasNoteId(vNode, value) {
   return hasAttribute(vNode, 'data-note-id', value);
 };
 
-},{"../vdom/has-attribute":81,"../vfocus/is-vfocus":92}],71:[function(require,module,exports){
+},{"../vdom/has-attribute":92,"../vfocus/is-vfocus":103}],84:[function(require,module,exports){
 var isScribeMarker = require('./is-scribe-marker');
 
 module.exports = function isNotScribeMarker(focus) {
   return !isScribeMarker(focus);
 };
 
-},{"./is-scribe-marker":74}],72:[function(require,module,exports){
+},{"./is-scribe-marker":87}],85:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var findParentNote = require('./find-parent-note');
 
@@ -3086,7 +3268,7 @@ module.exports = function isNotWithinNote(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":92,"./find-parent-note":66}],73:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"./find-parent-note":79}],86:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var isTag = require('../vdom/is-tag');
 
@@ -3101,7 +3283,7 @@ module.exports = function isNote(vfocus) {
   return isTag(vfocus.vNode, 'gu-note');
 };
 
-},{"../vdom/is-tag":84,"../vfocus/is-vfocus":92}],74:[function(require,module,exports){
+},{"../vdom/is-tag":95,"../vfocus/is-vfocus":103}],87:[function(require,module,exports){
 // is our selection not a note?
 var isVFocus = require('../vfocus/is-vfocus');
 var hasClass = require('../vdom/has-class');
@@ -3115,7 +3297,7 @@ module.exports = function isScribeMarker(vfocus) {
   return hasClass(vfocus.vNode, 'scribe-marker');
 };
 
-},{"../vdom/has-class":82,"../vfocus/is-vfocus":92}],75:[function(require,module,exports){
+},{"../vdom/has-class":93,"../vfocus/is-vfocus":103}],88:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 
@@ -3159,7 +3341,7 @@ module.exports = function isSelectionBetweenNotes(markers) {
 
 };
 
-},{"../vfocus/is-vfocus":92,"../vfocus/is-vtext":93,"./find-parent-note":66,"./find-scribe-markers":67,"./is-not-scribe-marker":71,"lodash":"lodash"}],76:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"../vfocus/is-vtext":104,"./find-parent-note":79,"./find-scribe-markers":80,"./is-not-scribe-marker":84,"lodash":"lodash"}],89:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 
 
@@ -3176,7 +3358,7 @@ module.exports = function isWithinNote(focus) {
   return !isVText(focus) || isEmpty(focus) || !!findParentNote(focus);
 };
 
-},{"../noting/find-parent-note":66,"../vfocus/is-empty":89,"../vfocus/is-vfocus":92,"../vfocus/is-vtext":93}],77:[function(require,module,exports){
+},{"../noting/find-parent-note":79,"../vfocus/is-empty":100,"../vfocus/is-vfocus":103,"../vfocus/is-vtext":104}],90:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var findAllNotes = require('./find-all-notes');
 
@@ -3210,77 +3392,14 @@ function setNotesCache(focus) {
 
 module.exports = {get: getNotesCache, set: setNotesCache};
 
-},{"../vfocus/is-vfocus":92,"./find-all-notes":60}],78:[function(require,module,exports){
-var _ = require('lodash');
-var isVFocus = require('../vfocus/is-vfocus');
-var isVText = require('../vfocus/is-vtext');
-var isEmpty = require('../vfocus/is-empty');
-
-var findAllNotes = require('./find-all-notes');
-var flattenTree = require('../vfocus/flatten-tree');
-
-module.exports = function removeEmptyNotes(focus) {
-
-  if (!isVFocus(focus)) {
-    throw new Error('Only a valid VFocus can be passed to removeEmptyNotes');
-  }
-
-  //return all notes from the given tree
-  var allNoteSegments = _.flatten(findAllNotes(focus));
-
-  var noteSequences = allNoteSegments.map(flattenTree);
-
-  noteSequences.forEach(function(noteSequence) {
-
-    var noteParent = noteSequence.splice(0, 1)[0];
-
-    //if we have a totally empty note we have an array of 1
-    if (noteSequence.length <= 0) {
-      noteParent.remove();
-      return;
-    }
-
-    //assume we have only empty child elements
-    //if one is not change the state of the check
-    var childrenAreEmpty = noteSequence.reduce(function(check, childFocus) {
-      if (!isEmpty(childFocus)) {
-        return false;
-      } else {
-        return true;
-      }
-    }, true);
-
-    //if a note is totally empty remove it
-    if (childrenAreEmpty) noteParent.remove();
-
-  });
-
-};
-
-},{"../vfocus/flatten-tree":86,"../vfocus/is-empty":89,"../vfocus/is-vfocus":92,"../vfocus/is-vtext":93,"./find-all-notes":60,"lodash":"lodash"}],79:[function(require,module,exports){
-var isVFocus = require('../vfocus/is-vfocus');
-var isScribeMarker = require('./is-scribe-marker');
-
-module.exports = function removeScribemarkers(focus) {
-
-  if (!isVFocus(focus)) {
-    throw new Error('Only a valid VFocus can be passed to removeScribemarkers');
-  }
-
-  focus.filter(isScribeMarker).forEach(function(marker) {
-    marker.remove();
-  });
-
-};
-
-},{"../vfocus/is-vfocus":92,"./is-scribe-marker":74}],80:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"./find-all-notes":73}],91:[function(require,module,exports){
 module.exports = function toCamelCase(string) {
   return string.replace(/(\-[a-z])/g, function($1) {
     return $1.toUpperCase().replace('-', '');
   });
 };
 
-},{}],81:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 var toCamelCase = require('../to-camel-case');
 
 module.exports = function hasAttribute(vNode, attribute, value) {
@@ -3318,7 +3437,7 @@ module.exports = function hasAttribute(vNode, attribute, value) {
   }
 };
 
-},{"../to-camel-case":80}],82:[function(require,module,exports){
+},{"../to-camel-case":91}],93:[function(require,module,exports){
 var _ = require('lodash');
 // Check if VNode has class
 // TODO: Currently not working on nodes with multiple classes (not an
@@ -3329,11 +3448,12 @@ module.exports = function hasClass(vNode, value) {
     return false;
   }
 
-  return _.contains(vNode.properties.className.split(' '), value);
+  var regEx = new RegExp(value);
+  return regEx.test(vNode.properties.className);
 
 };
 
-},{"lodash":"lodash"}],83:[function(require,module,exports){
+},{"lodash":"lodash"}],94:[function(require,module,exports){
 // We incude regular spaces because if we have a note tag that only
 // includes a a regular space, then the browser will also insert a <BR>.
 // If we consider a string containing only a regular space as empty we
@@ -3359,12 +3479,12 @@ module.exports = function(node) {
   }
  };
 
-},{"lodash":"lodash","vtree/is-vtext":47}],84:[function(require,module,exports){
+},{"lodash":"lodash","vtree/is-vtext":47}],95:[function(require,module,exports){
 module.exports = function isTag(node, tag) {
   return node.tagName && node.tagName.toLowerCase() === tag;
 };
 
-},{}],85:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isVText = require('../vfocus/is-vtext');
@@ -3382,7 +3502,7 @@ module.exports = function findTextNodes(focuses) {
   return focuses.filter(isVText);
 };
 
-},{"../vfocus/is-vfocus":92,"../vfocus/is-vtext":93,"lodash":"lodash"}],86:[function(require,module,exports){
+},{"../vfocus/is-vfocus":103,"../vfocus/is-vtext":104,"lodash":"lodash"}],97:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
 
 module.exports = function flattenTree(focus) {
@@ -3397,7 +3517,7 @@ module.exports = function flattenTree(focus) {
 
 };
 
-},{"./is-vfocus":92}],87:[function(require,module,exports){
+},{"./is-vfocus":103}],98:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
 var flatten = require('./flatten-tree');
 var isVText = require('./is-vtext');
@@ -3411,7 +3531,7 @@ module.exports = function hasNoTextChildren(focus) {
   return flatten(focus).filter(isVText).length === 0;
 };
 
-},{"./flatten-tree":86,"./is-vfocus":92,"./is-vtext":93}],88:[function(require,module,exports){
+},{"./flatten-tree":97,"./is-vfocus":103,"./is-vtext":104}],99:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
 var flatten = require('./flatten-tree');
 var isVText = require('./is-vtext');
@@ -3426,7 +3546,7 @@ module.exports = function hasNoTextChildren(focus) {
   return flatten(focus).filter(isVText).every(isEmpty);
 };
 
-},{"./flatten-tree":86,"./is-empty":89,"./is-vfocus":92,"./is-vtext":93}],89:[function(require,module,exports){
+},{"./flatten-tree":97,"./is-empty":100,"./is-vfocus":103,"./is-vtext":104}],100:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
 var isEmpty = require('../vdom/is-empty');
 
@@ -3439,7 +3559,7 @@ module.exports = function isEmptyVFocus(vfocus) {
   return isEmpty(vfocus.vNode);
 };
 
-},{"../vdom/is-empty":83,"./is-vfocus":92}],90:[function(require,module,exports){
+},{"../vdom/is-empty":94,"./is-vfocus":103}],101:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
 var isVText = require('./is-vtext');
 var isEmpty = require('./is-empty.js');
@@ -3456,7 +3576,7 @@ module.exports = function isNotEmpty(focus) {
   return isVText(focus) && !isEmpty(focus);
 };
 
-},{"./is-empty.js":89,"./is-vfocus":92,"./is-vtext":93}],91:[function(require,module,exports){
+},{"./is-empty.js":100,"./is-vfocus":103,"./is-vtext":104}],102:[function(require,module,exports){
 var isVFocus = require('./is-vfocus.js');
 var isTag = require('../vdom/is-tag.js');
 
@@ -3469,14 +3589,14 @@ module.exports = function isParagraphVFocus(focus) {
   return isTag(focus.vNode, 'p');
 };
 
-},{"../vdom/is-tag.js":84,"./is-vfocus.js":92}],92:[function(require,module,exports){
+},{"../vdom/is-tag.js":95,"./is-vfocus.js":103}],103:[function(require,module,exports){
 var VFocus = require('../../vfocus');
 
 module.exports = function isVFocus(vFocus) {
   return vFocus instanceof VFocus;
 };
 
-},{"../../vfocus":94}],93:[function(require,module,exports){
+},{"../../vfocus":105}],104:[function(require,module,exports){
 var isVText = require('vtree/is-vtext');
 
 var VFocus = require('../../vfocus');
@@ -3493,7 +3613,7 @@ module.exports = function isVTextVFocus(vfocus) {
 
 };
 
-},{"../../vfocus":94,"../vfocus/is-vfocus":92,"vtree/is-vtext":47}],94:[function(require,module,exports){
+},{"../../vfocus":105,"../vfocus/is-vfocus":103,"vtree/is-vtext":47}],105:[function(require,module,exports){
 /**
 * VFocus: Wrap virtual node in a Focus node.
 *
