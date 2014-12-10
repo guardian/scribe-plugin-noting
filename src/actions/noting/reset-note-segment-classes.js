@@ -15,7 +15,7 @@ module.exports = function updateStartAndEndClasses(noteSegments) {
   noteSegments = _.isArray(noteSegments) ? noteSegments : [noteSegments];
 
   noteSegments.forEach(function(note, index) {
-    note = note.vNode ? note.vNode : note;
+    note = (note.vNode || note);
     removeClass(note, 'note--start');
     removeClass(note, 'note--end');
   });
