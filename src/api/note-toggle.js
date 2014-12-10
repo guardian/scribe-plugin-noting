@@ -49,9 +49,7 @@ function updateNoteProperties(noteSegments) {
 
 }
 
-// Ensure the first (and only the first) note segment has a
-// `note--start` class and that the last (and only the last)
-// note segment has a `note--end` class.
+var updateNoteProperties = require('../actions/noting/reset-note-segment-classes');
 var updateStartAndEndClasses = require('../actions/noting/reset-note-segment-classes');
 
 function updateEditedBy(noteSegment) {
