@@ -29,31 +29,15 @@ var unwrap = require('../actions/noting/unwrap-note');
 var addUniqueVNodeClass = require('../actions/vdom/add-class');
 var removeVNodeClass = require('../actions/vdom/remove-class');
 var generateUUID = require('../utils/generate-uuid');
-
-
-// Update note properties, adding them if they aren't already there.
-// Note that this is also a way of merging notes, as we update the
-// start and end classes as well as give the segments the same edited
-// by information.
-function updateNoteProperties(noteSegments) {
-  updateStartAndEndClasses(noteSegments);
-
-  // FIXME JP 20/11/14
-  // This is a bug with users not being updated on the right note
-  // noteSegments.forEach(updateEditedBy);
-
-  var uuid = generateUUID();
-  noteSegments.forEach(function (segment) {
-    segment.vNode.properties.dataset['noteId'] = uuid;
-  });
-
-}
-
 var updateNoteProperties = require('../actions/noting/reset-note-segment-classes');
 var updateStartAndEndClasses = require('../actions/noting/reset-note-segment-classes');
+var createVirtualScribeMarker  = require('../utils/create-virtual-scribe-marker');
+var createNoteBarrier = require('../utils/create-note-barrier');
+var userAndTimeAsDatasetAttrs = require('../utils/get-note-data-attrs');
+
 
 function updateEditedBy(noteSegment) {
-  var dataset = userAndTimeAsDatasetAttrs();
+  var dataset = userAndTimeAsDatasetAttrs(exports.user);
 
   noteSegment.vNode.properties.dataset[DATA_NAME_CAMEL] = dataset[DATA_NAME_CAMEL];
   noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL] = dataset[DATA_DATE_CAMEL];
@@ -61,23 +45,8 @@ function updateEditedBy(noteSegment) {
   noteSegment.vNode.properties.title = getEditedByTitleText(dataset);
 }
 
-function userAndTimeAsDatasetAttrs() {
-  var dataset = {};
-  dataset[DATA_NAME_CAMEL] = exports.user;
-  dataset[DATA_DATE_CAMEL] = new Date().toISOString();
 
-  return dataset;
-}
 
-function createVirtualScribeMarker() {
-  return h('em.scribe-marker', []);
-}
-
-// We need these to make it possible to place the caret immediately
-// inside/outside of a note.
-function createNoteBarrier() {
-  return new VText('\u200B');
-}
 
 function updateNoteBarriers(treeFocus) {
 
@@ -118,7 +87,7 @@ function createEmptyNoteAtCaret(treeFocus) {
   // maker within it.
   // Chrome is picky about needing the space to be before the marker
   // (otherwise the caret won't be placed within the note).
-  var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], userAndTimeAsDatasetAttrs());
+  var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], userAndTimeAsDatasetAttrs(exports.user));
 
   // We assume there's only one marker.
   var marker = vdom.findMarkers(treeFocus)[0];
@@ -137,7 +106,7 @@ function createNoteFromSelection(treeFocus) {
 
 
   // Wrap the text nodes.
-  var userAndTime = userAndTimeAsDatasetAttrs();
+  var userAndTime = userAndTimeAsDatasetAttrs(exports.user);
   var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
     return wrapInNote(focus.vNode, userAndTime);
   });
@@ -271,7 +240,7 @@ function unnotePartOfNote(treeFocus) {
 
 
   var focusesToNote = entireNoteTextNodeFocuses.filter(notToBeUnnoted);
-  var userAndTime = userAndTimeAsDatasetAttrs();
+  var userAndTime = userAndTimeAsDatasetAttrs(exports.user);
 
 
   // Wrap the text nodes.
