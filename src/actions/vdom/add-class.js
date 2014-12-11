@@ -11,13 +11,11 @@ module.exports = function addClass(vNode, className) {
   }
 
   if (!vNode.properties.className) {
-    vNode.properties.className = '';
+    vNode.properties.className = className;
+    return vNode;
   }
 
-  var classNames = vNode.properties.className.split(' ');
-  classNames.push(className);
-  vNode.properties.className = classNames.join(' ').trim();
-
+  vNode.properties.className = (vNode.properties.className + ' ' + className);
   return vNode;
 
 };
