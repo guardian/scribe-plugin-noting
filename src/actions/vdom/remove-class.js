@@ -11,6 +11,13 @@ module.exports = function removeClass(vNode, className) {
   }
 
   var regex = new RegExp(className, ['g']);
-  vNode.properties.className = vNode.properties.className.replace(regex, '');
+  vNode.properties.className.replace(regex, '');
+
+  var classNames = vNode.properties.className.split(' ');
+  var index = classNames.indexOf(className);
+
+  classNames.splice(index, 1);
+  vNode.properties.className = classNames.join(' ');
+
   return vNode;
 };

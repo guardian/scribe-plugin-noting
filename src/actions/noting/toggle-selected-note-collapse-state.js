@@ -12,7 +12,7 @@ module.exports = function toggleSelectedNoteCollapseState(focus) {
 
   var note = findSelectedNote(focus);
 
-  if (!note){
+  if (!note) {
     return;
   }
 

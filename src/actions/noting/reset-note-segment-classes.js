@@ -20,11 +20,11 @@ module.exports = function updateStartAndEndClasses(noteSegments) {
   var uuid = generateUUID();
 
   noteSegments.forEach(function(note, index) {
-    var node = note.vNode ? note.vNode : note;
+    var node = (note.vNode || note);
     addAttribute(node, 'data-note-id', uuid);
     addAttribute(node, 'title', getUKDate());
-    removeClass(note, 'note--start');
-    removeClass(note, 'note--end');
+    removeClass(node, 'note--start');
+    removeClass(node, 'note--end');
   });
 
   addClass(noteSegments[0].vNode, 'note--start');
