@@ -129,7 +129,7 @@ describe('Creating Scribe Notes', function() {
   //https://github.com/guardian/scribe/issues/254
   given('we create a note', function() {
     givenContentOf('<gu-note><p>This is some <b>conte</b>nt</p><gu-note>|', function() {
-      it.skip('should not insert erroneous <br> tags', function() {
+      it('should not insert erroneous <br> tags', function() {
 
         scribeNode.sendKeys(webdriver.Key.BACK_SPACE)
           .then(function() {

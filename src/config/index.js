@@ -8,6 +8,11 @@ var config = {
 module.exports = {
 
   get: function(key){
+
+    if(!key){
+      return config;
+    }
+
     return (config[key] || undefined);
   },
 
