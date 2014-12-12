@@ -17,12 +17,12 @@ module.exports = function resetNoteBarriers(focus) {
   });
 
   //add new note barriers
-  findAllNotes(focus).forEach(function(noteSegment) {
+  findAllNotes(focus).forEach(function(noteSegmentFocus) {
     //add a note barrier to the beginning of a note
-    noteSegment[0].next().insertBefore(createNoteBarrier());
+    noteSegmentFocus[0].next().insertBefore(createNoteBarrier());
 
     //add a note to the beginning of the nearest non empty text node
-    var nearestSibling = noteSegment[noteSegment.length - 1].find(isNotWithinNote);
+    var nearestSibling = noteSegmentFocus[noteSegmentFocus.length - 1].find(isNotWithinNote);
     var nearestTextSibling = nearestSibling && nearestSibling.find(isNotEmpty);
 
     if (nearestTextSibling) {

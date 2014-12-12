@@ -28,7 +28,7 @@ describe('createNoteAtCaret()', function() {
 
   });
 
-  it('should create a note between segments', function(){
+  it('should create a single note if caret is placed between segments', function(){
 
     var firstNote = h('gu-note', [h('p', 'text')]);
     var lastNote = h('gu-note', [h('p', 'text')]);
