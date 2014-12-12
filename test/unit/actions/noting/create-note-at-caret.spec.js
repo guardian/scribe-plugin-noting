@@ -46,6 +46,6 @@ describe('createNoteAtCaret()', function() {
     expect(firstNote.properties.className.match(/note--start/g).length).to.equal(1);
     expect(lastNote.properties.className.match(/note--end/g).length).to.equal(1);
 
-  })
+  });
 
 });

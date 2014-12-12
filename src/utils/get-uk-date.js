@@ -1,6 +1,8 @@
 var DATA_NAME_CAMEL = 'noteEditedBy';
 var DATA_DATE_CAMEL = 'noteEditedDate';
 
+var config = require('../config');
+
 module.exports = function getUKDate(data){
 
   data = (data || {});
@@ -9,9 +11,7 @@ module.exports = function getUKDate(data){
     ? new Date(data[DATA_DATE_CAMEL])
     : new Date();
 
-  var name = data[DATA_NAME_CAMEL]
-    ? data[DATA_NAME_CAMEL]
-    : 'unknown';
+  var name = config.get('user');
 
   // crude formatting avoids a "momentjs" dependency - should be adequate
   // forced UK formatted time in local timezone:  dd/MM/YYYY at hh:mm

@@ -4,6 +4,7 @@ var removeClass = require('../../actions/vdom/remove-class');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var generateUUID = require('../../utils/generate-uuid');
 var addAttribute = require('../vdom/add-attribute');
+var getUKDate = require('../../utils/get-uk-date');
 
 // Ensure the first (and only the first) note segment has a
 // `note--start` class and that the last (and only the last)
@@ -21,6 +22,7 @@ module.exports = function updateStartAndEndClasses(noteSegments) {
   noteSegments.forEach(function(note, index) {
     var node = note.vNode ? note.vNode : note;
     addAttribute(node, 'data-note-id', uuid);
+    addAttribute(node, 'title', getUKDate());
     removeClass(note, 'note--start');
     removeClass(note, 'note--end');
   });

@@ -10,7 +10,7 @@ var noteToggle = require('./api/note-toggle');
 var noteCollapse = require('./api/note-collapse');
 var vdom = require('./noting-vdom');
 var _ = require('lodash');
-
+var pluginConfig = require('./config');
 
 /**
  * Initialise noting commands
@@ -18,12 +18,9 @@ var _ = require('lodash');
  * @param  {String} user  Current user string.
  */
 exports.init = function(scribe, config) {
-  // initialise current user for Noting API
-  noteToggle.user = config.user;
 
-  // initialise scribe element selector
-  // TODO: Extract the configuration varialbles into its own module.
-  noteCollapse.scribeInstancesSelector = config.scribeInstancesSelector;
+  //setup our global config
+  pluginConfig.set(config);
 
   scribe.commands.note = createNoteToggleCommand(scribe);
   scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);

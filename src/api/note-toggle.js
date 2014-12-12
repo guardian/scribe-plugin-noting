@@ -5,7 +5,6 @@
  */
 'use strict';
 
-exports.user = 'unknown';
 
 var h = require('virtual-hyperscript');
 var _ = require('lodash');
@@ -23,6 +22,7 @@ var DATA_DATE_CAMEL = 'noteEditedDate';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
 
 var vdom = require('./note-vdom');
+var config = require('../config');
 var getEditedByTitleText = require('../utils/get-uk-date');
 var wrapInNote = require('../actions/noting/wrap-in-note');
 var unwrap = require('../actions/noting/unwrap-note');
@@ -35,6 +35,7 @@ var createVirtualScribeMarker  = require('../utils/create-virtual-scribe-marker'
 var createNoteBarrier = require('../utils/create-note-barrier');
 var userAndTimeAsDatasetAttrs = require('../utils/get-note-data-attrs');
 var updateNoteBarriers = require('../actions/noting/reset-note-barriers');
+var createEmptyNoteAtCaret = require('../actions/noting/create-note-at-caret');
 
 
 //TODO: jp 10/12/2014
@@ -42,18 +43,18 @@ var updateNoteBarriers = require('../actions/noting/reset-note-barriers');
 //this functionality needs to be re implemented when we hake, merge, remove new notes
 
 
-var createEmptyNoteAtCaret = require('../actions/noting/create-note-at-caret');
 
 // treeFocus: tree focus of tree containing two scribe markers
 // Note that we will mutate the tree.
 function createNoteFromSelection(treeFocus) {
   // We want to wrap text nodes between the markers. We filter out nodes that have
   // already been wrapped.
+
   var toWrapAndReplace = vdom.findTextNodeFocusesBetweenMarkers(treeFocus).filter(vdom.focusOutsideNote);
 
 
   // Wrap the text nodes.
-  var userAndTime = userAndTimeAsDatasetAttrs(exports.user);
+  var userAndTime = userAndTimeAsDatasetAttrs(config.get('user'));
   var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
     return wrapInNote(focus.vNode, userAndTime);
   });
@@ -70,6 +71,7 @@ function createNoteFromSelection(treeFocus) {
 
   // If we end up with an empty note a <BR> tag would be created. We have to do
   // this before we remove the markers.
+
   preventBrTags(treeFocus);
 
 
@@ -187,7 +189,7 @@ function unnotePartOfNote(treeFocus) {
 
 
   var focusesToNote = entireNoteTextNodeFocuses.filter(notToBeUnnoted);
-  var userAndTime = userAndTimeAsDatasetAttrs(exports.user);
+  var userAndTime = userAndTimeAsDatasetAttrs(config.get('user'));
 
 
   // Wrap the text nodes.
@@ -315,6 +317,12 @@ function preventBrTags(treeFocus) {
   //
   // Could possibly develop a way of knowing deletions from
   // additions, but this isn't necessary at the moment.
+
+
+
+
+
+
   var markers = vdom.findMarkers(treeFocus);
   if (markers.length === 2) return;
 
@@ -342,6 +350,7 @@ function preventBrTags(treeFocus) {
       removeEmptyAncestors(replaced);
     }
   });
+
 }
 
 
