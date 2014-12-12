@@ -6,7 +6,7 @@ var h = require('virtual-hyperscript');
 var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 var VText = require('vtree/vtext');
 
-var findFirstNoteSegmentAbove = require(path.resolve(process.cwd(), 'src/utils/noting/find-first-note-segment-below'));
+var findFirstNoteSegmentBelow = require(path.resolve(process.cwd(), 'src/utils/noting/find-first-note-segment-below'));
 
 
 describe('findFirstNoteSegmentBelow()', function() {
@@ -25,7 +25,7 @@ describe('findFirstNoteSegmentBelow()', function() {
 
     var focus = new VFocus(selection, tree);
 
-    var noteSegment = findFirstNoteSegmentAbove(focus);
+    var noteSegment = findFirstNoteSegmentBelow(focus);
 
     expect(noteSegment.vNode).to.equal(note);
 
