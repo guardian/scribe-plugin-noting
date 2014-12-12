@@ -39,8 +39,8 @@ var createEmptyNoteAtCaret = require('../actions/noting/create-note-at-caret');
 
 
 //TODO: jp 10/12/2014
-//Ive remove update update edited by as it wasn't called
-//this functionality needs to be re implemented when we hake, merge, remove new notes
+//Ive removed updateEditedBy() as it wasn't called
+//this functionality needs to be re implemented when we make, merge & remove new notes
 
 
 
