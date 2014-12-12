@@ -13,13 +13,11 @@ var resetNoteSegmentClasses = require('./reset-note-segment-classes');
 // We need a zero width space character to make the note selectable.
 var zeroWidthSpace = '\u200B';
 
-module.exports = function createNoteAtCaret(focus, data) {
+module.exports = function createNoteAtCaret(focus) {
 
   if (!isVFocus(focus)) {
     throw new Error('Only a valid VFocus can be passed to createNoteAtCaret');
   }
-
-  data = (data || {});
 
   // To make sure the caret is placed within the note we place a scribe
   // maker within it.
