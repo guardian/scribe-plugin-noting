@@ -13,9 +13,9 @@ var resetNoteSegmentClasses = require('./reset-note-segment-classes');
 // We need a zero width space character to make the note selectable.
 var zeroWidthSpace = '\u200B';
 
-module.exports = function createNoteAtCaret(focus, data){
+module.exports = function createNoteAtCaret(focus, data) {
 
-  if(!isVFocus(focus)){
+  if (!isVFocus(focus)) {
     throw new Error('Only a valid VFocus can be passed to createNoteAtCaret');
   }
 
@@ -28,7 +28,7 @@ module.exports = function createNoteAtCaret(focus, data){
   var note = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], getNoteDataAttributes());
 
   var marker = findScribeMarkers(focus)[0];
-  if(!marker){
+  if (!marker) {
     return focus;
   }
 

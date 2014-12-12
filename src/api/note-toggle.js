@@ -318,11 +318,6 @@ function preventBrTags(treeFocus) {
   // Could possibly develop a way of knowing deletions from
   // additions, but this isn't necessary at the moment.
 
-
-
-
-
-
   var markers = vdom.findMarkers(treeFocus);
   if (markers.length === 2) return;
 
