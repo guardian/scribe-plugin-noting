@@ -17,6 +17,7 @@ describe('resetNoteSegmentClasses()', function() {
     var result = resetNoteSegmentClasses(note);
     expect(hasClass(result[0].vNode, 'note--start')).to.be.true;
     expect(hasClass(result[0].vNode, 'note--end')).to.be.true;
+    expect(result[0].vNode.properties.title).not.to.be.an('undefined');
   })
 
   it('should add/remove the correct note--start note--end classes on an array of note sements', function() {
