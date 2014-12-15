@@ -369,7 +369,7 @@ var diff = require("vtree/diff")
 
 module.exports = diff
 
-},{"vtree/diff":42}],10:[function(require,module,exports){
+},{"vtree/diff":47}],10:[function(require,module,exports){
 module.exports = isObject
 
 function isObject(x) {
@@ -470,7 +470,7 @@ function getPrototype(value) {
     }
 }
 
-},{"is-object":10,"vtree/is-vhook":45}],12:[function(require,module,exports){
+},{"is-object":10,"vtree/is-vhook":50}],12:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -518,7 +518,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"./apply-properties":11,"global/document":14,"vtree/handle-thunk":43,"vtree/is-vnode":46,"vtree/is-vtext":47,"vtree/is-widget":48}],13:[function(require,module,exports){
+},{"./apply-properties":11,"global/document":14,"vtree/handle-thunk":48,"vtree/is-vnode":51,"vtree/is-vtext":52,"vtree/is-widget":53}],13:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -794,7 +794,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"./apply-properties":11,"./create-element":12,"./update-widget":17,"vtree/is-widget":48,"vtree/vpatch":52}],16:[function(require,module,exports){
+},{"./apply-properties":11,"./create-element":12,"./update-widget":17,"vtree/is-widget":53,"vtree/vpatch":57}],16:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -889,7 +889,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"vtree/is-widget":48}],18:[function(require,module,exports){
+},{"vtree/is-widget":53}],18:[function(require,module,exports){
 var nativeIsArray = Array.isArray
 var toString = Object.prototype.toString
 
@@ -1089,7 +1089,7 @@ function isChildren(x) {
     return typeof x === "string" || Array.isArray(x) || isChild(x)
 }
 
-},{"./hooks/data-set-hook.js":20,"./hooks/ev-hook.js":21,"./hooks/soft-set-hook.js":22,"./parse-tag.js":41,"error/typed":32,"vtree/is-thunk":33,"vtree/is-vhook":34,"vtree/is-vnode":35,"vtree/is-vtext":36,"vtree/is-widget":37,"vtree/vnode.js":39,"vtree/vtext.js":40}],24:[function(require,module,exports){
+},{"./hooks/data-set-hook.js":20,"./hooks/ev-hook.js":21,"./hooks/soft-set-hook.js":22,"./parse-tag.js":46,"error/typed":37,"vtree/is-thunk":38,"vtree/is-vhook":39,"vtree/is-vnode":40,"vtree/is-vtext":41,"vtree/is-widget":42,"vtree/vnode.js":44,"vtree/vtext.js":45}],24:[function(require,module,exports){
 module.exports = createHash
 
 function createHash(elem) {
@@ -1200,7 +1200,6 @@ module.exports = function(obj) {
 
 function walk (obj) {
     if (!obj || typeof obj !== 'object') return obj;
-    if (isDate(obj) || isRegex(obj)) return obj;
     if (isArray(obj)) return map(obj, walk);
     return reduce(objectKeys(obj), function (acc, key) {
         var camel = camelCase(key);
@@ -1211,20 +1210,12 @@ function walk (obj) {
 
 function camelCase(str) {
     return str.replace(/[_.-](\w|$)/g, function (_,x) {
-        return x.toUpperCase();
+        return x.toUpperCase()
     });
 }
 
 var isArray = Array.isArray || function (obj) {
     return Object.prototype.toString.call(obj) === '[object Array]';
-};
-
-var isDate = function (obj) {
-    return Object.prototype.toString.call(obj) === '[object Date]';
-};
-
-var isRegex = function (obj) {
-    return Object.prototype.toString.call(obj) === '[object RegExp]';
 };
 
 var has = Object.prototype.hasOwnProperty;
@@ -1261,7 +1252,7 @@ module.exports = template
 
 function template(string) {
     var args
-
+    
     if (arguments.length === 2 && typeof arguments[1] === "object") {
         args = arguments[1]
     } else {
@@ -1288,25 +1279,171 @@ function template(string) {
         }
     })
 }
-
 },{}],31:[function(require,module,exports){
+module.exports = hasKeys
+
+function hasKeys(source) {
+    return source !== null &&
+        (typeof source === "object" ||
+        typeof source === "function")
+}
+
+},{}],32:[function(require,module,exports){
+var Keys = require("object-keys")
+var hasKeys = require("./has-keys")
+
 module.exports = extend
 
 function extend(target) {
-    for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i]
+    var sources = [].slice.call(arguments, 1)
 
-        for (var key in source) {
-            if (source.hasOwnProperty(key)) {
-                target[key] = source[key]
-            }
+    for (var i = 0; i < sources.length; i++) {
+        var source = sources[i]
+
+        if (!hasKeys(source)) {
+            continue
+        }
+
+        var keys = Keys(source)
+
+        for (var j = 0; j < keys.length; j++) {
+            var name = keys[j]
+            target[name] = source[name]
         }
     }
 
     return target
 }
 
-},{}],32:[function(require,module,exports){
+},{"./has-keys":31,"object-keys":34}],33:[function(require,module,exports){
+var hasOwn = Object.prototype.hasOwnProperty;
+var toString = Object.prototype.toString;
+
+var isFunction = function (fn) {
+	var isFunc = (typeof fn === 'function' && !(fn instanceof RegExp)) || toString.call(fn) === '[object Function]';
+	if (!isFunc && typeof window !== 'undefined') {
+		isFunc = fn === window.setTimeout || fn === window.alert || fn === window.confirm || fn === window.prompt;
+	}
+	return isFunc;
+};
+
+module.exports = function forEach(obj, fn) {
+	if (!isFunction(fn)) {
+		throw new TypeError('iterator must be a function');
+	}
+	var i, k,
+		isString = typeof obj === 'string',
+		l = obj.length,
+		context = arguments.length > 2 ? arguments[2] : null;
+	if (l === +l) {
+		for (i = 0; i < l; i++) {
+			if (context === null) {
+				fn(isString ? obj.charAt(i) : obj[i], i, obj);
+			} else {
+				fn.call(context, isString ? obj.charAt(i) : obj[i], i, obj);
+			}
+		}
+	} else {
+		for (k in obj) {
+			if (hasOwn.call(obj, k)) {
+				if (context === null) {
+					fn(obj[k], k, obj);
+				} else {
+					fn.call(context, obj[k], k, obj);
+				}
+			}
+		}
+	}
+};
+
+
+},{}],34:[function(require,module,exports){
+module.exports = Object.keys || require('./shim');
+
+
+},{"./shim":36}],35:[function(require,module,exports){
+var toString = Object.prototype.toString;
+
+module.exports = function isArguments(value) {
+	var str = toString.call(value);
+	var isArguments = str === '[object Arguments]';
+	if (!isArguments) {
+		isArguments = str !== '[object Array]'
+			&& value !== null
+			&& typeof value === 'object'
+			&& typeof value.length === 'number'
+			&& value.length >= 0
+			&& toString.call(value.callee) === '[object Function]';
+	}
+	return isArguments;
+};
+
+
+},{}],36:[function(require,module,exports){
+(function () {
+	"use strict";
+
+	// modified from https://github.com/kriskowal/es5-shim
+	var has = Object.prototype.hasOwnProperty,
+		toString = Object.prototype.toString,
+		forEach = require('./foreach'),
+		isArgs = require('./isArguments'),
+		hasDontEnumBug = !({'toString': null}).propertyIsEnumerable('toString'),
+		hasProtoEnumBug = (function () {}).propertyIsEnumerable('prototype'),
+		dontEnums = [
+			"toString",
+			"toLocaleString",
+			"valueOf",
+			"hasOwnProperty",
+			"isPrototypeOf",
+			"propertyIsEnumerable",
+			"constructor"
+		],
+		keysShim;
+
+	keysShim = function keys(object) {
+		var isObject = object !== null && typeof object === 'object',
+			isFunction = toString.call(object) === '[object Function]',
+			isArguments = isArgs(object),
+			theKeys = [];
+
+		if (!isObject && !isFunction && !isArguments) {
+			throw new TypeError("Object.keys called on a non-object");
+		}
+
+		if (isArguments) {
+			forEach(object, function (value) {
+				theKeys.push(value);
+			});
+		} else {
+			var name,
+				skipProto = hasProtoEnumBug && isFunction;
+
+			for (name in object) {
+				if (!(skipProto && name === 'prototype') && has.call(object, name)) {
+					theKeys.push(name);
+				}
+			}
+		}
+
+		if (hasDontEnumBug) {
+			var ctor = object.constructor,
+				skipConstructor = ctor && ctor.prototype === object;
+
+			forEach(dontEnums, function (dontEnum) {
+				if (!(skipConstructor && dontEnum === 'constructor') && has.call(object, dontEnum)) {
+					theKeys.push(dontEnum);
+				}
+			});
+		}
+		return theKeys;
+	};
+
+	module.exports = keysShim;
+}());
+
+
+},{"./foreach":33,"./isArguments":35}],37:[function(require,module,exports){
 var camelize = require("camelize")
 var template = require("string-template")
 var extend = require("xtend/mutable")
@@ -1356,18 +1493,18 @@ function TypedError(args) {
 }
 
 
-},{"camelize":29,"string-template":30,"xtend/mutable":31}],33:[function(require,module,exports){
+},{"camelize":29,"string-template":30,"xtend/mutable":32}],38:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],34:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module.exports=require(3)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],35:[function(require,module,exports){
+},{"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],40:[function(require,module,exports){
 module.exports=require(4)
-},{"./version":38,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],36:[function(require,module,exports){
+},{"./version":43,"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],41:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -1376,15 +1513,15 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":38}],37:[function(require,module,exports){
+},{"./version":43}],42:[function(require,module,exports){
 module.exports=require(5)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],38:[function(require,module,exports){
+},{"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],43:[function(require,module,exports){
 module.exports=require(6)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],39:[function(require,module,exports){
+},{"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],44:[function(require,module,exports){
 module.exports=require(7)
-},{"./is-vhook":34,"./is-vnode":35,"./is-widget":37,"./version":38,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":7}],40:[function(require,module,exports){
+},{"./is-vhook":39,"./is-vnode":40,"./is-widget":42,"./version":43,"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":7}],45:[function(require,module,exports){
 module.exports=require(8)
-},{"./version":38,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],41:[function(require,module,exports){
+},{"./version":43,"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],46:[function(require,module,exports){
 var classIdSplit = /([\.#]?[a-zA-Z0-9_:-]+)/
 var notClassId = /^\.|#/
 
@@ -1435,7 +1572,7 @@ function parseTag(tag, props) {
     return tagName ? tagName.toLowerCase() : "div"
 }
 
-},{}],42:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var isArray = require("x-is-array")
 var isObject = require("is-object")
 
@@ -1782,7 +1919,7 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"./handle-thunk":43,"./is-thunk":44,"./is-vnode":46,"./is-vtext":47,"./is-widget":48,"./vpatch":52,"is-object":49,"x-is-array":50}],43:[function(require,module,exports){
+},{"./handle-thunk":48,"./is-thunk":49,"./is-vnode":51,"./is-vtext":52,"./is-widget":53,"./vpatch":57,"is-object":54,"x-is-array":55}],48:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -1824,23 +1961,23 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":44,"./is-vnode":46,"./is-vtext":47,"./is-widget":48}],44:[function(require,module,exports){
-module.exports=require(33)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":33}],45:[function(require,module,exports){
+},{"./is-thunk":49,"./is-vnode":51,"./is-vtext":52,"./is-widget":53}],49:[function(require,module,exports){
+module.exports=require(38)
+},{"/Users/shildrew/working/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":38}],50:[function(require,module,exports){
 module.exports=require(3)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],46:[function(require,module,exports){
+},{"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":3}],51:[function(require,module,exports){
 module.exports=require(4)
-},{"./version":51,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],47:[function(require,module,exports){
-module.exports=require(36)
-},{"./version":51,"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":36}],48:[function(require,module,exports){
+},{"./version":56,"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":4}],52:[function(require,module,exports){
+module.exports=require(41)
+},{"./version":56,"/Users/shildrew/working/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":41}],53:[function(require,module,exports){
 module.exports=require(5)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],49:[function(require,module,exports){
+},{"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":5}],54:[function(require,module,exports){
 module.exports=require(10)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":10}],50:[function(require,module,exports){
+},{"/Users/shildrew/working/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":10}],55:[function(require,module,exports){
 module.exports=require(18)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":18}],51:[function(require,module,exports){
+},{"/Users/shildrew/working/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":18}],56:[function(require,module,exports){
 module.exports=require(6)
-},{"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],52:[function(require,module,exports){
+},{"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":6}],57:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -1864,9 +2001,9 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":51}],53:[function(require,module,exports){
+},{"./version":56}],58:[function(require,module,exports){
 module.exports=require(8)
-},{"./version":51,"/Users/hgibson/git/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],54:[function(require,module,exports){
+},{"./version":56,"/Users/shildrew/working/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":8}],59:[function(require,module,exports){
 // Scribe noting plugin
 
 var notingCommands = require('./src/noting-commands');
@@ -1880,51 +2017,7 @@ module.exports = function(config) {
   };
 };
 
-},{"./src/noting-commands":73}],55:[function(require,module,exports){
-var isVFocus = require('../../utils/vfocus/is-vfocus');
-var getNoteDataAttributes = require('../../utils/get-note-data-attrs');
-
-var createVirtualScribeMarker = require('../../utils/create-virtual-scribe-marker');
-var wrapInNote = require('./wrap-in-note');
-
-
-var findScribeMarkers = require('../../utils/noting/find-scribe-markers');
-var findEntireNote = require('../../utils/noting/find-entire-note');
-
-var resetNoteSegmentClasses = require('./reset-note-segment-classes');
-
-// We need a zero width space character to make the note selectable.
-var zeroWidthSpace = '\u200B';
-
-module.exports = function createNoteAtCaret(focus) {
-
-  if (!isVFocus(focus)) {
-    throw new Error('Only a valid VFocus can be passed to createNoteAtCaret');
-  }
-
-  // To make sure the caret is placed within the note we place a scribe
-  // maker within it.
-  // Chrome is picky about needing the space to be before the marker
-  // (otherwise the caret won't be placed within the note).
-  var note = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], getNoteDataAttributes());
-
-  var marker = findScribeMarkers(focus)[0];
-  if (!marker) {
-    return focus;
-  }
-
-  //inject the note
-  marker.replace(note);
-
-  //get any adjoining note segments
-  var noteSegments = findEntireNote(marker);
-  resetNoteSegmentClasses(noteSegments);
-
-  return focus;
-
-};
-
-},{"../../utils/create-virtual-scribe-marker":76,"../../utils/get-note-data-attrs":78,"../../utils/noting/find-entire-note":82,"../../utils/noting/find-scribe-markers":87,"../../utils/vfocus/is-vfocus":110,"./reset-note-segment-classes":59,"./wrap-in-note":64}],56:[function(require,module,exports){
+},{"./src/noting-commands":74}],60:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isVText = require('../../utils/vfocus/is-vtext');
@@ -1971,7 +2064,7 @@ module.exports = function removeEmptyNotes(focus) {
 
 };
 
-},{"../../utils/noting/find-all-notes":80,"../../utils/vfocus/flatten-tree":104,"../../utils/vfocus/is-empty":107,"../../utils/vfocus/is-vfocus":110,"../../utils/vfocus/is-vtext":111,"lodash":"lodash"}],57:[function(require,module,exports){
+},{"../../utils/noting/find-all-notes":78,"../../utils/vfocus/flatten-tree":102,"../../utils/vfocus/is-empty":105,"../../utils/vfocus/is-vfocus":108,"../../utils/vfocus/is-vtext":109,"lodash":"lodash"}],61:[function(require,module,exports){
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isScribeMarker = require('../../utils/noting/is-scribe-marker');
 
@@ -1987,52 +2080,11 @@ module.exports = function removeScribemarkers(focus) {
 
 };
 
-},{"../../utils/noting/is-scribe-marker":94,"../../utils/vfocus/is-vfocus":110}],58:[function(require,module,exports){
-var isVFocus = require('../../utils/vfocus/is-vfocus');
-var isVText = require('../../utils/vfocus/is-vtext');
-var findAllNotes = require('../../utils/noting/find-all-notes');
-var createNoteBarrier = require('../../utils/create-note-barrier');
-var isNotWithinNote = require('../../utils/noting/is-not-within-note');
-var isNotEmpty = require('../../utils/vfocus/is-not-empty');
-
-module.exports = function resetNoteBarriers(focus) {
-
-  if (!isVFocus(focus)) {
-    throw new Error('Only a valid VFocus element can be passed to resetNoteBarriers');
-  }
-
-  //remove all note barriers
-  focus.filter(isVText).forEach(function(focus) {
-    focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
-  });
-
-  //add new note barriers
-  findAllNotes(focus).forEach(function(noteSegmentFocus) {
-    //add a note barrier to the beginning of a note
-    noteSegmentFocus[0].next().insertBefore(createNoteBarrier());
-
-    //add a note to the beginning of the nearest non empty text node
-    var nearestSibling = noteSegmentFocus[noteSegmentFocus.length - 1].find(isNotWithinNote);
-    var nearestTextSibling = nearestSibling && nearestSibling.find(isNotEmpty);
-
-    if (nearestTextSibling) {
-      nearestSibling.vNode.text = '\u200B' + nearestTextSibling.vNode.text;
-    }
-
-  });
-
-  return focus;
-
-};
-
-},{"../../utils/create-note-barrier":75,"../../utils/noting/find-all-notes":80,"../../utils/noting/is-not-within-note":92,"../../utils/vfocus/is-not-empty":108,"../../utils/vfocus/is-vfocus":110,"../../utils/vfocus/is-vtext":111}],59:[function(require,module,exports){
+},{"../../utils/noting/is-scribe-marker":92,"../../utils/vfocus/is-vfocus":108}],62:[function(require,module,exports){
 var _ = require('lodash');
 var addClass = require('../../actions/vdom/add-class');
 var removeClass = require('../../actions/vdom/remove-class');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
-var generateUUID = require('../../utils/generate-uuid');
-var addAttribute = require('../vdom/add-attribute');
-var getUKDate = require('../../utils/get-uk-date');
 
 // Ensure the first (and only the first) note segment has a
 // `note--start` class and that the last (and only the last)
@@ -2045,23 +2097,19 @@ module.exports = function updateStartAndEndClasses(noteSegments) {
 
   noteSegments = _.isArray(noteSegments) ? noteSegments : [noteSegments];
 
-  var uuid = generateUUID();
-
   noteSegments.forEach(function(note, index) {
-    var node = (note.vNode || note);
-    addAttribute(node, 'data-note-id', uuid);
-    addAttribute(node, 'title', getUKDate());
-    removeClass(node, 'note--start');
-    removeClass(node, 'note--end');
+    note = (note.vNode || note);
+    removeClass(note, 'note--start');
+    removeClass(note, 'note--end');
   });
 
   addClass(noteSegments[0].vNode, 'note--start');
-  addClass(noteSegments[noteSegments.length - 1].vNode, 'note--end');
+  addClass(noteSegments[noteSegments.length -1].vNode, 'note--end');
 
   return noteSegments;
 };
 
-},{"../../actions/vdom/add-class":66,"../../actions/vdom/remove-class":67,"../../utils/generate-uuid":77,"../../utils/get-uk-date":79,"../../utils/vfocus/is-vfocus":110,"../vdom/add-attribute":65,"lodash":"lodash"}],60:[function(require,module,exports){
+},{"../../actions/vdom/add-class":68,"../../actions/vdom/remove-class":69,"../../utils/vfocus/is-vfocus":108,"lodash":"lodash"}],63:[function(require,module,exports){
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var toggleNoteClasses = require('./toggle-note-classes');
 var findAllNotes = require('../../utils/noting/find-all-notes');
@@ -2079,7 +2127,7 @@ module.exports = function toggleAllNoteCollapseState(focus) {
 
 };
 
-},{"../../utils/noting/find-all-notes":80,"../../utils/vfocus/is-vfocus":110,"./toggle-note-classes":61}],61:[function(require,module,exports){
+},{"../../utils/noting/find-all-notes":78,"../../utils/vfocus/is-vfocus":108,"./toggle-note-classes":64}],64:[function(require,module,exports){
 var _ = require('lodash');
 var toggleClass = require('../vdom/toggle-class');
 
@@ -2098,7 +2146,7 @@ module.exports = function toggleNoteClasses(notes, className) {
 
 };
 
-},{"../vdom/toggle-class":68,"lodash":"lodash"}],62:[function(require,module,exports){
+},{"../vdom/toggle-class":70,"lodash":"lodash"}],65:[function(require,module,exports){
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var toggleNoteClasses = require('./toggle-note-classes');
 var findSelectedNote = require('../../utils/noting/find-selected-note');
@@ -2113,7 +2161,7 @@ module.exports = function toggleSelectedNoteCollapseState(focus) {
 
   var note = findSelectedNote(focus);
 
-  if (!note) {
+  if (!note){
     return;
   }
 
@@ -2121,7 +2169,7 @@ module.exports = function toggleSelectedNoteCollapseState(focus) {
 
 };
 
-},{"../../utils/noting/find-selected-note":88,"../../utils/vfocus/is-vfocus":110,"./toggle-note-classes":61}],63:[function(require,module,exports){
+},{"../../utils/noting/find-selected-note":86,"../../utils/vfocus/is-vfocus":108,"./toggle-note-classes":64}],66:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isNote = require('../../utils/noting/is-note');
@@ -2156,7 +2204,7 @@ module.exports = function unWrapNote(focus) {
 
 };
 
-},{"../../utils/noting/is-note":93,"../../utils/vfocus/is-vfocus":110,"lodash":"lodash"}],64:[function(require,module,exports){
+},{"../../utils/noting/is-note":91,"../../utils/vfocus/is-vfocus":108,"lodash":"lodash"}],67:[function(require,module,exports){
 var TAG = 'gu-note';
 var CLASS_NAME = 'note';
 
@@ -2179,25 +2227,7 @@ module.exports = function wrapInNote(focus, data){
 
 };
 
-},{"../../utils/get-uk-date":79,"lodash":"lodash","virtual-hyperscript":23}],65:[function(require,module,exports){
-var toCamelCase = require('../../utils/to-camel-case');
-
-module.exports = function addAttribute(node, key, val) {
-
-  node = (node.vNode || node);
-  node.properties.dataset = (node.properties.dataset || {});
-
-  if (/data/.test(key)) {
-    //remove data- part of the string
-    key = toCamelCase(key.replace(/data-/, ''));
-    node.properties.dataset[key] = val;
-  } else {
-    node.properties[key] = val;
-  }
-
-};
-
-},{"../../utils/to-camel-case":98}],66:[function(require,module,exports){
+},{"../../utils/get-uk-date":77,"lodash":"lodash","virtual-hyperscript":23}],68:[function(require,module,exports){
 var hasClass = require('../../utils/vdom/has-class');
 
 module.exports = function addClass(vNode, className) {
@@ -2220,7 +2250,7 @@ module.exports = function addClass(vNode, className) {
 
 };
 
-},{"../../utils/vdom/has-class":100}],67:[function(require,module,exports){
+},{"../../utils/vdom/has-class":98}],69:[function(require,module,exports){
 var hasClass = require('../../utils/vdom/has-class');
 
 module.exports = function removeClass(vNode, className) {
@@ -2245,7 +2275,7 @@ module.exports = function removeClass(vNode, className) {
   return vNode;
 };
 
-},{"../../utils/vdom/has-class":100}],68:[function(require,module,exports){
+},{"../../utils/vdom/has-class":98}],70:[function(require,module,exports){
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var hasClass = require('../../utils/vdom/has-class');
 var addClass = require('./add-class');
@@ -2264,11 +2294,11 @@ module.exports = function toggleClass(vNode, className) {
   return hasClass(vNode, className) ? removeClass(vNode, className) : addClass(vNode, className);
 };
 
-},{"../../utils/vdom/has-class":100,"../../utils/vfocus/is-vfocus":110,"./add-class":66,"./remove-class":67}],69:[function(require,module,exports){
+},{"../../utils/vdom/has-class":98,"../../utils/vfocus/is-vfocus":108,"./add-class":68,"./remove-class":69}],71:[function(require,module,exports){
 exports.collapseToggleSelectedNote = require('../actions/noting/toggle-selected-note-collapse-state');
-exports.collapseToggleAllNote = require('../actions/noting/toggle-all-note-collapse-state');
+exports.collapseToggleAllNotes = require('../actions/noting/toggle-all-note-collapse-state');
 
-},{"../actions/noting/toggle-all-note-collapse-state":60,"../actions/noting/toggle-selected-note-collapse-state":62}],70:[function(require,module,exports){
+},{"../actions/noting/toggle-all-note-collapse-state":63,"../actions/noting/toggle-selected-note-collapse-state":65}],72:[function(require,module,exports){
 /**
  * Noting API
  *
@@ -2276,6 +2306,7 @@ exports.collapseToggleAllNote = require('../actions/noting/toggle-all-note-colla
  */
 'use strict';
 
+exports.user = 'unknown';
 
 var h = require('virtual-hyperscript');
 var _ = require('lodash');
@@ -2293,39 +2324,123 @@ var DATA_DATE_CAMEL = 'noteEditedDate';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
 
 var vdom = require('./note-vdom');
-var config = require('../config');
 var getEditedByTitleText = require('../utils/get-uk-date');
 var wrapInNote = require('../actions/noting/wrap-in-note');
 var unwrap = require('../actions/noting/unwrap-note');
 var addUniqueVNodeClass = require('../actions/vdom/add-class');
 var removeVNodeClass = require('../actions/vdom/remove-class');
 var generateUUID = require('../utils/generate-uuid');
-var updateNoteProperties = require('../actions/noting/reset-note-segment-classes');
+
+
+// Update note properties, adding them if they aren't already there.
+// Note that this is also a way of merging notes, as we update the
+// start and end classes as well as give the segments the same edited
+// by information.
+function updateNoteProperties(noteSegments) {
+  updateStartAndEndClasses(noteSegments);
+
+  // FIXME JP 20/11/14
+  // This is a bug with users not being updated on the right note
+  // noteSegments.forEach(updateEditedBy);
+
+  var uuid = generateUUID();
+  noteSegments.forEach(function (segment) {
+    segment.vNode.properties.dataset['noteId'] = uuid;
+  });
+
+}
+
+// Ensure the first (and only the first) note segment has a
+// `note--start` class and that the last (and only the last)
+// note segment has a `note--end` class.
 var updateStartAndEndClasses = require('../actions/noting/reset-note-segment-classes');
-var createVirtualScribeMarker  = require('../utils/create-virtual-scribe-marker');
-var createNoteBarrier = require('../utils/create-note-barrier');
-var userAndTimeAsDatasetAttrs = require('../utils/get-note-data-attrs');
-var updateNoteBarriers = require('../actions/noting/reset-note-barriers');
-var createEmptyNoteAtCaret = require('../actions/noting/create-note-at-caret');
+
+function updateEditedBy(noteSegment) {
+  var dataset = userAndTimeAsDatasetAttrs();
+
+  noteSegment.vNode.properties.dataset[DATA_NAME_CAMEL] = dataset[DATA_NAME_CAMEL];
+  noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL] = dataset[DATA_DATE_CAMEL];
+
+  noteSegment.vNode.properties.title = getEditedByTitleText(dataset);
+}
+
+function userAndTimeAsDatasetAttrs() {
+  var dataset = {};
+  dataset[DATA_NAME_CAMEL] = exports.user;
+  dataset[DATA_DATE_CAMEL] = new Date().toISOString();
+
+  return dataset;
+}
+
+function createVirtualScribeMarker() {
+  return h('em.scribe-marker', []);
+}
+
+// We need these to make it possible to place the caret immediately
+// inside/outside of a note.
+function createNoteBarrier() {
+  return new VText('\u200B');
+}
+
+function updateNoteBarriers(treeFocus) {
+
+  function removeNoteBarriers(treeFocus) {
+    treeFocus.filter(vdom.focusOnTextNode).forEach(function (focus) {
+      focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
+    });
+  }
+
+  function insertNoteBarriers(treeFocus) {
+    vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
+
+      _.first(noteSegments).next().insertBefore(createNoteBarrier());
+      // This is necessarily complex (been through a few iterations) because
+      // of Chrome's lack of flexibility when it comes to placing the caret.
+      var afterNote = _.last(noteSegments).find(vdom.focusOutsideNote);
+      var textNodeAfterNoteFocus = afterNote && afterNote.find(vdom.focusOnNonEmptyTextNode);
+
+      if (textNodeAfterNoteFocus) {
+        textNodeAfterNoteFocus.vNode.text = '\u200B' + textNodeAfterNoteFocus.vNode.text;
+      }
+
+    });
+  }
+
+  removeNoteBarriers(treeFocus);
+  insertNoteBarriers(treeFocus);
+}
 
 
-//TODO: jp 10/12/2014
-//Ive removed updateEditedBy() as it wasn't called
-//this functionality needs to be re implemented when we make, merge & remove new notes
+// tree - tree containing a marker.
+// Note that we will mutate the tree.
+function createEmptyNoteAtCaret(treeFocus) {
+  // We need a zero width space character to make the note selectable.
+  var zeroWidthSpace = '\u200B';
 
+  // To make sure the caret is placed within the note we place a scribe
+  // maker within it.
+  // Chrome is picky about needing the space to be before the marker
+  // (otherwise the caret won't be placed within the note).
+  var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], userAndTimeAsDatasetAttrs());
 
+  // We assume there's only one marker.
+  var marker = vdom.findMarkers(treeFocus)[0];
+  marker.replace(replacementVNode);
+
+  var noteSegments = vdom.findEntireNote(marker);
+  updateNoteProperties(noteSegments);
+}
 
 // treeFocus: tree focus of tree containing two scribe markers
 // Note that we will mutate the tree.
 function createNoteFromSelection(treeFocus) {
   // We want to wrap text nodes between the markers. We filter out nodes that have
   // already been wrapped.
-
   var toWrapAndReplace = vdom.findTextNodeFocusesBetweenMarkers(treeFocus).filter(vdom.focusOutsideNote);
 
 
   // Wrap the text nodes.
-  var userAndTime = userAndTimeAsDatasetAttrs(config.get('user'));
+  var userAndTime = userAndTimeAsDatasetAttrs();
   var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
     return wrapInNote(focus.vNode, userAndTime);
   });
@@ -2342,7 +2457,6 @@ function createNoteFromSelection(treeFocus) {
 
   // If we end up with an empty note a <BR> tag would be created. We have to do
   // this before we remove the markers.
-
   preventBrTags(treeFocus);
 
 
@@ -2460,7 +2574,7 @@ function unnotePartOfNote(treeFocus) {
 
 
   var focusesToNote = entireNoteTextNodeFocuses.filter(notToBeUnnoted);
-  var userAndTime = userAndTimeAsDatasetAttrs(config.get('user'));
+  var userAndTime = userAndTimeAsDatasetAttrs();
 
 
   // Wrap the text nodes.
@@ -2588,7 +2702,6 @@ function preventBrTags(treeFocus) {
   //
   // Could possibly develop a way of knowing deletions from
   // additions, but this isn't necessary at the moment.
-
   var markers = vdom.findMarkers(treeFocus);
   if (markers.length === 2) return;
 
@@ -2616,7 +2729,6 @@ function preventBrTags(treeFocus) {
       removeEmptyAncestors(replaced);
     }
   });
-
 }
 
 
@@ -2680,7 +2792,7 @@ exports.isSelectionInANote = function isSelectionInANote(selectionRange, parentC
   return domFindAncestorNote(selectionRange.startContainer) && domFindAncestorNote(selectionRange.endContainer) && true;
 };
 
-},{"../actions/noting/create-note-at-caret":55,"../actions/noting/reset-note-barriers":58,"../actions/noting/reset-note-segment-classes":59,"../actions/noting/unwrap-note":63,"../actions/noting/wrap-in-note":64,"../actions/vdom/add-class":66,"../actions/vdom/remove-class":67,"../config":72,"../utils/create-note-barrier":75,"../utils/create-virtual-scribe-marker":76,"../utils/generate-uuid":77,"../utils/get-note-data-attrs":78,"../utils/get-uk-date":79,"./note-vdom":71,"lodash":"lodash","virtual-hyperscript":23,"vtree/is-vtext":47,"vtree/vtext":53}],71:[function(require,module,exports){
+},{"../actions/noting/reset-note-segment-classes":62,"../actions/noting/unwrap-note":66,"../actions/noting/wrap-in-note":67,"../actions/vdom/add-class":68,"../actions/vdom/remove-class":69,"../utils/generate-uuid":76,"../utils/get-uk-date":77,"./note-vdom":73,"lodash":"lodash","virtual-hyperscript":23,"vtree/is-vtext":52,"vtree/vtext":58}],73:[function(require,module,exports){
 /**
  * Shared note vdom functions.
  */
@@ -2765,39 +2877,7 @@ exports.removeVirtualScribeMarkers = removeVirtualScribeMarkers;
 exports.selectionEntirelyWithinNote = selectionEntirelyWithinNote;
 exports.updateNotesCache = updateNotesCache;
 
-},{"../actions/noting/remove-empty-notes":56,"../actions/noting/remove-scribe-markers":57,"../utils/noting/find-all-notes":80,"../utils/noting/find-between-scribe-markers":81,"../utils/noting/find-entire-note":82,"../utils/noting/find-first-note":83,"../utils/noting/find-last-note":84,"../utils/noting/find-note-by-id":85,"../utils/noting/find-parent-note":86,"../utils/noting/find-scribe-markers":87,"../utils/noting/find-selected-note":88,"../utils/noting/find-text-between-scribe-markers":89,"../utils/noting/has-note-id":90,"../utils/noting/is-not-scribe-marker":91,"../utils/noting/is-not-within-note":92,"../utils/noting/is-note":93,"../utils/noting/is-scribe-marker":94,"../utils/noting/is-selection-within-note":95,"../utils/noting/is-within-note":96,"../utils/noting/note-cache":97,"../utils/vdom/has-attribute":99,"../utils/vdom/has-class":100,"../utils/vdom/is-empty":101,"../utils/vdom/is-tag":102,"../utils/vfocus/find-text-nodes":103,"../utils/vfocus/flatten-tree":104,"../utils/vfocus/has-no-text-children":105,"../utils/vfocus/has-only-empty-text-children":106,"../utils/vfocus/is-empty":107,"../utils/vfocus/is-not-empty":108,"../utils/vfocus/is-paragraph":109,"../utils/vfocus/is-vtext":111,"lodash":"lodash","vtree/is-vtext":47}],72:[function(require,module,exports){
-var _ = require('lodash');
-
-//defaults
-var config = {
-  user: 'unknown'
-};
-
-module.exports = {
-
-  get: function(key){
-
-    if(!key){
-      return config;
-    }
-
-    return (config[key] || undefined);
-  },
-
-  set: function(key, val){
-
-    //if you pass an object we override ALL THE THINGS
-    if(_.isObject(key)){
-      config = _.extend({}, config, key);
-    }
-
-    //else set a specific key
-    config[key] = val;
-  }
-
-};
-
-},{"lodash":"lodash"}],73:[function(require,module,exports){
+},{"../actions/noting/remove-empty-notes":60,"../actions/noting/remove-scribe-markers":61,"../utils/noting/find-all-notes":78,"../utils/noting/find-between-scribe-markers":79,"../utils/noting/find-entire-note":80,"../utils/noting/find-first-note":81,"../utils/noting/find-last-note":82,"../utils/noting/find-note-by-id":83,"../utils/noting/find-parent-note":84,"../utils/noting/find-scribe-markers":85,"../utils/noting/find-selected-note":86,"../utils/noting/find-text-between-scribe-markers":87,"../utils/noting/has-note-id":88,"../utils/noting/is-not-scribe-marker":89,"../utils/noting/is-not-within-note":90,"../utils/noting/is-note":91,"../utils/noting/is-scribe-marker":92,"../utils/noting/is-selection-within-note":93,"../utils/noting/is-within-note":94,"../utils/noting/note-cache":95,"../utils/vdom/has-attribute":97,"../utils/vdom/has-class":98,"../utils/vdom/is-empty":99,"../utils/vdom/is-tag":100,"../utils/vfocus/find-text-nodes":101,"../utils/vfocus/flatten-tree":102,"../utils/vfocus/has-no-text-children":103,"../utils/vfocus/has-only-empty-text-children":104,"../utils/vfocus/is-empty":105,"../utils/vfocus/is-not-empty":106,"../utils/vfocus/is-paragraph":107,"../utils/vfocus/is-vtext":109,"lodash":"lodash","vtree/is-vtext":52}],74:[function(require,module,exports){
 /**
  * Noting commands
  *
@@ -2810,7 +2890,7 @@ var noteToggle = require('./api/note-toggle');
 var noteCollapse = require('./api/note-collapse');
 var vdom = require('./noting-vdom');
 var _ = require('lodash');
-var pluginConfig = require('./config');
+
 
 /**
  * Initialise noting commands
@@ -2818,9 +2898,12 @@ var pluginConfig = require('./config');
  * @param  {String} user  Current user string.
  */
 exports.init = function(scribe, config) {
+  // initialise current user for Noting API
+  noteToggle.user = config.user;
 
-  //setup our global config
-  pluginConfig.set(config);
+  // initialise scribe element selector
+  // TODO: Extract the configuration varialbles into its own module.
+  noteCollapse.scribeInstancesSelector = config.scribeInstancesSelector;
 
   scribe.commands.note = createNoteToggleCommand(scribe);
   scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);
@@ -2965,7 +3048,7 @@ function addContentChangedListener(scribe) {
     scribe.el.addEventListener('input', throttled);
 }
 
-},{"./api/note-collapse":69,"./api/note-toggle":70,"./config":72,"./noting-vdom":74,"lodash":"lodash"}],74:[function(require,module,exports){
+},{"./api/note-collapse":71,"./api/note-toggle":72,"./noting-vdom":75,"lodash":"lodash"}],75:[function(require,module,exports){
 /**
  * Virtual DOM parser / serializer for Noting plugin.
  */
@@ -3033,24 +3116,7 @@ exports.mutateScribe = function(scribe, callback) {
   });
 };
 
-},{"./vfocus":112,"lodash":"lodash","vdom-virtualize":2,"virtual-dom/diff":9,"virtual-dom/patch":19,"vtree/is-vtext":47}],75:[function(require,module,exports){
-var VText = require('vtree/vtext');
-
-// We need these to make it possible to place the caret immediately
-// inside/outside of a note.
-module.exports = function createVirtualScribeMarker(){
-  return new VText('\u200B');
-};
-
-
-},{"vtree/vtext":53}],76:[function(require,module,exports){
-var h = require('virtual-hyperscript');
-
-module.exports = function createVirtualScribeMarker(){
-  return h('em.scribe-marker');
-};
-
-},{"virtual-hyperscript":23}],77:[function(require,module,exports){
+},{"./vfocus":110,"lodash":"lodash","vdom-virtualize":2,"virtual-dom/diff":9,"virtual-dom/patch":19,"vtree/is-vtext":52}],76:[function(require,module,exports){
 module.exports = function generateUUID(){
   /* jshint bitwise:false */
   var d = new Date().getTime();
@@ -3064,24 +3130,9 @@ module.exports = function generateUUID(){
 
 
 
-},{}],78:[function(require,module,exports){
-module.exports = function userAndTimeAsDatasetAttrs(user) {
-
-  user = (user || 'unknown');
-
-  return {
-    "noteEditedBy": user,
-    "noteEditedDate": new Date().toISOString()
-  };
-};
-
-
-
-},{}],79:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 var DATA_NAME_CAMEL = 'noteEditedBy';
 var DATA_DATE_CAMEL = 'noteEditedDate';
-
-var config = require('../config');
 
 module.exports = function getUKDate(data){
 
@@ -3091,7 +3142,9 @@ module.exports = function getUKDate(data){
     ? new Date(data[DATA_DATE_CAMEL])
     : new Date();
 
-  var name = config.get('user');
+  var name = data[DATA_NAME_CAMEL]
+    ? data[DATA_NAME_CAMEL]
+    : 'unknown';
 
   // crude formatting avoids a "momentjs" dependency - should be adequate
   // forced UK formatted time in local timezone:  dd/MM/YYYY at hh:mm
@@ -3105,7 +3158,7 @@ module.exports = function getUKDate(data){
 
 };
 
-},{"../config":72}],80:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isNote = require('./is-note');
@@ -3131,7 +3184,7 @@ module.exports = function findAllNotes(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":110,"./find-entire-note":82,"./is-note":93,"lodash":"lodash"}],81:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"./find-entire-note":80,"./is-note":91,"lodash":"lodash"}],79:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var isScribeMarker = require('./is-scribe-marker');
 var isNotScribeMarker = require('./is-not-scribe-marker');
@@ -3155,7 +3208,7 @@ module.exports = function findBetweenScribeMarkers(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":110,"./is-not-scribe-marker":91,"./is-scribe-marker":94}],82:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"./is-not-scribe-marker":89,"./is-scribe-marker":92}],80:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var isWithinNote = require('./is-within-note');
 var isNote = require('./is-note');
@@ -3191,7 +3244,7 @@ module.exports = function findEntireNote(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":110,"./find-first-note":83,"./is-note":93,"./is-within-note":96}],83:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"./find-first-note":81,"./is-note":91,"./is-within-note":94}],81:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isWithinNote = require('./is-within-note');
@@ -3210,7 +3263,7 @@ module.exports = function findFirstNote(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":110,"./is-note":93,"./is-within-note":96,"lodash":"lodash"}],84:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"./is-note":91,"./is-within-note":94,"lodash":"lodash"}],82:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isWithinNote = require('./is-within-note');
@@ -3229,7 +3282,7 @@ module.exports = function findFirstNote(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":110,"./is-note":93,"./is-within-note":96,"lodash":"lodash"}],85:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"./is-note":91,"./is-within-note":94,"lodash":"lodash"}],83:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var hasNoteId = require('./has-note-id');
@@ -3257,7 +3310,7 @@ module.exports = function findNoteById(focus, noteId) {
 
 };
 
-},{"../vfocus/is-vfocus":110,"./find-all-notes":80,"./has-note-id":90,"lodash":"lodash"}],86:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"./find-all-notes":78,"./has-note-id":88,"lodash":"lodash"}],84:[function(require,module,exports){
 var isNote = require('../noting/is-note');
 var isVFocus = require('../vfocus/is-vfocus');
 
@@ -3270,7 +3323,7 @@ module.exports = function findParentNote(focus) {
   return focus.find(isNote, 'up');
 };
 
-},{"../noting/is-note":93,"../vfocus/is-vfocus":110}],87:[function(require,module,exports){
+},{"../noting/is-note":91,"../vfocus/is-vfocus":108}],85:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var isScribeMarker = require('./is-scribe-marker');
 
@@ -3283,7 +3336,7 @@ module.exports = function findScribeMarkers(focus) {
   return focus.filter(isScribeMarker);
 };
 
-},{"../vfocus/is-vfocus":110,"./is-scribe-marker":94}],88:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"./is-scribe-marker":92}],86:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var VFocus = require('../../vfocus');
 var findScribeMarkers = require('./find-scribe-markers');
@@ -3312,7 +3365,7 @@ module.exports = function findSelectedNote(focus) {
 
 };
 
-},{"../../vfocus":112,"../vfocus/is-vfocus":110,"./find-entire-note":82,"./find-parent-note":86,"./find-scribe-markers":87}],89:[function(require,module,exports){
+},{"../../vfocus":110,"../vfocus/is-vfocus":108,"./find-entire-note":80,"./find-parent-note":84,"./find-scribe-markers":85}],87:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var findBetweenScribeMarkers = require('./find-between-scribe-markers');
 var findTextNodes = require('../vfocus/find-text-nodes');
@@ -3328,7 +3381,7 @@ module.exports = function findTextBetweenScribeMarkers(focus) {
 
 };
 
-},{"../vfocus/find-text-nodes":103,"../vfocus/is-vfocus":110,"./find-between-scribe-markers":81}],90:[function(require,module,exports){
+},{"../vfocus/find-text-nodes":101,"../vfocus/is-vfocus":108,"./find-between-scribe-markers":79}],88:[function(require,module,exports){
 var hasAttribute = require('../vdom/has-attribute');
 var isVFocus = require('../vfocus/is-vfocus');
 
@@ -3336,14 +3389,14 @@ module.exports = function hasNoteId(vNode, value) {
   return hasAttribute(vNode, 'data-note-id', value);
 };
 
-},{"../vdom/has-attribute":99,"../vfocus/is-vfocus":110}],91:[function(require,module,exports){
+},{"../vdom/has-attribute":97,"../vfocus/is-vfocus":108}],89:[function(require,module,exports){
 var isScribeMarker = require('./is-scribe-marker');
 
 module.exports = function isNotScribeMarker(focus) {
   return !isScribeMarker(focus);
 };
 
-},{"./is-scribe-marker":94}],92:[function(require,module,exports){
+},{"./is-scribe-marker":92}],90:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var findParentNote = require('./find-parent-note');
 
@@ -3357,7 +3410,7 @@ module.exports = function isNotWithinNote(focus) {
 
 };
 
-},{"../vfocus/is-vfocus":110,"./find-parent-note":86}],93:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"./find-parent-note":84}],91:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var isTag = require('../vdom/is-tag');
 
@@ -3372,7 +3425,7 @@ module.exports = function isNote(vfocus) {
   return isTag(vfocus.vNode, 'gu-note');
 };
 
-},{"../vdom/is-tag":102,"../vfocus/is-vfocus":110}],94:[function(require,module,exports){
+},{"../vdom/is-tag":100,"../vfocus/is-vfocus":108}],92:[function(require,module,exports){
 // is our selection not a note?
 var isVFocus = require('../vfocus/is-vfocus');
 var hasClass = require('../vdom/has-class');
@@ -3386,7 +3439,7 @@ module.exports = function isScribeMarker(vfocus) {
   return hasClass(vfocus.vNode, 'scribe-marker');
 };
 
-},{"../vdom/has-class":100,"../vfocus/is-vfocus":110}],95:[function(require,module,exports){
+},{"../vdom/has-class":98,"../vfocus/is-vfocus":108}],93:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 
@@ -3430,7 +3483,7 @@ module.exports = function isSelectionBetweenNotes(markers) {
 
 };
 
-},{"../vfocus/is-vfocus":110,"../vfocus/is-vtext":111,"./find-parent-note":86,"./find-scribe-markers":87,"./is-not-scribe-marker":91,"lodash":"lodash"}],96:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"../vfocus/is-vtext":109,"./find-parent-note":84,"./find-scribe-markers":85,"./is-not-scribe-marker":89,"lodash":"lodash"}],94:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 
 
@@ -3447,7 +3500,7 @@ module.exports = function isWithinNote(focus) {
   return !isVText(focus) || isEmpty(focus) || !!findParentNote(focus);
 };
 
-},{"../noting/find-parent-note":86,"../vfocus/is-empty":107,"../vfocus/is-vfocus":110,"../vfocus/is-vtext":111}],97:[function(require,module,exports){
+},{"../noting/find-parent-note":84,"../vfocus/is-empty":105,"../vfocus/is-vfocus":108,"../vfocus/is-vtext":109}],95:[function(require,module,exports){
 var isVFocus = require('../vfocus/is-vfocus');
 var findAllNotes = require('./find-all-notes');
 
@@ -3481,14 +3534,14 @@ function setNotesCache(focus) {
 
 module.exports = {get: getNotesCache, set: setNotesCache};
 
-},{"../vfocus/is-vfocus":110,"./find-all-notes":80}],98:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"./find-all-notes":78}],96:[function(require,module,exports){
 module.exports = function toCamelCase(string) {
   return string.replace(/(\-[a-z])/g, function($1) {
     return $1.toUpperCase().replace('-', '');
   });
 };
 
-},{}],99:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 var toCamelCase = require('../to-camel-case');
 
 module.exports = function hasAttribute(vNode, attribute, value) {
@@ -3526,7 +3579,7 @@ module.exports = function hasAttribute(vNode, attribute, value) {
   }
 };
 
-},{"../to-camel-case":98}],100:[function(require,module,exports){
+},{"../to-camel-case":96}],98:[function(require,module,exports){
 var _ = require('lodash');
 // Check if VNode has class
 // TODO: Currently not working on nodes with multiple classes (not an
@@ -3542,7 +3595,7 @@ module.exports = function hasClass(vNode, value) {
 
 };
 
-},{"lodash":"lodash"}],101:[function(require,module,exports){
+},{"lodash":"lodash"}],99:[function(require,module,exports){
 // We incude regular spaces because if we have a note tag that only
 // includes a a regular space, then the browser will also insert a <BR>.
 // If we consider a string containing only a regular space as empty we
@@ -3568,12 +3621,12 @@ module.exports = function(node) {
   }
  };
 
-},{"lodash":"lodash","vtree/is-vtext":47}],102:[function(require,module,exports){
+},{"lodash":"lodash","vtree/is-vtext":52}],100:[function(require,module,exports){
 module.exports = function isTag(node, tag) {
   return node.tagName && node.tagName.toLowerCase() === tag;
 };
 
-},{}],103:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isVText = require('../vfocus/is-vtext');
@@ -3591,7 +3644,7 @@ module.exports = function findTextNodes(focuses) {
   return focuses.filter(isVText);
 };
 
-},{"../vfocus/is-vfocus":110,"../vfocus/is-vtext":111,"lodash":"lodash"}],104:[function(require,module,exports){
+},{"../vfocus/is-vfocus":108,"../vfocus/is-vtext":109,"lodash":"lodash"}],102:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
 
 module.exports = function flattenTree(focus) {
@@ -3606,7 +3659,7 @@ module.exports = function flattenTree(focus) {
 
 };
 
-},{"./is-vfocus":110}],105:[function(require,module,exports){
+},{"./is-vfocus":108}],103:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
 var flatten = require('./flatten-tree');
 var isVText = require('./is-vtext');
@@ -3620,7 +3673,7 @@ module.exports = function hasNoTextChildren(focus) {
   return flatten(focus).filter(isVText).length === 0;
 };
 
-},{"./flatten-tree":104,"./is-vfocus":110,"./is-vtext":111}],106:[function(require,module,exports){
+},{"./flatten-tree":102,"./is-vfocus":108,"./is-vtext":109}],104:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
 var flatten = require('./flatten-tree');
 var isVText = require('./is-vtext');
@@ -3635,7 +3688,7 @@ module.exports = function hasNoTextChildren(focus) {
   return flatten(focus).filter(isVText).every(isEmpty);
 };
 
-},{"./flatten-tree":104,"./is-empty":107,"./is-vfocus":110,"./is-vtext":111}],107:[function(require,module,exports){
+},{"./flatten-tree":102,"./is-empty":105,"./is-vfocus":108,"./is-vtext":109}],105:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
 var isEmpty = require('../vdom/is-empty');
 
@@ -3648,7 +3701,7 @@ module.exports = function isEmptyVFocus(vfocus) {
   return isEmpty(vfocus.vNode);
 };
 
-},{"../vdom/is-empty":101,"./is-vfocus":110}],108:[function(require,module,exports){
+},{"../vdom/is-empty":99,"./is-vfocus":108}],106:[function(require,module,exports){
 var isVFocus = require('./is-vfocus');
 var isVText = require('./is-vtext');
 var isEmpty = require('./is-empty.js');
@@ -3665,7 +3718,7 @@ module.exports = function isNotEmpty(focus) {
   return isVText(focus) && !isEmpty(focus);
 };
 
-},{"./is-empty.js":107,"./is-vfocus":110,"./is-vtext":111}],109:[function(require,module,exports){
+},{"./is-empty.js":105,"./is-vfocus":108,"./is-vtext":109}],107:[function(require,module,exports){
 var isVFocus = require('./is-vfocus.js');
 var isTag = require('../vdom/is-tag.js');
 
@@ -3678,14 +3731,14 @@ module.exports = function isParagraphVFocus(focus) {
   return isTag(focus.vNode, 'p');
 };
 
-},{"../vdom/is-tag.js":102,"./is-vfocus.js":110}],110:[function(require,module,exports){
+},{"../vdom/is-tag.js":100,"./is-vfocus.js":108}],108:[function(require,module,exports){
 var VFocus = require('../../vfocus');
 
 module.exports = function isVFocus(vFocus) {
   return vFocus instanceof VFocus;
 };
 
-},{"../../vfocus":112}],111:[function(require,module,exports){
+},{"../../vfocus":110}],109:[function(require,module,exports){
 var isVText = require('vtree/is-vtext');
 
 var VFocus = require('../../vfocus');
@@ -3702,7 +3755,7 @@ module.exports = function isVTextVFocus(vfocus) {
 
 };
 
-},{"../../vfocus":112,"../vfocus/is-vfocus":110,"vtree/is-vtext":47}],112:[function(require,module,exports){
+},{"../../vfocus":110,"../vfocus/is-vfocus":108,"vtree/is-vtext":52}],110:[function(require,module,exports){
 /**
 * VFocus: Wrap virtual node in a Focus node.
 *
@@ -3997,5 +4050,5 @@ VFocus.prototype.find = function(predicate, movement) {
   return focus;
 };
 
-},{}]},{},[54])(54)
+},{}]},{},[59])(59)
 });
