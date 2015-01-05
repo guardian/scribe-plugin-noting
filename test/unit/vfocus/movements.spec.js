@@ -12,7 +12,7 @@ var createNoteAtCaret = require(path.resolve(process.cwd(), 'src/actions/noting/
 
 // To keep these tests as simple as possible we consider previously run tests to have passed.
 // For example, the `up()` tests rely on `down()` being correct.
-describe.only('VFocus - Movements', function() {
+describe('VFocus - Movements', function() {
 
 
   describe('down()', function() {
@@ -125,56 +125,9 @@ describe.only('VFocus - Movements', function() {
 
   });
 
+  // TODO: Cover the different cases for next().
 
-  describe('next()', function() {
-
-    var nextTreeFocus, nextTree;
-    beforeEach(function() {
-      nextTree = h('div', [
-        h('p')
-      ]);
-
-      nextTreeFocus = new VFocus(nextTree);
-    });
-
-
-    it('focuses the next node when there is one', function() {
-      expect(nextTreeFocus.next().vNode).to.equal(nextTree.children[0]);
-    });
-
-    it('returns null when there is no next node', function() {
-      var lastFocus = nextTreeFocus.down();
-
-      expect(lastFocus.next()).to.equal(null);
-    });
-
-  });
-
-
-  describe('prev()', function() {
-
-    var prevTreeFocus, prevTree;
-    beforeEach(function() {
-      prevTree = h('div', [
-        h('p')
-      ]);
-
-      prevTreeFocus = new VFocus(prevTree);
-    });
-
-
-    it('focuses the previous node when there is one', function() {
-      var lastFocus = prevTreeFocus.down();
-
-      expect(lastFocus.prev().vNode).to.equal(prevTree);
-    });
-
-    it('returns null when there is no previous node', function() {
-      expect(prevTreeFocus.prev()).to.equal(null);
-    });
-
-  });
-
+  // TODO: Cover the different cases for prev().
 
   describe('top()', function() {
 
