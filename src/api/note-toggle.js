@@ -31,7 +31,7 @@ var removeVNodeClass = require('../actions/vdom/remove-class');
 var generateUUID = require('../utils/generate-uuid');
 var updateNoteProperties = require('../actions/noting/reset-note-segment-classes');
 var updateStartAndEndClasses = require('../actions/noting/reset-note-segment-classes');
-var createVirtualScribeMarker  = require('../utils/create-virtual-scribe-marker');
+var createVirtualScribeMarker = require('../utils/create-virtual-scribe-marker');
 var createNoteBarrier = require('../utils/create-note-barrier');
 var userAndTimeAsDatasetAttrs = require('../utils/get-note-data-attrs');
 var updateNoteBarriers = require('../actions/noting/reset-note-barriers');
@@ -55,7 +55,7 @@ function createNoteFromSelection(treeFocus) {
 
   // Wrap the text nodes.
   var userAndTime = userAndTimeAsDatasetAttrs(config.get('user'));
-  var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
+  var wrappedTextNodes = toWrapAndReplace.map(function(focus) {
     return wrapInNote(focus.vNode, userAndTime);
   });
 
@@ -103,7 +103,7 @@ function createNoteFromSelection(treeFocus) {
   // Scribe instance. In that case we don't bother placing the cursor.
   // (What behaviour would a user expect?)
   if (outsideNoteFocus) {
-    if (! vdom.focusOnParagraph(outsideNoteFocus)) {
+    if (!vdom.focusOnParagraph(outsideNoteFocus)) {
       // The user's selection ends within a paragraph.
 
       // To place a marker we have to place an element inbetween the note barrier
@@ -181,10 +181,14 @@ function unnotePartOfNote(treeFocus) {
   var entireNoteTextNodeFocuses = _(entireNote).map(vdom.focusAndDescendants)
     .flatten().value().filter(vdom.focusOnTextNode);
 
-  var entireNoteTextNodes = entireNoteTextNodeFocuses.map(function (focus) { return focus.vNode; });
+  var entireNoteTextNodes = entireNoteTextNodeFocuses.map(function(focus) {
+    return focus.vNode;
+  });
 
 
-  var textNodesToUnnote = focusesToUnnote.map(function (focus) { return focus.vNode; });
+  var textNodesToUnnote = focusesToUnnote.map(function(focus) {
+    return focus.vNode;
+  });
   var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
 
 
@@ -193,7 +197,7 @@ function unnotePartOfNote(treeFocus) {
 
 
   // Wrap the text nodes.
-  var wrappedTextNodes = toWrapAndReplace.map(function (vNode) {
+  var wrappedTextNodes = toWrapAndReplace.map(function(vNode) {
     return wrapInNote(vNode, userAndTime);
   });
 
@@ -273,20 +277,19 @@ function mergeIfNecessary(treeFocus) {
     var hasNoteStart = 'noteStart' in note[0].vNode.properties.dataset;
     var hasNoteEnd = 'noteEnd' in note[note.length - 1].vNode.properties.dataset;
 
-    return ! (hasNoteStart && hasNoteEnd);
+    return !(hasNoteStart && hasNoteEnd);
   }
 
   // Merging is simply a matter of updating the attributes of any notes
   // where all the segments of the note doesn't have the same timestamp,
   // or where there's no start or end property (e.g. when the user has deleted
   // the last note segment of a note).
-  function criteria(note) { return inconsistentTimestamps(note) || lacksStartOrEnd(note); }
-  vdom.findAllNotes(treeFocus).filter(criteria).forEach(function(note){
-    console.log('about to reset classes');
-    console.log(note[0].vNode.hasBeenRound);
+  function criteria(note) {
+    return inconsistentTimestamps(note) || lacksStartOrEnd(note);
+  }
+  vdom.findAllNotes(treeFocus).filter(criteria).forEach(function(note) {
     note[0].vNode.hasBeenRound = true;
     updateNoteProperties(note);
-    console.log(note);
   });
 }
 
@@ -297,12 +300,14 @@ function mergeIfNecessary(treeFocus) {
 // anytime a note segment might be empty (as defined by `vdom.consideredEmpty`).
 // TODO: Fix this in Scribe.
 function preventBrTags(treeFocus) {
-  function isTrue(obj) { return !!obj; }
+  function isTrue(obj) {
+    return !!obj;
+  }
 
   function removeEmptyAncestors(focus) {
     var f = focus;
     while (f) {
-      if (! f.canDown()) f.remove();
+      if (!f.canDown()) f.remove();
       f = f.up();
     }
   }
@@ -310,12 +315,12 @@ function preventBrTags(treeFocus) {
   // When we delete a space we want to add a space to the previous
   // note segment.
   function addSpaceToPrevSegment(segment) {
-      var prevNoteSegment = segment.prev().find(vdom.focusOnNote, 'prev');
+    var prevNoteSegment = segment.prev().find(vdom.focusOnNote, 'prev');
 
-      if (prevNoteSegment) {
-        var lastTextNode = _.last(prevNoteSegment.vNode.children.filter(isVText));
-        if (lastTextNode) lastTextNode.text = lastTextNode.text + ' ';
-      }
+    if (prevNoteSegment) {
+      var lastTextNode = _.last(prevNoteSegment.vNode.children.filter(isVText));
+      if (lastTextNode) lastTextNode.text = lastTextNode.text + ' ';
+    }
   }
 
   // We're only interested in when content is removed, meaning
@@ -338,24 +343,26 @@ function preventBrTags(treeFocus) {
   ].filter(isTrue);
 
   // Replace/delete empty notes, and parents that might have become empty.
-  segments.filter(function (segment) { return !!segment; })
-    .map(function (segment) {
+  segments.filter(function(segment) {
+      return !!segment;
+    })
+    .map(function(segment) {
       if (vdom.withEmptyTextNode(segment)) addSpaceToPrevSegment(segment);
 
       if (vdom.withoutText(segment) || vdom.withEmptyTextNode(segment)) {
-      // In Chrome, removing causes text before the note to be deleted when
-      // deleting the last note segment. Replacing with an empty node works
-      // fine in Chrome and FF.
-      var replaced = segment.replace(new VText('\u200B'));
+        // In Chrome, removing causes text before the note to be deleted when
+        // deleting the last note segment. Replacing with an empty node works
+        // fine in Chrome and FF.
+        var replaced = segment.replace(new VText('\u200B'));
 
-      removeEmptyAncestors(replaced);
-    }
-  });
+        removeEmptyAncestors(replaced);
+      }
+    });
 
 }
 
 
-exports.ensureNoteIntegrity = function (treeFocus) {
+exports.ensureNoteIntegrity = function(treeFocus) {
   // cache must be up to date before running this
   vdom.updateNotesCache(treeFocus);
   mergeIfNecessary(treeFocus);
@@ -385,10 +392,18 @@ exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, select
   }
 
   var scenarios = {
-    caretWithinNote: function (treeFocus) { unnote(treeFocus); },
-    selectionWithinNote: function (treeFocus) {  unnotePartOfNote(treeFocus); },
-    caretOutsideNote: function (treeFocus) { createEmptyNoteAtCaret(treeFocus); },
-    selectionOutsideNote: function (treeFocus) { createNoteFromSelection(treeFocus); }
+    caretWithinNote: function(treeFocus) {
+      unnote(treeFocus);
+    },
+    selectionWithinNote: function(treeFocus) {
+      unnotePartOfNote(treeFocus);
+    },
+    caretOutsideNote: function(treeFocus) {
+      createEmptyNoteAtCaret(treeFocus);
+    },
+    selectionOutsideNote: function(treeFocus) {
+      createNoteFromSelection(treeFocus);
+    }
   };
 
   // Perform action depending on which state we're in.
@@ -400,7 +415,9 @@ exports.isSelectionInANote = function isSelectionInANote(selectionRange, parentC
 
   // Walk up the (real) DOM checking isTargetNode.
   function domWalkUpFind(node, isTargetNode) {
-    if (!node.parentNode || node === parentContainer) { return false; }
+    if (!node.parentNode || node === parentContainer) {
+      return false;
+    }
 
     return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
   }
