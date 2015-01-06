@@ -7,8 +7,6 @@ var h = require('virtual-hyperscript');
 var VText = require('vtree/vtext');
 var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 
-var createNoteAtCaret = require(path.resolve(process.cwd(), 'src/actions/noting/create-note-at-caret'));
-
 
 // To keep these tests as simple as possible we consider previously run tests to have passed.
 // For example, the `up()` tests rely on `down()` being correct.
