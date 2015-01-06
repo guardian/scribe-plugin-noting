@@ -1,5 +1,5 @@
 var isVFocus = require('../../utils/vfocus/is-vfocus');
-var isNote = require('../../utils/noting/is-note-segment');
+var isNoteSegment = require('../../utils/noting/is-note-segment');
 
 module.exports = function findFirstNoteSegmentBelow(focus){
 
@@ -7,6 +7,6 @@ module.exports = function findFirstNoteSegmentBelow(focus){
     throw new Error('only a valid VFocus can be passed to findFirstNoteSegmentAbove');
   }
 
-  return focus.find(isNote);
+  return focus.find(isNoteSegment);
 
 };
