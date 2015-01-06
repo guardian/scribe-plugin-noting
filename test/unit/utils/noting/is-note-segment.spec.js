@@ -5,7 +5,7 @@ var h = require('virtual-hyperscript');
 
 var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 
-var isNote = require(path.resolve(process.cwd(), 'src/utils/noting/is-note'));
+var isNoteSegment = require(path.resolve(process.cwd(), 'src/utils/noting/is-note-segment'));
 
 var divFocus;
 var noteFocus;
@@ -15,14 +15,14 @@ beforeEach(function(){
   noteFocus = new VFocus(h('gu-note'));
 });
 
-describe('isNote()', function(){
+describe('isNoteSegment()', function(){
 
   it('should correctly identify a note element', function(){
-    expect(isNote(noteFocus)).to.be.true;
+    expect(isNoteSegment(noteFocus)).to.be.true;
   });
 
   it('should correctly identify an element which is not a note', function(){
-    expect(isNote(divFocus)).to.be.false;
+    expect(isNoteSegment(divFocus)).to.be.false;
   });
 
 });

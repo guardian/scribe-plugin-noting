@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 
-var findParentNote = require('./find-parent-note');
+var findParentNoteSegment = require('./find-parent-note-segment');
 var isNotScribeMarker = require('./is-not-scribe-marker');
 var isVText = require('../vfocus/is-vtext');
 var findScribeMarkers = require('./find-scribe-markers');
@@ -30,12 +30,12 @@ module.exports = function isSelectionBetweenNotes(markers) {
       // contains notes for example.
       .filter(isVText);
 
-    return selection.every(findParentNote);
+    return selection.every(findParentNoteSegment);
   }
   //if we only have on valid marker
   //we see if it has a parent note
   else {
-    return !!findParentNote(markers[0]);
+    return !!findParentNoteSegment(markers[0]);
   }
 
 

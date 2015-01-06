@@ -1,7 +1,7 @@
 var isVFocus = require('../vfocus/is-vfocus');
 var VFocus = require('../../vfocus');
 var findScribeMarkers = require('./find-scribe-markers');
-var findParentNote = require('./find-parent-note');
+var findParentNoteSegment = require('./find-parent-note-segment');
 var findEntireNote = require('./find-entire-note');
 
 module.exports = function findSelectedNote(focus) {
@@ -17,7 +17,7 @@ module.exports = function findSelectedNote(focus) {
 
   var firstMarker = markers[0];
 
-  var note = findParentNote(firstMarker);
+  var note = findParentNoteSegment(firstMarker);
   if (!note) {
     return;
   }

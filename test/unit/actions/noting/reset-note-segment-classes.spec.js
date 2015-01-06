@@ -29,6 +29,7 @@ describe('resetNoteSegmentClasses()', function() {
 
     noteSegments = resetNoteSegmentClasses(noteSegments);
 
+    //check classes
     expect(hasClass(noteSegments[0].vNode, 'note--start')).to.be.true;
     expect(hasClass(noteSegments[0].vNode, 'note--end')).to.be.false;
 

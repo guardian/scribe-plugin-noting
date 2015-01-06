@@ -1,4 +1,4 @@
-var isNote = require('../noting/is-note');
+var isNoteSegment = require('../noting/is-note-segment');
 var isVFocus = require('../vfocus/is-vfocus');
 
 module.exports = function findParentNote(focus) {
@@ -7,5 +7,5 @@ module.exports = function findParentNote(focus) {
     throw new Error('Only a VFocus element should be passed to findParentNote');
   }
 
-  return focus.find(isNote, 'up');
+  return focus.find(isNoteSegment, 'up');
 };

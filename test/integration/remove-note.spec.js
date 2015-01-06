@@ -15,7 +15,7 @@ beforeEach(function() {
 
 var note = require('./helpers/create-note');
 
-describe('Removing a Scribe Note', function(){
+describe('Removing a Scribe Note', function() {
 
   // Caret remove
   given('the caret is within a note', function() {
@@ -36,15 +36,15 @@ describe('Removing a Scribe Note', function(){
   });
 
 
-  given('a selection', function(){
+  given('a selection', function() {
 
     // Remove note
     when('we select the contents of a note', function() {
       givenContentOf('<p>On the 24th of <gu-note class="note">|February, 1815, |</gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
         when('we press the noting key', function() {
-          it('unnotes the note', function () {
-            note().then(function () {
-              scribeNode.getInnerHTML().then(function (innerHTML) {
+          it('unnotes the note', function() {
+            note().then(function() {
+              scribeNode.getInnerHTML().then(function(innerHTML) {
                 expect(innerHTML).to.not.include('</gu-note>');
               });
             });
@@ -56,9 +56,9 @@ describe('Removing a Scribe Note', function(){
     when('we select the contents of a note except for a space', function() {
       givenContentOf('<p>On the 24th of <gu-note class="note"> |February, 1815, |</gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
         when('we press the noting key', function() {
-          it('unnotes the note', function () {
-            note().then(function () {
-              scribeNode.getInnerHTML().then(function (innerHTML) {
+          it('unnotes the note', function() {
+            note().then(function() {
+              scribeNode.getInnerHTML().then(function(innerHTML) {
                 expect(innerHTML).to.not.include('</gu-note>');
               });
             });
@@ -138,6 +138,29 @@ describe('Removing a Scribe Note', function(){
             });
 
           });
+        });
+      });
+    });
+  });
+
+  // This is here to prevent:
+  // https://github.com/guardian/scribe-plugin-noting/issues/45
+  given('we have a complete note', function() {
+    when('we have a selection contained within a note', function() {
+      givenContentOf('<p><gu-note class="note" data-note-id="1">on the 24th of february, 1815, the look-out |at| notre-dame de la garde signalled the three-master, the pharaon from smyrna</gu-note></p>', function() {
+        when('we unote our selection', function() {
+          it('should contain notes with two different id\'s', function() {
+
+            note().then(function() {
+              scribeNode.getInnerHTML().then(function(innerHTML) {
+
+                var result = innerHTML.match(/data-note-id="(.[^"]+)"/g);
+                expect(result[0]).to.not.equal(result[1]);
+
+              });
+            });
+
+          })
         });
       });
     });
