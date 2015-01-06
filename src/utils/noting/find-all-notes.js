@@ -1,6 +1,6 @@
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
-var isNote = require('./is-note-segment');
+var isNoteSegment = require('./is-note-segment');
 var findEntireNote = require('./find-entire-note');
 
 module.exports = function findAllNotes(focus) {
@@ -11,7 +11,7 @@ module.exports = function findAllNotes(focus) {
 
   // Returns an array of arrays of note segments
   return focus
-    .filter(isNote)
+    .filter(isNoteSegment)
     .map(findEntireNote)
     .reduce(function(uniqueNotes, note) {
       // First iteration: Add the note.

@@ -1,6 +1,6 @@
 var _ = require('lodash');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
-var isNote = require('../../utils/noting/is-note-segment');
+var isNoteSegment = require('../../utils/noting/is-note-segment');
 
 module.exports = function unWrapNote(focus) {
 
@@ -8,7 +8,7 @@ module.exports = function unWrapNote(focus) {
     throw new Error('Only a valid VFocus element can be passed to unWrapNote');
   }
 
-  if (!isNote(focus)) {
+  if (!isNoteSegment(focus)) {
     throw new Error('Only a note may be passed to unWrapnote');
   }
 
