@@ -16,7 +16,7 @@ var hasAttribute = require('../utils/vdom/has-attribute');
 var isTag = require('../utils/vdom/is-tag');
 var isEmpty = require('../utils/vdom/is-empty');
 
-var focusOnNote = require('../utils/noting/is-note');
+var focusOnNote = require('../utils/noting/is-note-segment');
 var focusOnMarker = require('../utils/noting/is-scribe-marker');
 var focusNotOnMarker = require('../utils/noting/is-not-scribe-marker');
 var focusOnTextNode = require('../utils/vfocus/is-vtext');
@@ -30,11 +30,11 @@ var hasNoteId = require('../utils/noting/has-note-id');
 var stillWithinNote = require('../utils/noting/is-within-note');
 var getNodesBetweenScribeMarkers = require('../utils/noting/find-between-scribe-markers');
 
-var findAncestorNoteSegment = require('../utils/noting/find-parent-note');
+var findAncestorNoteSegment = require('../utils/noting/find-parent-note-segment');
 var findTextNodeFocusesBetweenMarkers = require('../utils/noting/find-text-between-scribe-markers');
 var findMarkers = require('../utils/noting/find-scribe-markers');
-var findFirstNoteSegment = require('../utils/noting/find-first-note');
-var findLastNoteSegment = require('../utils/noting/find-last-note');
+var findFirstNoteSegment = require('../utils/noting/find-first-note-segment');
+var findLastNoteSegment = require('../utils/noting/find-last-note-segment');
 var focusAndDescendants = require('../utils/vfocus/flatten-tree');
 
 var withoutText = require('../utils/vfocus/has-no-text-children');

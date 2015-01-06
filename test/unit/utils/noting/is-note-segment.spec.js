@@ -5,7 +5,7 @@ var h = require('virtual-hyperscript');
 
 var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 
-var isNote = require(path.resolve(process.cwd(), 'src/utils/noting/is-note'));
+var isNote = require(path.resolve(process.cwd(), 'src/utils/noting/is-note-segment'));
 
 var divFocus;
 var noteFocus;

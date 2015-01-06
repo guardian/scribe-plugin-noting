@@ -281,7 +281,13 @@ function mergeIfNecessary(treeFocus) {
   // or where there's no start or end property (e.g. when the user has deleted
   // the last note segment of a note).
   function criteria(note) { return inconsistentTimestamps(note) || lacksStartOrEnd(note); }
-  vdom.findAllNotes(treeFocus).filter(criteria).forEach(updateNoteProperties);
+  vdom.findAllNotes(treeFocus).filter(criteria).forEach(function(note){
+    console.log('about to reset classes');
+    console.log(note[0].vNode.hasBeenRound);
+    note[0].vNode.hasBeenRound = true;
+    updateNoteProperties(note);
+    console.log(note);
+  });
 }
 
 

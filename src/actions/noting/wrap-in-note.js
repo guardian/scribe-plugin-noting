@@ -12,7 +12,9 @@ module.exports = function wrapInNote(focus, data){
 
   var notes = _.isArray(focus) ? focus : [focus];
 
-  data = (data || {});
+  //data MUST be cloned as this can lead to multiple notes with the same note ID see:
+  // https://github.com/guardian/scribe-plugin-noting/issues/45
+  data = _.extend({}, (data || {}));
 
   var tagName = TAG + '.' + CLASS_NAME;
 

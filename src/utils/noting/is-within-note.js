@@ -3,7 +3,7 @@ var isVFocus = require('../vfocus/is-vfocus');
 
 var isVText = require('../vfocus/is-vtext');
 var isEmpty = require('../vfocus/is-empty');
-var findParentNote = require('../noting/find-parent-note');
+var findParentNote = require('../noting/find-parent-note-segment');
 
 module.exports = function isWithinNote(focus) {
 

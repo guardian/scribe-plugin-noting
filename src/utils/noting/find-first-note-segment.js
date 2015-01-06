@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isWithinNote = require('./is-within-note');
-var isNote = require('./is-note');
+var isNote = require('./is-note-segment');
 
 module.exports = function findFirstNote(focus) {
 
@@ -10,7 +10,7 @@ module.exports = function findFirstNote(focus) {
   }
 
   return _.last(
-    focus.takeWhile(isWithinNote).filter(isNote)
+    focus.takeWhile(isWithinNote, 'prev').filter(isNote)
   );
 
 

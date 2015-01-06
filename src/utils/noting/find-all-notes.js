@@ -1,6 +1,6 @@
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
-var isNote = require('./is-note');
+var isNote = require('./is-note-segment');
 var findEntireNote = require('./find-entire-note');
 
 module.exports = function findAllNotes(focus) {

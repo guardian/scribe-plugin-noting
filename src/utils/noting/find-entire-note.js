@@ -1,7 +1,7 @@
 var isVFocus = require('../vfocus/is-vfocus');
 var isWithinNote = require('./is-within-note');
-var isNote = require('./is-note');
-var findFirstNote = require('./find-first-note');
+var isNote = require('./is-note-segment');
+var findFirstNote = require('./find-first-note-segment');
 // Find the rest of a note.
 // We identify notes based on 'adjacency' rather than giving them an id.
 // This is because people may press RETURN or copy and paste part of a note.

@@ -1,4 +1,4 @@
-var isNote = require('../noting/is-note');
+var isNote = require('../noting/is-note-segment');
 var isVFocus = require('../vfocus/is-vfocus');
 
 module.exports = function findParentNote(focus) {

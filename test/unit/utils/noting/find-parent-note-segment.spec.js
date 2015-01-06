@@ -4,7 +4,7 @@ var expect = chai.expect;
 
 var h = require('virtual-hyperscript');
 
-var findParentNote = require(path.resolve(process.cwd(), 'src/utils/noting/find-parent-note'));
+var findParentNote = require(path.resolve(process.cwd(), 'src/utils/noting/find-parent-note-segment'));
 var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 
 describe('findParentNote()', function(){

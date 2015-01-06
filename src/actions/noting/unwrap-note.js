@@ -1,6 +1,6 @@
 var _ = require('lodash');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
-var isNote = require('../../utils/noting/is-note');
+var isNote = require('../../utils/noting/is-note-segment');
 
 module.exports = function unWrapNote(focus) {
 

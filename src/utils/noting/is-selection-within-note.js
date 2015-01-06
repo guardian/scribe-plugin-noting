@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 
-var findParentNote = require('./find-parent-note');
+var findParentNote = require('./find-parent-note-segment');
 var isNotScribeMarker = require('./is-not-scribe-marker');
 var isVText = require('../vfocus/is-vtext');
 var findScribeMarkers = require('./find-scribe-markers');
