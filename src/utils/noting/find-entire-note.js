@@ -23,12 +23,12 @@ module.exports = function findEntireNote(focus) {
     throw new Error('Only a valid VFocus element can be passed to findEntirenote');
   }
 
-  var parentNote = findFirstNoteSegment(focus);
+  var firstNoteSegment = findFirstNoteSegment(focus);
 
-  if(!parentNote) {
+  if(!firstNoteSegment) {
     return;
   }
 
-  return parentNote.takeWhile(isWithinNote).filter(isNoteSegment);
+  return firstNoteSegment.takeWhile(isWithinNote).filter(isNoteSegment);
 
 };
