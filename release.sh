@@ -13,13 +13,13 @@ git reset --hard
 git checkout master
 
 echo "-- Building distribution files"
-$BASE_DIR/node_modules/.bin/plumber build
+npm run build
 
 echo "-- Copying distribution files to dist branch"
 git checkout dist
 git fetch
 git reset --hard origin/dist
-yes | cp -r ./build/* .
+yes | cp ./build/* .
 
 git diff --name-only  | if (grep "\.js$" | grep -v "\.min\.js$")
 then

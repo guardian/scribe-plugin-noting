@@ -2,7 +2,7 @@ var config = require('../config');
 
 module.exports = function userAndTimeAsDatasetAttrs() {
 
-  user = config.get('user');
+  var user = config.get('user');
 
   return {
     "noteEditedBy": user,
