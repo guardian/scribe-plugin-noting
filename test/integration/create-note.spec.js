@@ -16,6 +16,7 @@ beforeEach(function() {
 });
 
 var note = require('./helpers/create-note');
+
 var selectionIsInsideNote = require('./helpers/selection-within-note');
 
 describe('Creating Scribe Notes', function() {
