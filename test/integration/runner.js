@@ -6,7 +6,7 @@ var createRunner = require('scribe-test-harness/create-runner');
 
 var mocha = new Mocha();
 
-pGlob = Q.denodeify(glob);
+var pGlob = Q.denodeify(glob);
 
 /**
  * Wait for the connection to Sauce Labs to finish.
@@ -14,6 +14,7 @@ pGlob = Q.denodeify(glob);
 mocha.timeout(15 * 1000);
 mocha.timeout(1200000);
 mocha.reporter('spec');
+
 
 mocha.addFile(path.resolve(__dirname, 'setup.js'));
 

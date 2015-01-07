@@ -10,7 +10,7 @@ HTTP_PID=$!
 ./node_modules/.bin/webdriver-manager start > /dev/null &
 DRIVER_PID=$!
 
-node test/integration/runner
+./node_modules/.bin/6to5-node test/integration/runner
 TEST_RUNNER_EXIT=$?
 
 kill $HTTP_PID

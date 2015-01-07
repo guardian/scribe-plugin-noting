@@ -10,6 +10,7 @@
     "vtree": "0.0.20"
   },
   "devDependencies": {
+    "6to5": "^2.7.4",
     "6to5ify": "^3.1.0",
     "browserify": "^5.0.7",
     "chai": "~1.9.1",
