@@ -3,7 +3,6 @@ var glob = require('glob');
 var Q = require('q');
 var Mocha = require('mocha');
 var createRunner = require('scribe-test-harness/create-runner');
-
 var mocha = new Mocha();
 
 var pGlob = Q.denodeify(glob);
@@ -26,7 +25,7 @@ var integrationDir = testDir + '/integration/**/*.spec.js';
 function addFiles(files) {
   files.forEach(function(filePath) {
     mocha.addFile(filePath);
-  })
+  });
 }
 
 pGlob(unitDir)

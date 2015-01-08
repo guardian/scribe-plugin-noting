@@ -33,11 +33,11 @@ describe('findAllNotes()', function() {
         new VText('This is some text'),
         new VText('This is some text')
       ])])
-    ])
+    ]);
     tree = new VFocus(tree);
 
-    result = _.flatten(findAllNotes(tree))
+    var result = _.flatten(findAllNotes(tree));
     expect(result.length).to.equal(2);
-  })
+  });
 
 });

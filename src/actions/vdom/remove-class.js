@@ -1,9 +1,10 @@
 var hasClass = require('../../utils/vdom/has-class');
+var errorHandle = require('../../utils/error-handle');
 
 module.exports = function removeClass(vNode, className) {
 
   if (!vNode || !className) {
-    throw new Error('A valid vNode and className must be passed to removeClass');
+    errorHandle('Onlu a valid vNode and class name can be passed to removeClass, you passed: %s, %s', vNode, className);
   }
 
   if (!hasClass(vNode, className)) {

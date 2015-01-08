@@ -38,34 +38,7 @@ var updateNoteProperties = require('../actions/noting/reset-note-segment-classes
 var userAndTimeAsDatasetAttrs = require('../utils/get-note-data-attrs');
 var createVirtualScribeMarker = require('../utils/create-virtual-scribe-marker');
 var createNoteBarrier = require('../utils/create-note-barrier');
-function updateNoteBarriers(treeFocus) {
-
-  function removeNoteBarriers(treeFocus) {
-    treeFocus.filter(vdom.focusOnTextNode).forEach(function (focus) {
-      focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
-    });
-  }
-
-  function insertNoteBarriers(treeFocus) {
-    vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
-
-      _.first(noteSegments).next().insertBefore(createNoteBarrier());
-      // This is necessarily complex (been through a few iterations) because
-      // of Chrome's lack of flexibility when it comes to placing the caret.
-      var afterNote = _.last(noteSegments).find(vdom.focusOutsideNote);
-      var textNodeAfterNoteFocus = afterNote && afterNote.find(vdom.focusOnNonEmptyTextNode);
-
-      if (textNodeAfterNoteFocus) {
-        textNodeAfterNoteFocus.vNode.text = '\u200B' + textNodeAfterNoteFocus.vNode.text;
-      }
-
-    });
-  }
-
-  removeNoteBarriers(treeFocus);
-  insertNoteBarriers(treeFocus);
-}
-
+var updateNoteBarriers = require('../actions/noting/reset-note-barriers');
 
 // tree - tree containing a marker.
 // Note that we will mutate the tree.

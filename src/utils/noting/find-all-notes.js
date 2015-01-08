@@ -2,11 +2,12 @@ var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isNoteSegment = require('./is-note-segment');
 var findEntireNote = require('./find-entire-note');
+var errorHandle = require('../error-handle');
 
 module.exports = function findAllNotes(focus) {
 
   if (!isVFocus(focus)) {
-    throw new Error('Only a valid VFocus element can be passed to findNoteById');
+    errorHandle('Only a valid VFocus can be passed to findAllNotes, you passed: ', focus);
   }
 
   // Returns an array of arrays of note segments

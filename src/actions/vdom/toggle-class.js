@@ -2,6 +2,7 @@ var isVFocus = require('../../utils/vfocus/is-vfocus');
 var hasClass = require('../../utils/vdom/has-class');
 var addClass = require('./add-class');
 var removeClass = require('./remove-class');
+var errorHandle = require('../../utils/error-handle');
 
 module.exports = function toggleClass(vNode, className) {
 
@@ -10,7 +11,7 @@ module.exports = function toggleClass(vNode, className) {
   }
 
   if (!vNode || !className) {
-    throw new Error('A valid vNode and className must be passed to toggleClass');
+    errorHandle('A valid vNode and class name must be passed to toggleClass, you passed: %s, %s', vNode, className);
   }
 
   return hasClass(vNode, className) ? removeClass(vNode, className) : addClass(vNode, className);

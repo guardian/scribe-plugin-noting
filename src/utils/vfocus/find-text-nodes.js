@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var isVText = require('../vfocus/is-vtext');
+var errorHandle = require('../error-handle');
 
 module.exports = function findTextNodes(focuses) {
 
@@ -8,7 +9,7 @@ module.exports = function findTextNodes(focuses) {
 
   focuses.forEach(function(focus) {
     if (!isVFocus(focus)) {
-      throw new Error('Only valid VFocus elements should be passed to findTextNodes');
+      errorHandle('Only a valid VFocus can be passed to findTextNodes, you passed: %s', focus);
     }
   });
 

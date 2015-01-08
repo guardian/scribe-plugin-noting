@@ -2,6 +2,7 @@ var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var hasNoteId = require('./has-note-id');
 var findAllNotes = require('./find-all-notes');
+var errorHandle = require('../error-handle');
 
 // Find a note based on its ID. Will not always give the same result as `findEntireNote` ,
 // since that'll recognize that a note is adjacent to another one. But when a note
@@ -13,7 +14,7 @@ var findAllNotes = require('./find-all-notes');
 module.exports = function findNoteById(focus, noteId) {
 
   if (!isVFocus(focus)) {
-    throw new Error('Only a valid VFocus element can be passed to findNoteById');
+    errorHandle('Only a valid VFocus can be passed to findNoteById, you passed: ', focus);
   }
 
 

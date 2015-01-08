@@ -131,7 +131,7 @@ describe('Removing a Scribe Note', function() {
       givenContentOf('<p>On the 24th of <gu-note class="note">Febr|uary, 1815, </gu-note>the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
         when('we press the noting key', function() {
           it('the note is unnoted', function() {
-            scribeNode.sendKeys(webdriver.Key.chord(webdriver.Key.CONTROL, 'b'))
+            scribeNode.sendKeys(webdriver.Key.chord(webdriver.Key.CONTROL, 'b'));
             note().then(function() {
               scribeNode.getInnerHTML().then(function(innerHTML) {
                 expect(innerHTML).to.not.include('</gu-note>');
@@ -162,7 +162,7 @@ describe('Removing a Scribe Note', function() {
               });
             });
 
-          })
+          });
         });
       });
     });
@@ -174,11 +174,11 @@ describe('Removing a Scribe Note', function() {
     when('we have a selection contained within a note', function() {
       givenContentOf('<p>|This is some content.| Some more</p>', function() {
         when('we unote our selection', function() {
-          it.only('should not duplicate any text', function() {
+          it('should not duplicate any text', function() {
             note()
             .then(function(){
               return driver.executeScript(function(){
-                var selection = window.getSelection()
+                var selection = window.getSelection();
                 var range = document.createRange();
                 var note = document.getElementsByTagName('gu-note')[0];
 
@@ -196,7 +196,7 @@ describe('Removing a Scribe Note', function() {
             .then(function(innerHTML){
               expect(innerHTML.match(/more/g).length).to.equal(1);
             });
-          })
+          });
         });
       });
     });

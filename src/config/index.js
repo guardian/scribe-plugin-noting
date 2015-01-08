@@ -2,7 +2,8 @@ var _ = require('lodash');
 
 //defaults
 var config = {
-  user: 'unknown'
+  user: 'unknown',
+  noteCollapsedClass: 'note--collapsed'
 };
 
 module.exports = {

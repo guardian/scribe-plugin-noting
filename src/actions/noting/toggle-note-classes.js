@@ -3,11 +3,12 @@ var toggleClass = require('../vdom/toggle-class');
 var addClass = require('../vdom/add-class');
 var removeClass = require('../vdom/remove-class');
 var collapseState = require('../../utils/collapse-state');
+var errorHandle = require('../../utils/error-handle');
 
 module.exports = function toggleNoteClasses(notes, className) {
 
   if (!notes || !className) {
-    throw new Error('A valid collection of notes and a valid className must be passed to toggleNoteClasses');
+    errorHandle('Only a valid VFocus can be passed to toggleNoteClasses, you passed: %s', focus);
   }
 
   notes = _.isArray(notes) ? notes : [notes];
