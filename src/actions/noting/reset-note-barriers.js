@@ -6,6 +6,10 @@ var isNotWithinNote = require('../../utils/noting/is-not-within-note');
 var isNotEmpty = require('../../utils/vfocus/is-not-empty');
 var errorHandle = require('../../utils/error-handle');
 
+//In order to create the correct type of caret movement we need to insert zero width spaces.
+//These are placed at the beginning (within) the note and at the end (outside) of the note.
+//When merging or splitting notes it is important to ensure there are no spaces within the note body
+//and at the beginning and end of the note
 module.exports = function resetNoteBarriers(focus) {
 
   if (!isVFocus(focus)) {
