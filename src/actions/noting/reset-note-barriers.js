@@ -22,6 +22,8 @@ module.exports = function resetNoteBarriers(focus) {
     //first note
     noteSegments[0].next().insertBefore(createNoteBarrier());
     //last note
+    // This is necessarily complex (been through a few iterations) because
+    // of Chrome's lack of flexibility when it comes to placing the caret.
     var lastNote = noteSegments.slice(-1)[0].find(isNotWithinNote);
     //find the first non-empty text node after the note
     var adjacentTextNode = lastNote && lastNote.find(isNotEmpty);

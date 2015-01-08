@@ -5,7 +5,7 @@ module.exports = function addAttribute(node, key, val) {
   node = (node.vNode || node);
   node.properties.dataset = (node.properties.dataset || {});
 
-  if (/data/.test(key)) {
+  if (/^data-.+/.test(key)) {
     //remove data- part of the string
     key = toCamelCase(key.replace(/data-/, ''));
     node.properties.dataset[key] = val;

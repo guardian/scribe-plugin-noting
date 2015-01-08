@@ -3,6 +3,13 @@ var _ = require('lodash');
 //defaults
 var config = {
   user: 'unknown',
+  nodeName: 'GU-NOTE',
+  className: 'gu-note',
+  dataName: 'data-note-edited-by',
+  dataNameCamel: 'dataNoteEditedBy',
+  dataDate: 'data-note-edited-date',
+  dataDateCamel: 'dataNoteEditedDate',
+  noteBarrierTag: 'gu-note-barrier',
   noteCollapsedClass: 'note--collapsed'
 };
 

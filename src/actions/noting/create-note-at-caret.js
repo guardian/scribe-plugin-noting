@@ -24,7 +24,7 @@ module.exports = function createNoteAtCaret(focus) {
 
   var marker = findScribeMarkers(focus)[0];
   if (!marker) {
-    return focus;
+    errorHandle('No scribe marker found within selection: %s', focus);
   }
 
   //inject the note

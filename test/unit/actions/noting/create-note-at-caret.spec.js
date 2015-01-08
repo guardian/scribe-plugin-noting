@@ -18,7 +18,7 @@ describe('createNoteAtCaret()', function() {
       new VText('This is some text')
     ]);
     tree = new VFocus(tree);
-    createNoteAtCaret(tree);
+    var tree = createNoteAtCaret(tree);
 
     var noteNode = tree.next().vNode;
 
