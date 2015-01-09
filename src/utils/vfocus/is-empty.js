@@ -1,10 +1,11 @@
 var isVFocus = require('./is-vfocus');
 var isEmpty = require('../vdom/is-empty');
+var errorHandle = require('../error-handle');
 
 module.exports = function isEmptyVFocus(vfocus) {
 
   if (!isVFocus(vfocus)) {
-    throw new Error('Only a VFocus element should be passed to isEmptyVFocus');
+    errorHandle('Onlu a valid VFocus can be passed to isEmptyVFocus, you passed: %s', focus);
   }
 
   return isEmpty(vfocus.vNode);

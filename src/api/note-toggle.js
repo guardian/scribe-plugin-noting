@@ -31,84 +31,14 @@ var removeVNodeClass = require('../actions/vdom/remove-class');
 var generateUUID = require('../utils/generate-uuid');
 
 
-// Update note properties, adding them if they aren't already there.
-// Note that this is also a way of merging notes, as we update the
-// start and end classes as well as give the segments the same edited
-// by information.
-function updateNoteProperties(noteSegments) {
-  updateStartAndEndClasses(noteSegments);
-
-  // FIXME JP 20/11/14
-  // This is a bug with users not being updated on the right note
-  // noteSegments.forEach(updateEditedBy);
-
-  var uuid = generateUUID();
-  noteSegments.forEach(function (segment) {
-    segment.vNode.properties.dataset['noteId'] = uuid;
-  });
-
-}
-
 // Ensure the first (and only the first) note segment has a
 // `note--start` class and that the last (and only the last)
 // note segment has a `note--end` class.
-var updateStartAndEndClasses = require('../actions/noting/reset-note-segment-classes');
-
-function updateEditedBy(noteSegment) {
-  var dataset = userAndTimeAsDatasetAttrs();
-
-  noteSegment.vNode.properties.dataset[DATA_NAME_CAMEL] = dataset[DATA_NAME_CAMEL];
-  noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL] = dataset[DATA_DATE_CAMEL];
-
-  noteSegment.vNode.properties.title = getEditedByTitleText(dataset);
-}
-
-function userAndTimeAsDatasetAttrs() {
-  var dataset = {};
-  dataset[DATA_NAME_CAMEL] = exports.user;
-  dataset[DATA_DATE_CAMEL] = new Date().toISOString();
-
-  return dataset;
-}
-
-function createVirtualScribeMarker() {
-  return h('em.scribe-marker', []);
-}
-
-// We need these to make it possible to place the caret immediately
-// inside/outside of a note.
-function createNoteBarrier() {
-  return new VText('\u200B');
-}
-
-function updateNoteBarriers(treeFocus) {
-
-  function removeNoteBarriers(treeFocus) {
-    treeFocus.filter(vdom.focusOnTextNode).forEach(function (focus) {
-      focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
-    });
-  }
-
-  function insertNoteBarriers(treeFocus) {
-    vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
-
-      _.first(noteSegments).next().insertBefore(createNoteBarrier());
-      // This is necessarily complex (been through a few iterations) because
-      // of Chrome's lack of flexibility when it comes to placing the caret.
-      var afterNote = _.last(noteSegments).find(vdom.focusOutsideNote);
-      var textNodeAfterNoteFocus = afterNote && afterNote.find(vdom.focusOnNonEmptyTextNode);
-
-      if (textNodeAfterNoteFocus) {
-        textNodeAfterNoteFocus.vNode.text = '\u200B' + textNodeAfterNoteFocus.vNode.text;
-      }
-
-    });
-  }
-
-  removeNoteBarriers(treeFocus);
-  insertNoteBarriers(treeFocus);
-}
-
+var updateNoteProperties = require('../actions/noting/reset-note-segment-classes');
+var userAndTimeAsDatasetAttrs = require('../utils/get-note-data-attrs');
+var createVirtualScribeMarker = require('../utils/create-virtual-scribe-marker');
+var createNoteBarrier = require('../utils/create-note-barrier');
+var updateNoteBarriers = require('../actions/noting/reset-note-barriers');
 
 // tree - tree containing a marker.
 // Note that we will mutate the tree.

@@ -1,9 +1,10 @@
 var isVFocus = require('./is-vfocus');
+var errorHandle = require('../error-handle');
 
 module.exports = function flattenTree(focus) {
 
   if (!isVFocus(focus)) {
-    throw new Error('Only a valid VFocus can be passed to flattenTree');
+    errorHandle('Only a valid VFocus element can be passed to flattenTree, you passed: %s', focus);
   }
 
   return focus.takeWhile(function(insideOfFocus) {

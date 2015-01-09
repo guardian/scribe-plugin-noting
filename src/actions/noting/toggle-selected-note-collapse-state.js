@@ -1,13 +1,14 @@
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var toggleNoteClasses = require('./toggle-note-classes');
 var findSelectedNote = require('../../utils/noting/find-selected-note');
+var config = require('../../config');
+var errorHandle = require('../../utils/error-handle');
 
-var NOTE_CLASS_COLLAPSED = 'note--collapsed';
 
 module.exports = function toggleSelectedNoteCollapseState(focus) {
 
   if (!isVFocus(focus)) {
-    throw new Error('Only a valid VFocus can be passed to toggleSelectedNoteCollapseState');
+    errorHandle('Only a valid VFocus can be passed to toggleSelectedNoteCollapseState, you passed: %s', focus);
   }
 
   var note = findSelectedNote(focus);
@@ -16,6 +17,6 @@ module.exports = function toggleSelectedNoteCollapseState(focus) {
     return;
   }
 
-  return toggleNoteClasses(note, NOTE_CLASS_COLLAPSED);
+  return toggleNoteClasses(note, config.get('noteCollapsedClass'));
 
 };

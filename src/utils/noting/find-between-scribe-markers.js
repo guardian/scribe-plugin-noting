@@ -1,11 +1,12 @@
 var isVFocus = require('../vfocus/is-vfocus');
 var isScribeMarker = require('./is-scribe-marker');
 var isNotScribeMarker = require('./is-not-scribe-marker');
+var errorHandle = require('../error-handle');
 
 module.exports = function findBetweenScribeMarkers(focus) {
 
   if (!isVFocus(focus)) {
-    throw new Error('Only a valid VFocus element can be passed to findBetweenScribeMarkers');
+    errorHandle('Only a valid VFocus can be passed to findBetweenScribeMarkers, you passed: %s', focus);
   }
 
   //find the first scribe marker within a given focus

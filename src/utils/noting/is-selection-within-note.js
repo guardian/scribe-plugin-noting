@@ -5,6 +5,7 @@ var findParentNoteSegment = require('./find-parent-note-segment');
 var isNotScribeMarker = require('./is-not-scribe-marker');
 var isVText = require('../vfocus/is-vtext');
 var findScribeMarkers = require('./find-scribe-markers');
+var errorHandle = require('../error-handle');
 
 module.exports = function isSelectionBetweenNotes(markers) {
 
@@ -15,7 +16,7 @@ module.exports = function isSelectionBetweenNotes(markers) {
 
   //if we get passed the wrong argument
   if (!_.isArray(markers)) {
-    throw new Error('Only an array of markers or a valid VFocus element can be passed to isSelectionBetweenNotes');
+    errorHandle('Only an array of markers or valid VFocus can be passed to isSelectionBetweenMarkers, you passed: %s', focus);
   }
 
   if (markers.length <= 0) return;

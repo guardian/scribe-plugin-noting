@@ -85,7 +85,7 @@ describe('Creating Scribe Notes', function() {
   });
 
 
-  given('we already have a note', function(){
+  given('we already have a note', function() {
 
     var content = [
       '<gu-note class="note" data-note-id="1234">Start</gu-note>',
@@ -94,13 +94,13 @@ describe('Creating Scribe Notes', function() {
     ].join('');
 
     givenContentOf(content, function() {
-      it('should retain the paragraph after the note has been clicked', function(){
+      it('should retain the paragraph after the note has been clicked', function() {
 
-        driver.executeScript(function(){
+        driver.executeScript(function() {
           document.getElementById('end-note').click();
         });
 
-        scribeNode.getInnerHTML().then(function(innerHTML){
+        scribeNode.getInnerHTML().then(function(innerHTML) {
           expect(innerHTML.match(/note--collapsed/g).length).to.equal(3);
         });
 
@@ -108,12 +108,12 @@ describe('Creating Scribe Notes', function() {
     });
   });
 
-  given('we already have a note', function(){
+  given('we already have a note', function() {
     givenContentOf('<p>|This is some content|</p><p>This is some more content</p>', function() {
-      it('should retain the paragraph after the note has been clicked', function(){
+      it('should retain the paragraph after the note has been clicked', function() {
 
-        note().then(function(){
-          scribeNode.getInnerHTML().then(function(innerHTML){
+        note().then(function() {
+          scribeNode.getInnerHTML().then(function(innerHTML) {
             expect(innerHTML.match(/<p>/g).length).to.equal(2);
           });
         });
@@ -150,6 +150,69 @@ describe('Creating Scribe Notes', function() {
           });
         });
       });
+    });
+  });
+});
+
+
+//see this issue for details of why this is here
+//https://github.com/guardian/flexible-content/issues/1396
+given('we already have a note', function() {
+
+  var content = [
+      '<gu-note class="note" data-note-id="1234">Start</gu-note>',
+      '<gu-note class="note" data-note-id="1234">Middle</gu-note>',
+      '<gu-note class="note" data-note-id="1234" id="end-note">End</gu-note>'
+    ].join('');
+
+  givenContentOf(content, function() {
+    it('should retain the paragraph after the note has been clicked', function() {
+
+      driver.executeScript(function() {
+        document.getElementById('end-note').click();
+      });
+
+      scribeNode.getInnerHTML().then(function(innerHTML) {
+        expect(innerHTML.match(/note--collapsed/g).length).to.equal(3);
+      });
+
+    });
+  });
+});
+
+//see this issue for details of why this is here
+//https://github.com/guardian/flexible-content/issues/1397
+given('we already have a note', function() {
+  givenContentOf('<p>|This is some content|</p><p>This is some more content</p>', function() {
+    it('should retain the paragraph after the note has been clicked', function() {
+
+      note().then(function() {
+        scribeNode.getInnerHTML().then(function(innerHTML) {
+          expect(innerHTML.match(/<p>/g).length).to.equal(2);
+        });
+      });
+
+    });
+  });
+});
+
+//see this issue for why this is here
+//https://github.com/guardian/scribe/issues/254
+given('we create a note', function() {
+  givenContentOf('<gu-note><p>This is some <b>conte</b>nt</p><gu-note>|', function() {
+    it('should not insert erroneous <br> tags', function() {
+
+      scribeNode.sendKeys(webdriver.Key.BACK_SPACE)
+        .then(function() {
+          return scribeNode.sendKeys(webdriver.Key.BACK_SPACE);
+        })
+        .then(function() {
+          return scribeNode.getInnerHTML();
+        })
+        .then(function(innerHTML) {
+          expect(/<br>/g.test(innerHTML)).to.be.false;
+        });
+
     });
   });
 });

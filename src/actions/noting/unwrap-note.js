@@ -1,22 +1,21 @@
 var _ = require('lodash');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isNoteSegment = require('../../utils/noting/is-note-segment');
+var errorHandle = require('../../utils/error-handle');
 
 module.exports = function unWrapNote(focus) {
 
   if (!isVFocus(focus) || !focus.parent) {
-    throw new Error('Only a valid VFocus element can be passed to unWrapNote');
+    errorHandle('Only a valid VFocus can be passed to unWrapNote, you passed: %s', focus);
   }
 
   if (!isNoteSegment(focus)) {
-    throw new Error('Only a note may be passed to unWrapnote');
+    errorHandle('Only a valid VFocus can be passed to unWrapnote, you passed: %s', focus);
   }
 
   var note = focus.vNode;
 
-  var tree = !!focus.parent.vNode
-    ? focus.parent.vNode.children
-    : focus.parent.children;
+  var tree = !!focus.parent.vNode ? focus.parent.vNode.children : focus.parent.children;
 
   //remove note and add children
   tree.splice(tree.indexOf(note), 1, note.children);

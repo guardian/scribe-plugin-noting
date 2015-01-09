@@ -5,3 +5,4 @@ vendor
 *.log
 tags
 .DS_Store
+.tern-project

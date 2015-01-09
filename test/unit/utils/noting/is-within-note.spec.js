@@ -1,4 +1,4 @@
-path = require('path');
+var path = require('path');
 var chai = require('chai');
 var expect = chai.expect;
 

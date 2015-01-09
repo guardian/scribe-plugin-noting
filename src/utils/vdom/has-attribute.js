@@ -1,9 +1,10 @@
 var toCamelCase = require('../to-camel-case');
+var errorHandle = require('../error-handle');
 
 module.exports = function hasAttribute(vNode, attribute, value) {
 
   if (!vNode || !attribute) {
-    throw new Error('Incorrect arguments passed to hasAttribute');
+    errorHandle('Incorrect arguments passed to hasAttribute, you passed: %s', arguments);
   }
 
   var isTestingDataAttib = /data/.test(attribute);

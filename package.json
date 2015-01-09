@@ -3,32 +3,28 @@
   "version": "0.3.4",
   "main": "scribe-plugin-noting.js",
   "dependencies": {
-    "lodash": "2.4.1",
+    "lodash": "^2.4.1",
     "vdom-virtualize": "git://github.com/marcelklehr/vdom-virtualize.git#38c9027e35d194502f74455be721ae49fb31621c",
     "virtual-dom": "0.0.20",
     "virtual-hyperscript": "4.4.0",
     "vtree": "0.0.20"
   },
   "devDependencies": {
-    "glob": "^4.1.5",
-    "q": "^1.1.2",
+    "6to5": "^2.7.4",
+    "6to5ify": "^3.1.0",
     "browserify": "^5.0.7",
     "chai": "~1.9.1",
+    "glob": "^4.1.5",
     "highland": "^1.29.0",
     "http-server": "^0.7.1",
+    "less": "^2.2.0",
     "mocha": "^2.0.1",
     "mversion": "^1.3.0",
     "nodemon": "^1.2.1",
-    "plumber": "~0.3.0",
-    "plumber-all": "~0.3.0",
-    "plumber-cli": "~0.3.0",
-    "plumber-glob": "~0.3.0",
-    "plumber-less": "^0.3.0",
-    "plumber-requirejs": "~0.3.0",
-    "plumber-uglifyjs": "~0.3.0",
-    "plumber-write": "~0.3.0",
+    "q": "^1.1.2",
     "scribe-test-harness": "~0.0.6",
     "selenium-webdriver": "^2.44.0",
+    "uglify-js": "^2.4.16",
     "webdriver-manager": "^1.0.1"
   },
   "scripts": {
@@ -36,11 +32,15 @@
     "test-chrome": "TEST_SERVER_PORT=9090 BROWSER_NAME='chrome' ./run-tests.sh",
     "test": "npm run test-chrome",
     "postinstall": "bower install",
-    "build": "plumber build",
+    "pre-build": "rm -rf ./build && mkdir ./build",
+    "browserify-js": "browserify --standalone scribe-plugin-noting --debug scribe-plugin-noting.js --transform 6to5ify -o ./build/scribe-plugin-noting.js",
+    "build-js": "npm run browserify-js && uglifyjs ./build/scribe-plugin-noting.js --source-map ./build/scribe-plugin-noting.js.map -c > ./build/scribe-plugin-noting.min.js",
+    "build-less": "lessc ./src/skins/gu-noting.less ./build/skins/gu-noting.css",
+    "build": "npm run pre-build && npm run build-js && npm run build-less",
     "watch": "nodemon --watch src --watch test --exec 'npm run test'"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/guardian/scribe-plugin-noting.git"
-}
   }
+}
