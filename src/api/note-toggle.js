@@ -39,26 +39,7 @@ var userAndTimeAsDatasetAttrs = require('../utils/get-note-data-attrs');
 var createVirtualScribeMarker = require('../utils/create-virtual-scribe-marker');
 var createNoteBarrier = require('../utils/create-note-barrier');
 var updateNoteBarriers = require('../actions/noting/reset-note-barriers');
-
-// tree - tree containing a marker.
-// Note that we will mutate the tree.
-function createEmptyNoteAtCaret(treeFocus) {
-  // We need a zero width space character to make the note selectable.
-  var zeroWidthSpace = '\u200B';
-
-  // To make sure the caret is placed within the note we place a scribe
-  // maker within it.
-  // Chrome is picky about needing the space to be before the marker
-  // (otherwise the caret won't be placed within the note).
-  var replacementVNode = wrapInNote([zeroWidthSpace, createVirtualScribeMarker()], userAndTimeAsDatasetAttrs());
-
-  // We assume there's only one marker.
-  var marker = vdom.findMarkers(treeFocus)[0];
-  marker.replace(replacementVNode);
-
-  var noteSegments = vdom.findEntireNote(marker);
-  updateNoteProperties(noteSegments);
-}
+var createEmptyNoteAtCaret = require('../actions/noting/create-note-at-caret');
 
 // treeFocus: tree focus of tree containing two scribe markers
 // Note that we will mutate the tree.
@@ -307,72 +288,7 @@ function mergeIfNecessary(treeFocus) {
   });
 }
 
-
-// In a contenteditable, Scribe currently insert a <BR> tag into empty elements.
-// This causes styling issues when the user deletes a part of a note,
-// e.g. using backspace. This function provides a workaround and should be run
-// anytime a note segment might be empty (as defined by `vdom.consideredEmpty`).
-// TODO: Fix this in Scribe.
-function preventBrTags(treeFocus) {
-  function isTrue(obj) {
-    return !!obj;
-  }
-
-  function removeEmptyAncestors(focus) {
-    var f = focus;
-    while (f) {
-      if (!f.canDown()) f.remove();
-      f = f.up();
-    }
-  }
-
-  // When we delete a space we want to add a space to the previous
-  // note segment.
-  function addSpaceToPrevSegment(segment) {
-    var prevNoteSegment = segment.prev().find(vdom.focusOnNote, 'prev');
-
-    if (prevNoteSegment) {
-      var lastTextNode = _.last(prevNoteSegment.vNode.children.filter(isVText));
-      if (lastTextNode) lastTextNode.text = lastTextNode.text + ' ';
-    }
-  }
-
-  // We're only interested in when content is removed, meaning
-  // there should only be one marker (a collapsed selection).
-  //
-  // Could possibly develop a way of knowing deletions from
-  // additions, but this isn't necessary at the moment.
-  var markers = vdom.findMarkers(treeFocus);
-  if (markers.length === 2) return;
-
-
-  // We're good to go.
-  var marker = markers[0];
-  if (!marker) return;
-  // Let's find any note segment before or after the marker.
-  var segments = [
-    marker.find(vdom.focusOnNote, 'prev'),
-    marker.find(vdom.focusOnNote)
-  ].filter(isTrue);
-
-  // Replace/delete empty notes, and parents that might have become empty.
-  segments.filter(function(segment) {
-      return !!segment;
-    })
-    .map(function(segment) {
-      if (vdom.withEmptyTextNode(segment)) addSpaceToPrevSegment(segment);
-
-      if (vdom.withoutText(segment) || vdom.withEmptyTextNode(segment)) {
-        // In Chrome, removing causes text before the note to be deleted when
-        // deleting the last note segment. Replacing with an empty node works
-        // fine in Chrome and FF.
-        var replaced = segment.replace(new VText('\u200B'));
-
-        removeEmptyAncestors(replaced);
-      }
-    });
-
-}
+var preventBrTags = require('../actions/noting/remove-erroneous-br-tags');
 
 
 exports.ensureNoteIntegrity = function(treeFocus) {
