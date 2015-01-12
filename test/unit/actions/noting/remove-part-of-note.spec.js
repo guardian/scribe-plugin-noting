@@ -11,9 +11,9 @@ var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 
 var removePartOfNote = require(path.resolve(process.cwd(), 'src/actions/noting/remove-part-of-note'));
 
-describe('removePartNote()', function() {
+describe('removePartNote()', ()=> {
 
-  it('should remove a note segment that is selected', function() {
+  it('should remove a note segment that is selected', ()=> {
 
     var tree = h('p', [
       h('gu-note', {dataset: {noteId: 1234}}, [

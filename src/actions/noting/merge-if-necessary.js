@@ -27,7 +27,7 @@ var resetNoteSegmentClasses = require('./reset-note-segment-classes');
    */
 module.exports = function mergeIfNecessary(focus){
 
-  if(!isVFocus(focus)){
+  if (!isVFocus(focus)){
     errorHandle('Only a valid VFocus can be passed to mergeIfNecessary, you pased: %s', focus);
   }
 

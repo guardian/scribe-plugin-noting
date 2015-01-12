@@ -10,9 +10,9 @@ var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 
 var createNoteFromSelection = require(path.resolve(process.cwd(), 'src/actions/noting/create-note-from-selection'));
 
-describe('createNoteFromSelection()', function() {
+describe('createNoteFromSelection()', ()=> {
 
-  it('should create a note wrapping the selected text', function() {
+  it('should create a note wrapping the selected text', ()=> {
 
     var tree = h('p', [
       h('em.scribe-marker'),
@@ -27,7 +27,7 @@ describe('createNoteFromSelection()', function() {
 
   });
 
-  it('should create a note wrapping ONLY the selected text', function() {
+  it('should create a note wrapping ONLY the selected text', ()=> {
 
     var tree = h('div', [
       h('p', 'This is some text'),

@@ -12,7 +12,7 @@ var ensureNoteIntegrity = require('./ensure-note-integrity');
 // Note that we will mutate the tree.
 module.exports = function removeNote(focus){
 
-  if(!isVFocus(focus)){
+  if (!isVFocus(focus)){
     errorHandle('Only a valid VFocus element can be passed to removeNote, you passed: %s', focus);
   }
 

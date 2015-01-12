@@ -25,7 +25,7 @@ module.exports = function preventBrTags(focus) {
   var markers = findScribeMarkers(focus);
 
   //if we have a selection return
-  if(markers.length === 2 || !markers[0]){
+  if (markers.length === 2 || !markers[0]){
     return;
   }
 
@@ -39,28 +39,28 @@ module.exports = function preventBrTags(focus) {
 
   // Replace/delete empty notes, and parents that might have become empty.
   segments.map(segment => {
-    if(hasOnlyEmptyTexChildren(segment)){
+    if (hasOnlyEmptyTexChildren(segment)){
       // When we delete a space we want to add a space to the previous
       // note segment.
       var prevNoteSegment  = segment.prev().find(isNoteSegment, 'prev');
-      if(prevNoteSegment){
+      if (prevNoteSegment){
         //get the last text node
         var lastTextNode = prevNoteSegment.vNode.children.filter(isVText).slice(-1)[0];
-        if(lastTextNode){
+        if (lastTextNode){
           lastTextNode.text = lastTextNode.text + ' ';
         }
       }
     }
 
-    if(hasNoTextChildren(segment) || hasOnlyEmptyTexChildren(segment)){
+    if (hasNoTextChildren(segment) || hasOnlyEmptyTexChildren(segment)){
       // In Chrome, removing causes text before the note to be deleted when
       // deleting the last note segment. Replacing with an empty node works
       // fine in Chrome and FF.
       var replaced = segment.replace(new VText('\u200B'));
 
       //remove empty ancestor nodes
-      while(replaced){
-        if(!replaced.canDown()){
+      while (replaced){
+        if (!replaced.canDown()){
           replaced.remove();
         }
         replaced = replaced.up();

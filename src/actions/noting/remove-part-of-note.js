@@ -41,7 +41,7 @@ var removeEmptyNotes = require('./remove-empty-notes');
 */
 module.exports = function removePartofNote(focus){
 
-  if(!isVFocus(focus)){
+  if (!isVFocus(focus)){
     errorHandle('Only a valid VFocus can be passed to unNotePartOfNote, you passed: %s', focus);
   }
 
@@ -74,7 +74,7 @@ module.exports = function removePartofNote(focus){
   // and/or right of the selection will have been created. We need to update
   // their attributes and CSS classes.
   var onlyPartOfContentsSelected = focusesToNote[0];
-  if(onlyPartOfContentsSelected){
+  if (onlyPartOfContentsSelected){
     ensureNoteIntegrity(onlyPartOfContentsSelected.top());
   }
 

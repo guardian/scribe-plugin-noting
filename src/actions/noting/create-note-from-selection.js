@@ -22,7 +22,7 @@ var removeEmptyNotes = require('../../actions/noting/remove-empty-notes');
 // Note that we will mutate the tree.
 module.exports = function createNoteFromSelection(focus){
 
-  if(!isVFocus(focus)){
+  if (!isVFocus(focus)){
     errorHandle('Only a valid VFocus element can be passed to createNoteFromSelection, you passed: %s', focus);
   }
   // We want to wrap text nodes between the markers. We filter out nodes that have

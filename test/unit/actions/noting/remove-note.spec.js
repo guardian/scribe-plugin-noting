@@ -9,9 +9,9 @@ var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 
 var removeNote = require(path.resolve(process.cwd(), 'src/actions/noting/remove-note'));
 
-describe('removeNote()', function() {
+describe('removeNote()', ()=> {
 
-  it('should remove a note that surrounds the caret', function() {
+  it('should remove a note that surrounds the caret', ()=> {
 
     var tree = h('p', [
       h('gu-note', {dataset: {noteId: 1234}}, [
