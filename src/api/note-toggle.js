@@ -183,47 +183,8 @@ function unnotePartOfNote(treeFocus) {
   shows the time when the notes were merged.
  */
 
-function mergeIfNecessary(treeFocus) {
-
-  function inconsistentTimestamps(note) {
-    function getDataDate(noteSegment) {
-      return noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL];
-    }
-
-    var uniqVals = _(note).map(getDataDate).uniq().value();
-    return uniqVals.length > 1;
-  }
-
-  function lacksStartOrEnd(note) {
-    var hasNoteStart = 'noteStart' in note[0].vNode.properties.dataset;
-    var hasNoteEnd = 'noteEnd' in note[note.length - 1].vNode.properties.dataset;
-
-    return !(hasNoteStart && hasNoteEnd);
-  }
-
-  // Merging is simply a matter of updating the attributes of any notes
-  // where all the segments of the note doesn't have the same timestamp,
-  // or where there's no start or end property (e.g. when the user has deleted
-  // the last note segment of a note).
-  function criteria(note) {
-    return inconsistentTimestamps(note) || lacksStartOrEnd(note);
-  }
-  vdom.findAllNotes(treeFocus).filter(criteria).forEach(function(note) {
-    note[0].vNode.hasBeenRound = true;
-    updateNoteProperties(note);
-  });
-}
-
-
-
-exports.ensureNoteIntegrity = function(treeFocus) {
-  // cache must be up to date before running this
-  vdom.updateNotesCache(treeFocus);
-  mergeIfNecessary(treeFocus);
-  updateNoteBarriers(treeFocus);
-  preventBrTags(treeFocus);
-};
-
+var  mergeIfNecessary = require('../actions/noting/merge-if-necessary');
+var ensureNoteIntegrity = exports.ensureNoteIntegrity = require('../actions/noting/ensure-note-integrity');
 
 exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, selection) {
   function state() {
