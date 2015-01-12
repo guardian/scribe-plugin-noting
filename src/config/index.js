@@ -4,7 +4,8 @@ var _ = require('lodash');
 var config = {
   user: 'unknown',
   nodeName: 'GU-NOTE',
-  className: 'gu-note',
+  tagName: 'gu-note',
+  classname: 'note',
   dataName: 'data-note-edited-by',
   dataNameCamel: 'dataNoteEditedBy',
   dataDate: 'data-note-edited-date',
