@@ -144,7 +144,7 @@ describe('VFocus - Movements', function() {
     nextTreeFocus = new VFocus(nextTree);
   });
 
-   it.only('focuses nodes in the right order', function() {
+   it('focuses next nodes in the right order', function() {
     var firstNextFocus = nextTreeFocus.next();
     expect(firstNextFocus.vNode).to.equal(firstNode);
 
@@ -159,7 +159,42 @@ describe('VFocus - Movements', function() {
    });
  });
 
-  // TODO: Cover the different cases for prev().
+  describe('prev()', function() {
+
+    var prevTreeFocus, prevTree, firstNode, secondNode, thirdNode, fourthNode;
+    beforeEach(function() {
+      prevTree = h(
+        'div', [
+          h('p#4', [
+            h('b#3'),
+            h('i#2')
+          ]),
+          h('p#1')
+      ]);
+          
+      firstNode = prevTree.children[1];
+      fourthNode = prevTree.children[0];
+      secondNode = fourthNode.children[1];
+      thirdNode = fourthNode.children[0];
+
+      prevTreeFocus = new VFocus(prevTree);
+    });
+
+    it('fucuses prev nodes in the right order', function() {
+      // go to the last element of the three
+      var firstPrevFocus = prevTreeFocus.next().next().next().next();
+      expect(firstPrevFocus.vNode).to.equal(firstNode);
+
+      var secondPrevFocus = firstPrevFocus.prev();
+      expect(secondPrevFocus.vNode).to.equal(secondNode);
+
+      var thirdPrevFocus = secondPrevFocus.prev();
+      expect(thirdPrevFocus.vNode).to.equal(thirdNode);
+
+      var fourthPrevFocus = thirdPrevFocus.prev();
+      expect(fourthPrevFocus.vNode).to.equal(fourthNode);
+    });
+  });
 
   describe('top()', function() {
 
