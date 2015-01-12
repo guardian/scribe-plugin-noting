@@ -29,11 +29,6 @@ var unwrap = require('../actions/noting/unwrap-note');
 var addUniqueVNodeClass = require('../actions/vdom/add-class');
 var removeVNodeClass = require('../actions/vdom/remove-class');
 var generateUUID = require('../utils/generate-uuid');
-
-
-// Ensure the first (and only the first) note segment has a
-// `note--start` class and that the last (and only the last)
-// note segment has a `note--end` class.
 var updateNoteProperties = require('../actions/noting/reset-note-segment-classes');
 var userAndTimeAsDatasetAttrs = require('../utils/get-note-data-attrs');
 var createVirtualScribeMarker = require('../utils/create-virtual-scribe-marker');
@@ -43,105 +38,8 @@ var createEmptyNoteAtCaret = require('../actions/noting/create-note-at-caret');
 var preventBrTags = require('../actions/noting/remove-erroneous-br-tags');
 var createNoteFromSelection = require('../actions/noting/create-note-from-selection');
 var unnote = require('../actions/noting/remove-note');
-
-/*
-Unnote part of note, splitting the rest of the original note into new notes.
-
-Example
--------
-Text within a note has been selected:
-
-  <p>Asked me questions about the vessel<gu-note>|, the time she left Marseilles|, the
-  course she had taken,</gu-note> and what was her cargo. I believe, if she had not
-  been laden, and I had been her master, he would have bought her.</p>
-
-
-We find the entire note and, within the note, we note everything _but_ what we want to unnote:
-
-  <p>Asked me questions about the vessel<gu-note>, the time she left Marseilles<gu-note>, the
-  course she had taken,</gu-note></gu-note> and what was her cargo. I believe, if she had not
-  been laden, and I had been her master, he would have bought her.</p>
-
-
-Then we unwrap the previously existing note. The text we selected has been unnoted:
-
-  <p>Asked me questions about the vessel, the time she left Marseilles<gu-note>, the
-  course she had taken,</gu-note> and what was her cargo. I believe, if she had not
-  been laden, and I had been her master, he would have bought her.</p>
-
-*/
-function unnotePartOfNote(treeFocus) {
-  function notToBeUnnoted(focus) {
-    var candidateVTextNode = focus.vNode;
-    return textNodesToUnnote.indexOf(candidateVTextNode) === -1;
-  }
-
-  var focusesToUnnote = vdom.findTextNodeFocusesBetweenMarkers(treeFocus);
-  var entireNote = vdom.findEntireNote(focusesToUnnote[0]);
-
-
-  var entireNoteTextNodeFocuses = _(entireNote).map(vdom.focusAndDescendants)
-    .flatten().value().filter(vdom.focusOnTextNode);
-
-  var entireNoteTextNodes = entireNoteTextNodeFocuses.map(function(focus) {
-    return focus.vNode;
-  });
-
-
-  var textNodesToUnnote = focusesToUnnote.map(function(focus) {
-    return focus.vNode;
-  });
-  var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
-
-
-  var focusesToNote = entireNoteTextNodeFocuses.filter(notToBeUnnoted);
-  var userAndTime = userAndTimeAsDatasetAttrs();
-
-
-  // Wrap the text nodes.
-  var wrappedTextNodes = toWrapAndReplace.map(function(vNode) {
-    return wrapInNote(vNode, userAndTime);
-  });
-
-  // Replace the nodes in the tree with the wrapped versions.
-  _.zip(focusesToNote, wrappedTextNodes).forEach(function(focusAndReplacementVNode) {
-    var focus = focusAndReplacementVNode[0];
-    var replacementVNode = focusAndReplacementVNode[1];
-
-    focus.replace(replacementVNode);
-  });
-
-  // Unwrap previously existing note.
-  entireNote.forEach(unwrap);
-
-
-  // Unless the user selected the entire note contents, notes to the left
-  // and/or right of the selection will have been created. We need to update
-  // their attributes and CSS classes.
-  var onlyPartOfContentsSelected = focusesToNote[0];
-
-
-  if (onlyPartOfContentsSelected) {
-    var tf = focusesToNote[0].top();
-    exports.ensureNoteIntegrity(tf);
-  }
-
-  // Place marker immediately before the note to the right (this way of doing
-  // that seems to be the most reliable for some reason). Both Chrome and
-  // Firefox have issues with this however. To force them to behave we insert
-  // an empty span element inbetween.
-  var markers = vdom.findMarkers(treeFocus.refresh());
-  _.last(markers).insertAfter(new VText('\u200B'));
-  markers[0].remove();
-
-
-  // If the user selected everything but a space (or zero width space), we remove
-  // the remaining note. Most likely that's what our user intended.
-  vdom.removeEmptyNotes(treeFocus.refresh());
-
-}
-
-var  mergeIfNecessary = require('../actions/noting/merge-if-necessary');
+var unnotePartOfNote = require('../actions/noting/remove-part-of-note');
+var mergeIfNecessary = require('../actions/noting/merge-if-necessary');
 var ensureNoteIntegrity = exports.ensureNoteIntegrity = require('../actions/noting/ensure-note-integrity');
 
 exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, selection) {
