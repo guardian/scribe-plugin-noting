@@ -40,6 +40,7 @@ var createVirtualScribeMarker = require('../utils/create-virtual-scribe-marker')
 var createNoteBarrier = require('../utils/create-note-barrier');
 var updateNoteBarriers = require('../actions/noting/reset-note-barriers');
 var createEmptyNoteAtCaret = require('../actions/noting/create-note-at-caret');
+var preventBrTags = require('../actions/noting/remove-erroneous-br-tags');
 
 // treeFocus: tree focus of tree containing two scribe markers
 // Note that we will mutate the tree.
@@ -288,7 +289,6 @@ function mergeIfNecessary(treeFocus) {
   });
 }
 
-var preventBrTags = require('../actions/noting/remove-erroneous-br-tags');
 
 
 exports.ensureNoteIntegrity = function(treeFocus) {

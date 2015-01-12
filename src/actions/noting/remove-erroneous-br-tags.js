@@ -22,7 +22,8 @@ module.exports = function preventBrTags(focus) {
   //
   // Could possibly develop a way of knowing deletions from
   // additions, but this isn't necessary at the moment.
-  var markrs = findScribeMarkers(focus);
+  var markers = findScribeMarkers(focus);
+
   //if we have a selection return
   if(markers.length === 2 || !markers[0]){
     return;
@@ -37,7 +38,7 @@ module.exports = function preventBrTags(focus) {
   ].filter(o => !!o);
 
   // Replace/delete empty notes, and parents that might have become empty.
-  segment.map(segment => {
+  segments.map(segment => {
     if(hasOnlyEmptyTexChildren(segment)){
       // When we delete a space we want to add a space to the previous
       // note segment.
@@ -59,10 +60,10 @@ module.exports = function preventBrTags(focus) {
 
       //remove empty ancestor nodes
       while(replaced){
-        if(!replced.canDown()){
-          replced.remove();
-          replaced = replaced.up();
+        if(!replaced.canDown()){
+          replaced.remove();
         }
+        replaced = replaced.up();
       }
     }
   });
