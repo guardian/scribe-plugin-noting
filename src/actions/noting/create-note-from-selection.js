@@ -72,7 +72,7 @@ module.exports = function createNoteFromSelection(focus){
       // The user's selection ends within a paragraph.
       // To place a marker we have to place an element inbetween the note barrier
       // and the marker, or Chrome will place the caret inside the note.
-      focusOutsideNote.insertBefore([new VText('\u200B'), createVirtualScribeMarker()]);
+      outsideNoteFocus.insertBefore([new VText('\u200B'), createVirtualScribeMarker()]);
     } else {
 
       // The user's selection ends with a whole paragraph being selected. Now

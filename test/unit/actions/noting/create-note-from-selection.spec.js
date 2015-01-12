@@ -23,12 +23,28 @@ describe('createNoteFromSelection()', function() {
     tree = new VFocus(tree);
     tree = createNoteFromSelection(tree);
 
-    console.log('-----------------------');
-    console.log(tree);
-    console.log('-----------------------');
-
     expect(tree.next().vNode.tagName).to.equal('gu-note');
 
   });
+
+  it('should create a note wrapping ONLY the selected text', function() {
+
+    var tree = h('div', [
+      h('p', 'This is some text'),
+      h('em.scribe-marker'),
+      h('p', 'This is some text'),
+      h('em.scribe-marker'),
+      h('p', 'This is some text'),
+    ]);
+
+    tree = new VFocus(tree);
+    tree = createNoteFromSelection(tree);
+
+    expect(tree.next().vNode.tagName).not.to.equal('gu-note');
+    expect(tree.next().next().vNode.tagName).not.to.equal('gu-note');
+
+  });
+
+
 
 });
