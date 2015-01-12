@@ -42,26 +42,7 @@ var updateNoteBarriers = require('../actions/noting/reset-note-barriers');
 var createEmptyNoteAtCaret = require('../actions/noting/create-note-at-caret');
 var preventBrTags = require('../actions/noting/remove-erroneous-br-tags');
 var createNoteFromSelection = require('../actions/noting/create-note-from-selection');
-
-// treeFocus: tree focus of tree containing two scribe markers
-// Note that we will mutate the tree.
-function unnote(treeFocus) {
-  // We assume the caller knows there's only one marker.
-  var marker = vdom.findMarkers(treeFocus)[0];
-  // We can't use findEntireNote here since it'll sometimes give us the wrong result.
-  // See `findEntireNote` documentation. Instead we look the note up by its ID.
-  vdom.updateNotesCache(treeFocus);
-  var noteSegment = vdom.findAncestorNoteSegment(marker);
-  var noteSegments = vdom.findNote(treeFocus, noteSegment.vNode.properties.dataset.noteId);
-
-  noteSegments.forEach(unwrap);
-
-  exports.ensureNoteIntegrity(treeFocus);
-
-  // The marker is where we want it to be (the same position) so we'll
-  // just leave it.
-}
-
+var unnote = require('../actions/noting/remove-note');
 
 /*
 Unnote part of note, splitting the rest of the original note into new notes.
@@ -159,29 +140,6 @@ function unnotePartOfNote(treeFocus) {
   vdom.removeEmptyNotes(treeFocus.refresh());
 
 }
-
-
-/*
-  Example. We have two notes:
-  <p>
-    <gu-note>Some noted text</gu-note>| and some other text inbetween |<gu-note>More noted text</gu-note>
-  </p>
-
-  We press BACKSPACE, deleting the text, and end up with:
-  <p>
-    <gu-note data-note-edited-by="Edmond Dantès" data-note-edited-date="2014-09-15T16:49:20.012Z">Some noted text</gu-note><gu-note data-note-edited-by="Lord Wilmore" data-note-edited-date="2014-09-20T10:00:00.012Z">More noted text</gu-note>
-  </p>
-
-  This function will merge the notes:
-  <p>
-    <gu-note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">Some noted text</gu-note><gu-note data-note-edited-by="The Count of Monte Cristo" data-note-edited-date="2014-10-10T17:00:00.012Z">More noted text</gu-note>
-  </p>
-
-  The last user to edit "wins", the rationale being that they have approved
-  these notes by merging them. In this case all note segments are now
-  listed as being edited by The Count of Monte Cristo and the timestamp
-  shows the time when the notes were merged.
- */
 
 var  mergeIfNecessary = require('../actions/noting/merge-if-necessary');
 var ensureNoteIntegrity = exports.ensureNoteIntegrity = require('../actions/noting/ensure-note-integrity');
