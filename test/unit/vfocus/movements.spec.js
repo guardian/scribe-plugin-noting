@@ -101,7 +101,7 @@ describe('VFocus - Movements', function() {
     beforeEach(function() {
       leftTree = h('div', [
         h('p#first'),
-        h('p#last')
+        h('p#last') 
       ]);
 
       firstParagraph = leftTree.children[0];
@@ -123,7 +123,41 @@ describe('VFocus - Movements', function() {
 
   });
 
-  // TODO: Cover the different cases for next().
+ describe('next()', function() {
+
+  var nextTreeFocus, nextTree, firstNode, secondNode, thirdNode, fourthNode;
+  beforeEach(function() {
+    nextTree = h(
+      'div', [
+        h('p#1', [
+          h('b#2'),
+          h('i#3')
+        ]),
+        h('p#4')
+    ]);
+    
+    firstNode = nextTree.children[0];
+    secondNode = firstNode.children[0];
+    thirdNode = firstNode.children[1];
+    fourthNode = nextTree.children[1];
+
+    nextTreeFocus = new VFocus(nextTree);
+  });
+
+   it.only('focuses nodes in the right order', function() {
+    var firstNextFocus = nextTreeFocus.next();
+    expect(firstNextFocus.vNode).to.equal(firstNode);
+
+    var secondNextFocus = firstNextFocus.next();
+    expect(secondNextFocus.vNode).to.equal(secondNode);
+
+    var thirdNextFocus = secondNextFocus.next();
+    expect(thirdNextFocus.vNode).to.equal(thirdNode);
+
+    var fourthNextFocus = thirdNextFocus.next();
+    expect(fourthNextFocus.vNode).to.equal(fourthNode);
+   });
+ });
 
   // TODO: Cover the different cases for prev().
 
