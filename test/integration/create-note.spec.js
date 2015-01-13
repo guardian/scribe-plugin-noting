@@ -35,8 +35,11 @@ describe('Creating Scribe Notes', function() {
               // Expect one start and one end attribute
               var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
               var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
+              var numberOfNoteUndefinedElements = innerHTML.match(/undefined/g);
+
               expect(numberOfNoteStartAttributes).to.equal(1);
               expect(numberOfNoteEndAttributes).to.equal(1);
+              expect(numberOfNoteUndefinedElements).to.be.a('null');
 
               expect(innerHTML).to.include('data-note-edited-by');
               expect(innerHTML).to.include('data-note-edited-date');

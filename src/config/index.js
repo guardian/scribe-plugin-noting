@@ -5,7 +5,7 @@ var config = {
   user: 'unknown',
   nodeName: 'GU-NOTE',
   tagName: 'gu-note',
-  classname: 'note',
+  className: 'note',
   dataName: 'data-note-edited-by',
   dataNameCamel: 'dataNoteEditedBy',
   dataDate: 'data-note-edited-date',
