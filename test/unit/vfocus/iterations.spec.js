@@ -74,19 +74,18 @@ describe('VFocus - Iterations', function() {
         'div#0', [
           h('p#1', [
             h('b#2'),
-            h('i#3')
+            h('i')
           ]),
-          h('p')
+          h('p#3')
       ]);
 
       rootVFocus = new VFocus(takeWhileTree);
       firstVFocus = rootVFocus.next();
       secondVFocus = firstVFocus.next();
-      thirdVFocus = secondVFocus.next();
     });
 
-    it('returns the right list of node that have and id', function(){
-      var expectedList = [rootVFocus, firstVFocus, secondVFocus, thirdVFocus];
+    it('takes nodes until the predicate is false', function(){
+      var expectedList = [rootVFocus, firstVFocus, secondVFocus];
       var returnedList = rootVFocus.takeWhile(vFocus => !!vFocus.vNode.properties.id);
 
       expect(returnedList).to.deep.equal(expectedList);
@@ -140,7 +139,7 @@ describe('VFocus - Iterations', function() {
 
     it('finds the node with the expected id', function(){
       var expectedVFocus = rootVFocus.next().next().next();
-      var foundVFocus = rootVFocus.find(vFocus => !!(vFocus.vNode.properties.id === '3'));
+      var foundVFocus = rootVFocus.find(vFocus => vFocus.vNode.properties.id === '3');
 
       expect(foundVFocus.vNode).to.equal(expectedVFocus.vNode);
     });

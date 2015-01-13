@@ -180,7 +180,7 @@ describe('VFocus - Movements', function() {
       prevTreeFocus = new VFocus(prevTree);
     });
 
-    it('fucuses prev nodes in the right order', function() {
+    it('focuses prev nodes in the right order', function() {
       // go to the last element of the three
       var firstPrevFocus = prevTreeFocus.next().next().next().next();
       expect(firstPrevFocus.vNode).to.equal(firstNode);
