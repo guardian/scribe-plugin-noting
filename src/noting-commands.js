@@ -11,6 +11,7 @@ var noteCollapse = require('./api/note-collapse');
 var vdom = require('./noting-vdom');
 var _ = require('lodash');
 var configStore = require('./config');
+var generateNoteController = require('./NoteController.js');
 
 var scribeSelector;
 
@@ -20,6 +21,10 @@ var scribeSelector;
  * @param  {String} user  Current user string.
  */
 exports.init = function(scribe, config) {
+
+  var NoteController = generateNoteController(scribe, config);
+
+
   // initialise current user for Noting API
   noteToggle.user = config.user;
 
@@ -34,7 +39,6 @@ exports.init = function(scribe, config) {
   scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);
   scribe.commands.noteCollapseToggleAll = createCollapseToggleAllCommand(scribe);
 
-  addNoteToggleListener(scribe);
   addNoteCollapseListener(scribe);
 
   addContentChangedListener(scribe);
@@ -124,20 +128,6 @@ function createCollapseToggleAllCommand(scribe) {
 
   return collapseAllCommand;
 
-}
-
-
-function addNoteToggleListener(scribe) {
-  scribe.el.addEventListener('keydown', function (event) {
-    var f8 = event.keyCode === 119;
-    var f10 = event.keyCode === 121;
-    var altBackspace = event.altKey && event.keyCode === 8;
-
-    if (f8 || f10 || altBackspace) {
-      event.preventDefault();
-      scribe.getCommand('note').execute();
-    }
-  });
 }
 
 
