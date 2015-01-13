@@ -1,5 +1,7 @@
 var _ = require('lodash');
+
 var config = require('./config');
+var emitter = require('./utils/emitter');
 
 var findScribeMarkers = require('./utils/noting/find-scribe-markers');
 var isSelectionWithinNote = require('./utils/noting/is-selection-within-note');
