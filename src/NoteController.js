@@ -46,9 +46,8 @@ module.exports = function(scribe, attrs){
 
     // noteKeyAction is triggered on key press and dynamically figures out what kind of note to create
     // selectors should be passed through the config object the default selector looks like this:
-    // selectors: [ {'gu-note': [ 119 , 121 , {'altKey', 8} ]} ];
-    // where the key is the tagName (default is gu-note) and the val is an array of key codes
-    // if you need a special key (the default uses alt) specify an object within the array
+    // selectors: [ commandName: 'note', tagName: 'gu-note, {'keyCodes': [ 119 , 121 , {'altKey', 8} ]} ];
+    // if you need a special key (the default uses alt) specify an object within the keyCodes array
     // where the key is the modifier (expected on the event object)
     // and the val is the key code
     onNoteKeyAction(e) {
