@@ -35,38 +35,11 @@ exports.init = function(scribe, config) {
 
   configStore.set(config)
 
-  scribe.commands.note = createNoteToggleCommand(scribe);
   scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);
   scribe.commands.noteCollapseToggleAll = createCollapseToggleAllCommand(scribe);
 
 
 };
-
-
-function createNoteToggleCommand(scribe) {
-  var noteCommand = new scribe.api.Command('insertHTML');
-
-  noteCommand.execute = function() {
-
-    vdom.mutateScribe(scribe, function(treeFocus, selection) {
-      noteToggle.toggleNoteAtSelection(treeFocus, selection);
-    });
-
-  };
-
-  noteCommand.queryState = function() {
-    var selection = new scribe.api.Selection();
-
-    return noteToggle.isSelectionInANote(selection.range, scribe.el);
-  };
-
-  noteCommand.queryEnabled = function() {
-    return true;
-  };
-
-  return noteCommand;
-}
-
 
 
 

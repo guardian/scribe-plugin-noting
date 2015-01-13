@@ -3,6 +3,8 @@ var _ = require('lodash');
 var config = require('./config');
 var emitter = require('./utils/emitter');
 
+var NoteCommandFactory = require('./NoteCommandFactory');
+
 var findScribeMarkers = require('./utils/noting/find-scribe-markers');
 var isSelectionWithinNote = require('./utils/noting/is-selection-within-note');
 var removeNote = require('./actions/noting/remove-note');
@@ -20,10 +22,21 @@ module.exports = function(scribe, attrs){
 
   class NoteController {
     constructor() {
+
+      //setup the config
       config.set(attrs);
+
+      config.get('selectors').forEach(selector => {
+        NoteCommandFactory(scribe, selector.commandName, selector.tagName);
+      });
+
+      //browser events
       scribe.el.addEventListener('keydown', e => this.onNoteKeyAction(e));
       scribe.el.addEventListener('click', e => this.onElementClicked(e));
       scribe.el.addEventListener('input', e => this.validateNotes(e));
+
+      //scribe command events
+      emitter.on('command:note', tag => this.note(tag));
     }
 
 

@@ -102,3 +102,4 @@ exports.isSelectionInANote = function isSelectionInANote(selectionRange, parentC
 
   return domFindAncestorNote(selectionRange.startContainer) && domFindAncestorNote(selectionRange.endContainer) && true;
 };
+
