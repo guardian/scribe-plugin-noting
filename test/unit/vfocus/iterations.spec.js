@@ -138,7 +138,7 @@ describe('VFocus - Iterations', function() {
 			rootVFocus = new VFocus(findTree);    	
 		});
 
-		it.only('finds the node with the expected id', function(){
+		it('finds the node with the expected id', function(){
 			var expectedVFocus = rootVFocus.next().next().next();
 			var foundVFocus = rootVFocus.find(vFocus => !!(vFocus.vNode.properties.id === '3'));
 
