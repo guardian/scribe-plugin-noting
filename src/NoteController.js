@@ -7,6 +7,7 @@ var removeNote = require('./actions/noting/remove-note');
 var removePartOfNote = require('./actions/noting/remove-part-of-note');
 var createEmptyNoteAtCaret = require('./actions/noting/create-note-at-caret');
 var createNoteFromSelection = require('./actions/noting/create-note-from-selection');
+var ensureNoteIntegrity = require('./actions/noting/ensure-note-integrity');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -18,6 +19,7 @@ module.exports = function(scribe, attrs){
     constructor() {
       config.set(attrs);
       scribe.el.addEventListener('keydown', e => this.noteKeyAction(e));
+      scribe.el.addEventListener('input', e => this.validateNotes(e));
     }
 
 
@@ -80,6 +82,13 @@ module.exports = function(scribe, attrs){
         }
 
       });
+    }
+
+    //validateNotes makes sure all note--start note--end and data attributes are in place
+    validateNotes() {
+      _.throttle(()=> {
+        mutateScribe(scribe, (focus)=> ensureNoteIntegrity(focus));
+      }, 1000)();
     }
   };
 
