@@ -29,9 +29,7 @@ describe('VFocus - Iterations', function() {
 		it('iterates through the right nodes in the right order', function(){
 			var nodesIds = [];
 			var expectedNodeIds = ['0', '1', '2', '3', '4'];
-			forEachTreeFocus.forEach(function(node){
-				nodesIds.push(node.vNode.properties.id);
-			});
+			forEachTreeFocus.forEach(node => nodesIds.push(node.vNode.properties.id));
 
 			expect(nodesIds).to.deep.equal(expectedNodeIds);
 		});
@@ -40,7 +38,7 @@ describe('VFocus - Iterations', function() {
 
 
 	describe('flatten', function() {
-		var flattenTree, rootNodeFocus, firstNodeFocus, secondNodeFocus, thirdNodeFocus, fourthNodeFocus;
+		var flattenTree, rootVFocus, firstVFocus, secondVFocus, thirdVFocus, fourthVFocus;
 		beforeEach(function() {
 			flattenTree = h(
       	'div#0', [
@@ -51,17 +49,17 @@ describe('VFocus - Iterations', function() {
         	h('p#4')
     	]);
 
-    	rootNodeFocus = new VFocus(flattenTree);
-    	firstNodeFocus = rootNodeFocus.next();
-	    secondNodeFocus = firstNodeFocus.next();
-	    thirdNodeFocus = secondNodeFocus.next();
-	    fourthNodeFocus = thirdNodeFocus.next();
+    	rootVFocus = new VFocus(flattenTree);
+    	firstVFocus = rootVFocus.next();
+	    secondVFocus = firstVFocus.next();
+	    thirdVFocus = secondVFocus.next();
+	    fourthVFocus = thirdVFocus.next();
 		});
 
 
 		it('returns the right list of nodes in the right order', function(){
-			var returnedNodeList = rootNodeFocus.flatten();
-			var expectedNodeList = [rootNodeFocus, firstNodeFocus, secondNodeFocus, thirdNodeFocus, fourthNodeFocus];
+			var returnedNodeList = rootVFocus.flatten();
+			var expectedNodeList = [rootVFocus, firstVFocus, secondVFocus, thirdVFocus, fourthVFocus];
 
 			expect(returnedNodeList).to.deep.equal(expectedNodeList);
 		});
@@ -70,25 +68,55 @@ describe('VFocus - Iterations', function() {
 
 
 	describe('takeWhile', function() {
-
+		var takeWhileTree, rootVFocus, firstVFocus, secondVFocus, thirdVFocus;
 		beforeEach(function() {
+			takeWhileTree = h(
+      	'div#0', [
+        	h('p#1', [
+          	h('b#2'),
+          	h('i#3')
+        	]),
+        	h('p')
+    	]);
 
+			rootVFocus = new VFocus(takeWhileTree);
+    	firstVFocus = rootVFocus.next();
+	    secondVFocus = firstVFocus.next();
+	    thirdVFocus = secondVFocus.next();
 		});
 
-		it('', function(){
+		it('returns the right list of node that have and id', function(){
+			var expectedList = [rootVFocus, firstVFocus, secondVFocus, thirdVFocus];
+			var returnedList = rootVFocus.takeWhile(vFocus => !!vFocus.vNode.properties.id);
 
+			expect(returnedList).to.deep.equal(expectedList);
 		});
 
 	});
 
 
 	describe('filter', function() {
-
+		var filterTree, rootVFocus, firstVFocus, secondVFocus;
 		beforeEach(function() {
+			filterTree = h(
+      	'div', [
+        	h('p#1', [
+          	h('b'),
+          	h('i#3')
+        	]),
+        	h('p')
+    	]);
 
+			rootVFocus = new VFocus(filterTree);
+    	firstVFocus = rootVFocus.next();
+	    secondVFocus = firstVFocus.next().next();
 		});
 
-		it('', function(){
+		it('filters the nodes having an id', function(){
+			var expectedList = [firstVFocus, secondVFocus];
+			var returnedList = rootVFocus.filter(vFocus => !!vFocus.vNode.properties.id);
+
+			expect(returnedList).to.deep.equal(expectedList);
 
 		});
 
@@ -96,13 +124,25 @@ describe('VFocus - Iterations', function() {
 
 
 	describe('find', function() {
-
+		var findTree, rootVFocus;
 		beforeEach(function() {
+			findTree = h(
+      	'div', [
+        	h('p#1', [
+          	h('b'),
+          	h('i#3')
+        	]),
+        	h('p')
+    	]);
 
+			rootVFocus = new VFocus(findTree);    	
 		});
 
-		it('', function(){
+		it.only('finds the node with the expected id', function(){
+			var expectedVFocus = rootVFocus.next().next().next();
+			var foundVFocus = rootVFocus.find(vFocus => !!(vFocus.vNode.properties.id === '3'));
 
+			expect(foundVFocus.vNode).to.equal(expectedVFocus.vNode);
 		});
 
 	});
