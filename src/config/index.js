@@ -14,7 +14,7 @@ var config = {
   dataDateCamel: 'dataNoteEditedDate',
   noteBarrierTag: 'gu-note-barrier',
   noteCollapsedClass: 'note--collapsed',
-  selectors: [{ 'gu-note': [119, 121, {'altKey': 8}] }]
+  selectors: [{ commandName: 'note', tagName: 'gu-note', keyCodes: [119, 121, {'altKey': 8}] }]
 };
 
 module.exports = {

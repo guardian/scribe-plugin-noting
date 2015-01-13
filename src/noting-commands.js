@@ -39,7 +39,6 @@ exports.init = function(scribe, config) {
   scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);
   scribe.commands.noteCollapseToggleAll = createCollapseToggleAllCommand(scribe);
 
-  addNoteCollapseListener(scribe);
 
 };
 
@@ -130,21 +129,3 @@ function createCollapseToggleAllCommand(scribe) {
 }
 
 
-function addNoteCollapseListener(scribe) {
-  scribe.el.addEventListener('click', function(event) {
-    var target = event.target;
-
-    if (target.nodeName == 'GU-NOTE') {
-
-      var selection = new scribe.api.Selection();
-
-      var range = document.createRange();
-      range.selectNodeContents(target);
-
-      selection.selection.removeAllRanges();
-      selection.selection.addRange(range);
-
-      scribe.getCommand('noteCollapseToggle').execute();
-    }
-  });
-}

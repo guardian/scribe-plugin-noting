@@ -8,6 +8,7 @@ var removePartOfNote = require('./actions/noting/remove-part-of-note');
 var createEmptyNoteAtCaret = require('./actions/noting/create-note-at-caret');
 var createNoteFromSelection = require('./actions/noting/create-note-from-selection');
 var ensureNoteIntegrity = require('./actions/noting/ensure-note-integrity');
+var toggleSelectedNoteCollapseState = require('./actions/noting/toggle-selected-note-collapse-state');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -18,7 +19,8 @@ module.exports = function(scribe, attrs){
   class NoteController {
     constructor() {
       config.set(attrs);
-      scribe.el.addEventListener('keydown', e => this.noteKeyAction(e));
+      scribe.el.addEventListener('keydown', e => this.onNoteKeyAction(e));
+      scribe.el.addEventListener('click', e => this.onElementClicked(e));
       scribe.el.addEventListener('input', e => this.validateNotes(e));
     }
 
@@ -30,24 +32,44 @@ module.exports = function(scribe, attrs){
     // if you need a special key (the default uses alt) specify an object within the array
     // where the key is the modifier (expected on the event object)
     // and the val is the key code
-    noteKeyAction(e) {
+    onNoteKeyAction(e) {
       var selectors = config.get('selectors');
       selectors.forEach(selector => {
         //we need to store the tagName to be passed to this.note()
-        var tagName = Object.keys(selector)[0];
+        var tagName = selector.tagName;
 
-        selector[tagName].forEach(keyCode => {
+        selector.keyCodes.forEach(keyCode => {
           //if we get just a number we check the keyCode
           if (!_.isObject(keyCode) && e.keyCode === keyCode){
+            e.preventDefault()
             this.note(tagName);
           } else {
             //in the dynamic case we need to check for BOTH the modifier key AND keycode
-            var modifier = Object.keys(keyCode);
+            var modifier = Object.keys(keyCode)[0];
             if(e[modifier] && e.keyCode === keyCode[modifier]){
+              e.preventDefault();
               this.note(tagName);
             }
           }
         });
+      });
+    }
+
+    //onElementClicked when scribe is clicked we need to figure out if the target is a note
+    //and set the selection so we can act on it
+    onElementClicked(e) {
+      var selectors = config.get('selectors');
+      selectors.forEach( selector => {
+        //if we have a valid note element
+        if(e.target.nodeName === selector.tagName.toUpperCase()){
+          e.preventDefault();
+          var vSelection = new scribe.api.Selection();
+          var range = document.createRange();
+          range.selectNodeContents(e.target);
+          vSelection.selection.removeAllRanges();
+          vSelection.selection.addRange(range);
+          this.toggleSelectedNotes();
+        }
       });
     }
 
@@ -84,12 +106,18 @@ module.exports = function(scribe, attrs){
       });
     }
 
+    //toggleAllNotes will collapse or expand all (or a selected) note
+    toggleSelectedNotes() {
+      mutateScribe(scribe, (focus)=> toggleSelectedNoteCollapseState(focus));
+    }
+
     //validateNotes makes sure all note--start note--end and data attributes are in place
     validateNotes() {
       _.throttle(()=> {
         mutateScribe(scribe, (focus)=> ensureNoteIntegrity(focus));
       }, 1000)();
     }
+
   };
 
   return new NoteController();
