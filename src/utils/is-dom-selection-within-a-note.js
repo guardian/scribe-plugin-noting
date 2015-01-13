@@ -1,3 +1,4 @@
+var config = require('../config');
 // TODO: Replace with `selectionEntirelyWithinNote`.
 module.exports = function isSelectionInANote(selectionRange, parentContainer) {
 
@@ -13,7 +14,7 @@ module.exports = function isSelectionInANote(selectionRange, parentContainer) {
   // Return the note our selection is inside of, if we are inside one.
   function domFindAncestorNote(node) {
     return domWalkUpFind(node, function(node) {
-      return node.tagName === NODE_NAME;
+      return node.tagName === config.get('nodeName');
     });
   }
 

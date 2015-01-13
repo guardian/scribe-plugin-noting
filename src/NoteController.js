@@ -2,6 +2,7 @@ var _ = require('lodash');
 
 var config = require('./config');
 var emitter = require('./utils/emitter');
+var noteCollapseState = require('./utils/collapse-state');
 
 var NoteCommandFactory = require('./NoteCommandFactory');
 
@@ -13,6 +14,7 @@ var createEmptyNoteAtCaret = require('./actions/noting/create-note-at-caret');
 var createNoteFromSelection = require('./actions/noting/create-note-from-selection');
 var ensureNoteIntegrity = require('./actions/noting/ensure-note-integrity');
 var toggleSelectedNoteCollapseState = require('./actions/noting/toggle-selected-note-collapse-state');
+var toggleAllNoteCollapseState = require('./actions/noting/toggle-all-note-collapse-state');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -37,6 +39,8 @@ module.exports = function(scribe, attrs){
 
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
+      emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotes(tag));
+      emitter.on('command:toggle:all-notes', tag => this.toggleAllNotes(tag));
     }
 
 
@@ -93,7 +97,6 @@ module.exports = function(scribe, attrs){
     //- deleting
     //- merging
     note(selector = config.get('defaultTagName')) {
-      console.log('noting');
       //get scribe.el content (virtualized) and the current selection
       mutateScribe(scribe, (focus, selection) => {
         //figure out what kind of selection we have
@@ -124,6 +127,17 @@ module.exports = function(scribe, attrs){
     //toggleAllNotes will collapse or expand all (or a selected) note
     toggleSelectedNotes() {
       mutateScribe(scribe, (focus)=> toggleSelectedNoteCollapseState(focus));
+    }
+
+    // This command is a bit special in the sense that it will operate on all
+    // Scribe instances on the page.
+    toggleAllNotes() {
+      var state = !!noteCollapseState.get();
+      var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
+      scribeInstances = Array.prototype.slice.call(scribeInstances);
+      scribeInstances.forEach(instance => {
+        mutate(instance, focus => toggleAllNoteCollapseState(focus));
+      });
     }
 
     //validateNotes makes sure all note--start note--end and data attributes are in place

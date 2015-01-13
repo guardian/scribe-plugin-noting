@@ -1,8 +1,5 @@
 // Scribe noting plugin
-
-var notingCommands = require('./src/noting-commands');
-
-var errorHandle = require('./src/utils/error-handle');
+var generateNoteController = require('./src/NoteController');
 
 
 // config, example:
@@ -10,6 +7,6 @@ var errorHandle = require('./src/utils/error-handle');
 //   scribeInstancesSelector: '.ui-rich-text-editor__input' }
 module.exports = function(config) {
   return function(scribe) {
-    notingCommands.init(scribe, config);
+    generateNoteController(scribe, config);
   };
 };

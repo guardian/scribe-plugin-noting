@@ -14,6 +14,7 @@ var config = {
   dataDateCamel: 'dataNoteEditedDate',
   noteBarrierTag: 'gu-note-barrier',
   noteCollapsedClass: 'note--collapsed',
+  scribeInstanceSelector: '.scribe',
   selectors: [{ commandName: 'note', tagName: 'gu-note', keyCodes: [119, 121, {'altKey': 8}] }]
 };
 
