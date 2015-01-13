@@ -10,7 +10,7 @@ var removeErroneousBrTags = require('./remove-erroneous-br-tags');
 var removeScribeMarkers = require('./remove-scribe-markers');
 var findLastNoteSegment = require('../../utils/noting/find-last-note-segment');
 var findEntireNote = require('../../utils/noting/find-entire-note');
-var resetnoteSegmentClasses = require('./reset-note-segment-classes');
+var resetNoteSegmentClasses = require('./reset-note-segment-classes');
 var notesCache = require('../../utils/noting/note-cache');
 var isNotWithinNote = require('../../utils/noting/is-not-within-note');
 var isParagraph = require('../../utils/vfocus/is-paragraph');
@@ -51,7 +51,7 @@ module.exports = function createNoteFromSelection(focus){
   // Update note properties (merges if necessary).
   var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0]);
   var noteSegments = findEntireNote(lastNoteSegment);
-  resetnoteSegmentClasses(noteSegments);
+  resetNoteSegmentClasses(noteSegments);
 
   // We need to clear the cache, and this has to be done before we place
   // our markers or we'll end up placing the cursor inside the note instead
