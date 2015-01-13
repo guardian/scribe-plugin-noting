@@ -6,7 +6,7 @@ var errorHandle = require('../../utils/error-handle');
 var findTextBetweenScribeMarkers = require('../../utils/noting/find-text-between-scribe-markers');
 var getNoteDataAttributes = require('../../utils/get-note-data-attrs');
 var wrapInNote = require('./wrap-in-note');
-var removeErroniousBrTags = require('./remove-erroneous-br-tags');
+var removeErroneousBrTags = require('./remove-erroneous-br-tags');
 var removeScribeMarkers = require('./remove-scribe-markers');
 var findLastNoteSegment = require('../../utils/noting/find-last-note-segment');
 var findEntireNote = require('../../utils/noting/find-entire-note');
@@ -42,7 +42,7 @@ module.exports = function createNoteFromSelection(focus){
 
   // If we end up with an empty note a <BR> tag would be created. We have to do
   // this before we remove the markers.
-  removeErroniousBrTags(focus);
+  removeErroneousBrTags(focus);
 
   // We want to place the caret after the note. First we have to remove the
   // existing markers.
