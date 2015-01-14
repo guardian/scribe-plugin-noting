@@ -24,8 +24,8 @@ module.exports = function removeNote(focus){
   // We can't use findEntireNote here since it'll sometimes give us the wrong result.
   // See `findEntireNote` documentation. Instead we look the note up by its ID.
 
-  var note = findParentNoteSegment(marker);
-  var noteSegments = findNoteById(focus, note.vNode.properties.dataset.noteId);
+  var noteSegment = findParentNoteSegment(marker);
+  var noteSegments = findNoteById(focus, noteSegment.vNode.properties.dataset.noteId);
 
   noteSegments.forEach(unWrapNote);
 
