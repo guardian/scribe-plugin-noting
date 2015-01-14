@@ -1,0 +1,38 @@
+var isVFocus = require('../../utils/vfocus/is-vfocus');
+var errorHandle = require('../../utils/error-handle');
+
+var findScribeMarkers = require('../../utils/noting/find-scribe-markers');
+var noteCache = require('../../utils/noting/note-cache');
+var findParentNoteSegment = require('../../utils/noting/find-parent-note-segment');
+var findNoteById = require('../../utils/noting/find-note-by-id');
+var unWrapNote = require('./unwrap-note');
+var ensureNoteIntegrity = require('./ensure-note-integrity');
+
+// treeFocus: tree focus of tree containing two scribe markers
+// Note that we will mutate the tree.
+module.exports = function removeNote(focus){
+
+  if (!isVFocus(focus)){
+    errorHandle('Only a valid VFocus element can be passed to removeNote, you passed: %s', focus);
+  }
+
+  // We assume the caller knows there's only one marker.
+  var marker = findScribeMarkers(focus)[0];
+
+
+  // We can't use findEntireNote here since it'll sometimes give us the wrong result.
+  // See `findEntireNote` documentation. Instead we look the note up by its ID.
+  noteCache.set(focus);
+
+  var note = findParentNoteSegment(marker);
+  var noteSegments = findNoteById(focus, note.vNode.properties.dataset.noteId);
+
+  noteSegments.forEach(unWrapNote);
+
+  ensureNoteIntegrity(focus);
+
+  // The marker is where we want it to be (the same position) so we'll
+  // just leave it.
+  return focus;
+
+};
