@@ -1,5 +1,5 @@
 // Scribe noting plugin
-var generateNoteController = require('./src/NoteController');
+var generateNoteController = require('./src/generate-note-controller');
 
 
 // config, example:
