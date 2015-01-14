@@ -59,11 +59,37 @@ describe('VFocus - Mutations', function() {
       expect(removeTreeFocus).to.deep.equal(returnedTreeFocus);
     });
 
-    it.only('removes correctly the node', function() {
+    it('removes the node correctly', function() {
       var expectedTreeFocus = new VFocus(h('div'));
       var returnedTreeFocus = removeTreeFocus.down().remove();
 
       expect(removeTreeFocus.vNode.children).to.be.empty;
+    });
+
+  });
+
+  describe('insertBefore()', function() {
+
+    var insertBeforeTree, insertBeforeTreeFocus, newNodes;
+    beforeEach(function() {
+      insertBeforeTree = h('div', [
+        h('p#1')
+      ]);
+
+      newNodes = [h('p#0'), h('p#1')];
+      insertBeforeTreeFocus = new VFocus(insertBeforeTree);
+    });
+
+    it('does not insert before the root node', function() {
+      insertBeforeTreeFocus.insertBefore(newNodes);
+
+      expect(insertBeforeTreeFocus.vNode.children.length).to.equal(1);
+    });
+
+    it.only('inserts the node before the node in focus', function() {
+      insertBeforeTreeFocus.down().insertBefore(newNodes);
+
+      expect(insertBeforeTreeFocus.vNode.children[0]).to.equal(newNodes[1]);
     });
 
   });
