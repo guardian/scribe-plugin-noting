@@ -4,7 +4,7 @@ var isVText = require('../../utils/vfocus/is-vtext');
 var errorHandle = require('../../utils/error-handle');
 var findScribeMarkers = require('../../utils/noting/find-scribe-markers');
 var isNoteSegment = require('../../utils/noting/is-note-segment');
-var hasOnlyEmptyTexChildren = require('../../utils/vfocus/has-only-empty-text-children');
+var hasOnlyEmptyTextChildren = require('../../utils/vfocus/has-only-empty-text-children');
 var hasNoTextChildren = require('../../utils/vfocus/has-no-text-children');
 
 // In a contenteditable, Scribe currently insert a <BR> tag into empty elements.
@@ -39,7 +39,7 @@ module.exports = function preventBrTags(focus) {
 
   // Replace/delete empty notes, and parents that might have become empty.
   segments.map(segment => {
-    if (hasOnlyEmptyTexChildren(segment)){
+    if (hasOnlyEmptyTextChildren(segment)){
       // When we delete a space we want to add a space to the previous
       // note segment.
       var prevNoteSegment  = segment.prev().find(isNoteSegment, 'prev');
@@ -52,7 +52,7 @@ module.exports = function preventBrTags(focus) {
       }
     }
 
-    if (hasNoTextChildren(segment) || hasOnlyEmptyTexChildren(segment)){
+    if (hasNoTextChildren(segment) || hasOnlyEmptyTextChildren(segment)){
       // In Chrome, removing causes text before the note to be deleted when
       // deleting the last note segment. Replacing with an empty node works
       // fine in Chrome and FF.
