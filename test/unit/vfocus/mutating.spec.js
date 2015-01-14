@@ -86,12 +86,44 @@ describe('VFocus - Mutations', function() {
       expect(insertBeforeTreeFocus.vNode.children.length).to.equal(1);
     });
 
-    it.only('inserts the node before the node in focus', function() {
+    it('inserts the node before the node in focus', function() {
       insertBeforeTreeFocus.down().insertBefore(newNodes);
 
       expect(insertBeforeTreeFocus.vNode.children[0]).to.equal(newNodes[1]);
     });
 
+  });
+
+  describe('insertAfter()', function() {
+
+    var insertAfterTree, insertAfterTreeFocus, newNodes;
+    beforeEach(function() {
+      insertAfterTree = h('div', [
+        h('p#1'),
+        h('p#2')
+      ]);
+
+      newNodes = [h('p#first'), h('p#last')];
+      insertAfterTreeFocus = new VFocus(insertAfterTree);
+    });
+
+    it('does not insert new nodes after the root node', function() {
+      insertAfterTreeFocus.insertAfter(newNodes);
+
+      expect(insertAfterTreeFocus.vNode.children.length).to.equal(2);
+    });
+
+    it.only('inserts the new nodes after the last node', function() {
+      insertAfterTreeFocus.next().next().insertAfter(newNodes);
+
+      expect(insertAfterTreeFocus.vNode.children.length).to.equal(4);
+    });
+
+    it.only('inserts the new nodes before the next sibling', function() {
+      insertAfterTreeFocus.next().insertAfter(newNodes);
+
+      expect(insertAfterTreeFocus.vNode.children[1]).to.equal(newNodes[1]);
+    });
   });
 
 });
