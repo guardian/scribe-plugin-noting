@@ -1,6 +1,7 @@
 language: node_js
 node_js:
   - 0.10
+env: TEST_SERVER_PORT=9090
 
 addons:
   sauce_connect:
