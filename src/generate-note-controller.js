@@ -51,6 +51,7 @@ module.exports = function(scribe, attrs){
     // where the key is the modifier (expected on the event object)
     // and the val is the key code
     onNoteKeyAction(e) {
+      console.log('KEYPRESS 2');
       var selectors = config.get('selectors');
       selectors.forEach(selector => {
         //we need to store the tagName to be passed to this.note()
@@ -133,7 +134,7 @@ module.exports = function(scribe, attrs){
     toggleAllNotes() {
       var state = !!noteCollapseState.get();
       var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
-      scribeInstances = Array.prototype.slice.call(scribeInstances);
+      scribeInstances = _.toArray(scribeInstances);
       scribeInstances.forEach(instance => {
         mutate(instance, focus => toggleAllNoteCollapseState(focus));
       });
