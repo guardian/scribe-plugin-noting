@@ -31,7 +31,7 @@
   "scripts": {
     "test-firefox": "TEST_SERVER_PORT=9090 BROWSER_NAME='firefox' ./run-tests.sh",
     "test-chrome": "TEST_SERVER_PORT=9090 BROWSER_NAME='chrome' ./run-tests.sh",
-    "test-ci": "./run-tests.sh",
+    "test-ci": "TEST_SERVER_PORT./run-tests.sh",
     "test": "npm run test-chrome",
     "postinstall": "bower install",
     "pre-build": "rm -rf ./build && mkdir ./build",
