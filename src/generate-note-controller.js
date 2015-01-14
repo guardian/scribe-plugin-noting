@@ -51,7 +51,6 @@ module.exports = function(scribe, attrs){
     // where the key is the modifier (expected on the event object)
     // and the val is the key code
     onNoteKeyAction(e) {
-      console.log('KEYPRESS 2');
       var selectors = config.get('selectors');
       selectors.forEach(selector => {
         //we need to store the tagName to be passed to this.note()
@@ -62,7 +61,7 @@ module.exports = function(scribe, attrs){
           if (!_.isObject(keyCode) && e.keyCode === keyCode){
             e.preventDefault()
             this.note(tagName);
-          } else {
+          } else if(_.isObject(keyCode)){
             //in the dynamic case we need to check for BOTH the modifier key AND keycode
             var modifier = Object.keys(keyCode)[0];
             if(e[modifier] && e.keyCode === keyCode[modifier]){
