@@ -3,265 +3,61 @@
  */
 
 'use strict';
-
-var isVText = require('vtree/is-vtext');
-
+//const
 var NODE_NAME = 'GU-NOTE';
 var TAG = 'gu-note';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
+
 var _ = require('lodash');
+var isVText = require('vtree/is-vtext');
 
+var hasClass = require('../utils/vdom/has-class');
+var hasAttribute = require('../utils/vdom/has-attribute');
+var isTag = require('../utils/vdom/is-tag');
+var isEmpty = require('../utils/vdom/is-empty');
 
-// cache the notes and update them when new notes are added
-// caching the existing notes prevent needless tree traversal,
-// which have O(n) complexity.
-var notesCache;
-/**
-* Noting: Checks
-*/
+var focusOnNote = require('../utils/noting/is-note-segment');
+var focusOnMarker = require('../utils/noting/is-scribe-marker');
+var focusNotOnMarker = require('../utils/noting/is-not-scribe-marker');
+var focusOnTextNode = require('../utils/vfocus/is-vtext');
+var focusOnEmptyTextNode = require('../utils/vfocus/is-empty');
+var focusOnNonEmptyTextNode = require('../utils/vfocus/is-not-empty');
+var focusOnParagraph = require('../utils/vfocus/is-paragraph');
+var focusOnlyTextNodes = require('../utils/vfocus/find-text-nodes');
+var focusOutsideNote = require('../utils/noting/is-not-within-note');
 
-function focusOnMarker(focus) {
-  return isScribeMarker(focus.vNode);
-}
+var hasNoteId = require('../utils/noting/has-note-id');
+var stillWithinNote = require('../utils/noting/is-within-note');
+var getNodesBetweenScribeMarkers = require('../utils/noting/find-between-scribe-markers');
 
-function focusNotOnMarker(focus) {
-  return ! focusOnMarker(focus);
-}
+var findAncestorNoteSegment = require('../utils/noting/find-parent-note-segment');
+var findTextNodeFocusesBetweenMarkers = require('../utils/noting/find-text-between-scribe-markers');
+var findMarkers = require('../utils/noting/find-scribe-markers');
+var findFirstNoteSegment = require('../utils/noting/find-first-note-segment');
+var findLastNoteSegment = require('../utils/noting/find-last-note-segment');
+var focusAndDescendants = require('../utils/vfocus/flatten-tree');
 
-function focusOnTextNode (focus) {
-  return focus.vNode.type === 'VirtualText';
-}
+var withoutText = require('../utils/vfocus/has-no-text-children');
+var withEmptyTextNode = require('../utils/vfocus/has-only-empty-text-children');
 
-function focusOnNote(focus) {
-  return isNote(focus.vNode);
-}
+var findEntireNote = require('../utils/noting/find-entire-note');
+var getAllNotes = require('../utils/noting/find-all-notes');
+var findNote = require('../utils/noting/find-note-by-id');
 
-function focusOutsideNote(focus) {
-  return ! findAncestorNoteSegment(focus);
-}
+var findSelectedNote = require('../utils/noting/find-selected-note');
+var selectionEntirelyWithinNote = require('../utils/noting/is-selection-within-note');
+var removeVirtualScribeMarkers = require('../actions/noting/remove-scribe-markers');
+var removeEmptyNotes = require('../actions/noting/remove-empty-notes');
 
-function consideredEmpty(s) {
-  var zeroWidthSpace = '\u200B';
-  var nonBreakingSpace = '\u00a0';
+var notesCache = require('../utils/noting/note-cache');
+var findAllNotes = notesCache.get;
+var updateNotesCache = notesCache.set;
 
-  // We incude regular spaces because if we have a note tag that only
-  // includes a a regular space, then the browser will also insert a <BR>.
-  // If we consider a string containing only a regular space as empty we
-  // can remove the note tag to avoid the line break.
-  //
-  // Not ideal since it causes the space to be deleted even though the user
-  // hasn't asked for that. We compensate for this by moving any deleted
-  // space to the previous note segment.
-  var regularSpace = ' ';
-
-  return s === '' || s === zeroWidthSpace || s === nonBreakingSpace || s === regularSpace;
-}
-
-function focusOnEmptyTextNode(focus) {
-  var vNode = focus.vNode;
-  return isVText(vNode) && consideredEmpty(vNode.text);
-}
-
-function focusOnNonEmptyTextNode(focus) {
-  return focusOnTextNode(focus) && !focusOnEmptyTextNode(focus);
-}
-
-function focusOnParagraph(focus) {
-    return focus.vNode.tagName && focus.vNode.tagName.toLowerCase() === 'p';
-  }
-
-// Whether a DOM node or vNode is a note.
-// Case insensitive to work with both DOM nodes and vNodes
-// (which can be lowercase).
-function isNote(node) {
-  return node.tagName && node.tagName.toLowerCase() === TAG;
-}
-
-function isScribeMarker(vNode) {
-  return hasClass(vNode, 'scribe-marker');
-};
-
-// Check if VNode has class
-// TODO: Currently not working on nodes with multiple classes (not an
-// issue at the moment).
-function hasClass(vNode, value) {
-  return (vNode.properties && vNode.properties.className === value);
-}
-
-function hasNoteId(vNode, value) {
-  return !!(vNode.properties && vNode.properties.dataset &&
-    vNode.properties.dataset.noteId === value);
-}
-
-function stillWithinNote(focus) {
-  return !focusOnTextNode(focus) || focusOnEmptyTextNode(focus) || findAncestorNoteSegment(focus);
-}
-
-
-/**
-* Noting: Finders and filters
-*/
-
-function findAncestorNoteSegment(focus) {
-  return focus.find(focusOnNote, 'up');
-}
-
-function findTextNodeFocusesBetweenMarkers(treeFocus) {
-  return focusOnlyTextNodes(
-    treeFocus.find(focusOnMarker).next().takeWhile(focusNotOnMarker)
-  );
-}
-
-function findMarkers(treeFocus) {
-  return treeFocus.filter(focusOnMarker);
-}
-
-function findFirstNoteSegment(noteSegment) {
-  return _.last(
-    noteSegment.takeWhile(stillWithinNote, 'prev').filter(focusOnNote)
-  );
-}
-
-function findLastNoteSegment(noteSegment) {
-  return _.last(
-    noteSegment.takeWhile(stillWithinNote).filter(focusOnNote)
-  );
-}
-
-
-function focusAndDescendants(focus) {
-  // TODO: Use a proper algorithm for this.
-  function insideTag(insideOfFocus) {
-    return !!insideOfFocus.find(function (f) { return f.vNode === focus.vNode; }, 'up');
-  }
-  return focus.takeWhile(insideTag);
-}
-
-function withoutText(focus) {
-  return focusAndDescendants(focus).filter(focusOnTextNode).length === 0;
-}
-
-function withEmptyTextNode(focus) {
-  return focusAndDescendants(focus).filter(focusOnTextNode).every(focusOnEmptyTextNode);
-}
-
-// Find the rest of a note.
-// We identify notes based on 'adjacency' rather than giving them an id.
-// This is because people may press RETURN or copy and paste part of a note.
-// In such cases we don't want that to keep being the same note.
-//
-// This has a caveat when:
-// 1. A note covers 3 paragraphs.
-// 2. Part of a note in paragraph 2 is unnoted.
-// 3. The caret is placed in paragraph 3.
-// 4. The noting key is pressed.
-// findFirstNoteSegment will then move backwards over a P
-// and into the first note. We will then unnote the first
-// note rather than the second.
-//
-// noteSegment: focus on note
-function findEntireNote(noteSegment) {
-  return findFirstNoteSegment(noteSegment)
-    .takeWhile(stillWithinNote).filter(focusOnNote);
-};
-
-// Find a note based on its ID. Will not always give the same result as `findEntireNote` ,
-// since that'll recognize that a note is adjacent to another one. But when a note
-// covers several paragraphs we can't be sure findEntireNote
-// will give us the right result (see comment for findEntireNote).
-//
-// TODO: Redo findEntireNote to be based on findNote and IDs? Could perhaps
-// find adjacent notes with the help of focus.prev() and focus.next().
-function findNote(treeFocus, noteId) {
-  var allNoteSegments = _.flatten(findAllNotes(treeFocus));
-
-  return allNoteSegments.filter(function (segment) {
-    return hasNoteId(segment.vNode, noteId);
-  });
-};
-
-// Returns an array of arrays of note segments
-
-
-function findAllNotes(treeFocus) {
-
-    if (!notesCache || notesCache.length === 0) {
-        notesCache = getAllNotes(treeFocus);
-    }
-
-    return notesCache;
-}
-
-function getAllNotes(treeFocus) {
-    return treeFocus.filter(focusOnNote).map(findEntireNote).reduce(function(uniqueNotes, note) {
-        // First iteration: Add the note.
-    if (uniqueNotes.length === 0) return uniqueNotes.concat([note]);
-
-        // Subsequent iterations: Add the note if it hasn't already been added.
-        return _.last(uniqueNotes)[0].vNode === note[0].vNode ? uniqueNotes : uniqueNotes.concat([note]);
-        }, []);
-}
-
-function updateNotesCache(treeFocus) {
-    notesCache = getAllNotes(treeFocus);
-}
-
-function focusOnlyTextNodes (focuses) {
-  return focuses.filter(focusOnTextNode);
-}
-
-
-function findSelectedNote(treeFocus) {
-  var note = findAncestorNoteSegment(findMarkers(treeFocus)[0]);
-
-  return note && findEntireNote(note) || undefined;
-};
-
-
-function selectionEntirelyWithinNote(markers) {
-  if (markers.length === 2) {
-    // We need the focusOnTextNode filter so we don't include P tags that
-    // contains notes for example.
-    var betweenMarkers = markers[0].next().takeWhile(focusNotOnMarker)
-      .filter(focusOnTextNode);
-
-    return betweenMarkers.every(findAncestorNoteSegment);
-  } else {
-    return !!findAncestorNoteSegment(markers[0]);
-  }
-}
-
-
-/**
-* Noting: Various
-*/
-
-function removeVirtualScribeMarkers(treeFocus) {
-  treeFocus.filter(focusOnMarker).forEach(function (marker) {
-    marker.remove();
-  });
-}
-
-function removeEmptyNotes(treeFocus) {
-  var allNoteSegments = _.flatten(findAllNotes(treeFocus));
-  var noteSegmentsWithDescendants = allNoteSegments.map(focusAndDescendants);
-
-  noteSegmentsWithDescendants.forEach(function (segmentWithDescendants) {
-    var segment = segmentWithDescendants[0];
-    var descendants = _.rest(segmentWithDescendants);
-
-    var hasOnlyEmptyTextNodes = descendants.filter(focusOnTextNode)
-      .every(focusOnEmptyTextNode);
-
-    if (segment.vNode.children.length === 0 || hasOnlyEmptyTextNodes) {
-      segment.remove();
-    }
-  });
-}
 
 
 // Export the following functions
 //   TODO: streamline these so that dependant modules use more generic functions
+
 exports.focusAndDescendants = focusAndDescendants;
 exports.focusOnEmptyTextNode = focusOnEmptyTextNode;
 exports.focusOnNonEmptyTextNode = focusOnNonEmptyTextNode;
@@ -279,7 +75,6 @@ exports.findEntireNote = findEntireNote;
 exports.findNote = findNote;
 exports.findFirstNoteSegment = findFirstNoteSegment;
 exports.findMarkers = findMarkers;
-exports.isScribeMarker = isScribeMarker;
 exports.findAncestorNoteSegment = findAncestorNoteSegment;
 exports.findTextNodeFocusesBetweenMarkers = findTextNodeFocusesBetweenMarkers;
 exports.removeEmptyNotes = removeEmptyNotes;

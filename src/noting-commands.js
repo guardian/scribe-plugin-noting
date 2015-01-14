@@ -10,7 +10,7 @@ var noteToggle = require('./api/note-toggle');
 var noteCollapse = require('./api/note-collapse');
 var vdom = require('./noting-vdom');
 var _ = require('lodash');
-
+var scribeSelector;
 
 /**
  * Initialise noting commands
@@ -23,7 +23,7 @@ exports.init = function(scribe, config) {
 
   // initialise scribe element selector
   // TODO: Extract the configuration varialbles into its own module.
-  noteCollapse.scribeInstancesSelector = config.scribeInstancesSelector;
+  scribeSelector = (config.scribeInstancesSelector || '.scribe');
 
   scribe.commands.note = createNoteToggleCommand(scribe);
   scribe.commands.noteCollapseToggle = createCollapseToggleCommand(scribe);
@@ -95,7 +95,7 @@ function createCollapseToggleAllCommand(scribe) {
     // to be available to all Scribe instances. Otherwise the state in different
     // instances can get out of sync.
     var state = !window._scribe_plugin_noting__noteCollapsedState,
-        scribeInstances = _.toArray(document.querySelectorAll(noteCollapse.scribeInstancesSelector));
+        scribeInstances = _.toArray(document.querySelectorAll(scribeSelector));
 
     scribeInstances.forEach(function (instance) {
 

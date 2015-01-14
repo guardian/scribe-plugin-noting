@@ -5,14 +5,16 @@
  */
 'use strict';
 
+exports.user = 'unknown';
+
 var h = require('virtual-hyperscript');
+var _ = require('lodash');
+
 var isVText = require('vtree/is-vtext');
 var VText = require('vtree/vtext');
-var _ = require('lodash');
 
 var NODE_NAME = 'GU-NOTE';
 var TAG = 'gu-note';
-
 var CLASS_NAME = 'note';
 var DATA_NAME = 'data-note-edited-by';
 var DATA_NAME_CAMEL = 'noteEditedBy';
@@ -20,183 +22,23 @@ var DATA_DATE = 'data-note-edited-date';
 var DATA_DATE_CAMEL = 'noteEditedDate';
 var NOTE_BARRIER_TAG = 'gu-note-barrier';
 
-
 var vdom = require('./note-vdom');
+var getEditedByTitleText = require('../utils/get-uk-date');
+var wrapInNote = require('../actions/noting/wrap-in-note');
+var unwrap = require('../actions/noting/unwrap-note');
+var addUniqueVNodeClass = require('../actions/vdom/add-class');
+var removeVNodeClass = require('../actions/vdom/remove-class');
+var generateUUID = require('../utils/generate-uuid');
 
-
-/**
- * Current User property must be set.
- * @type {String}
- */
-exports.user = 'unknown';
-
-/**
-* Noting: Create, remove, wrap etc.
-*/
-
-// Wrap in a note.
-// toWrap can be a vNode, DOM node or a string. One or an array with several.
-function wrapInNote(toWrap, dataAttrs) {
-  var nodes = toWrap instanceof Array ? toWrap : [toWrap];
-
-  // Note that we have to clone dataAttrs or several notes might end up
-  // sharing the same dataset object.
-  var dataAttrs = dataAttrs ? _.clone(dataAttrs) : {};
-
-  var note = h(TAG + '.' + CLASS_NAME, {title: getEditedByTitleText(dataAttrs), dataset: dataAttrs}, nodes);
-  return note;
-}
-
-function unwrap(focus) {
-  var note = focus.vNode;
-  var noteContents = note.children;
-  var indexOfNode = focus.parent.vNode.children.indexOf(note);
-
-  // Do the unwrapping.
-  focus.parent.vNode.children.splice(indexOfNode, 1, noteContents); // replace note
-  focus.parent.vNode.children = _.flatten(focus.parent.vNode.children);
-
-  // We want the note contents to now have their grandparent as parent.
-  // The safest way we can ensure this is by changing the VFocus object
-  // that previously focused on the note to instead focus on its parent.
-  focus.vNode = focus.parent.vNode;
-  focus.parent = focus.parent.parent;
-}
-
-function addUniqueVNodeClass(vNode, name) {
-  var classes = vNode.properties.className.split(' ');
-  classes.push(name);
-
-  vNode.properties.className = _.uniq(classes).join(' ');
-}
-
-function removeVNodeClass(vNode, name) {
-  var classes = vNode.properties.className.split(' ');
-  var classId = classes.indexOf(name);
-
-  if (classId !== -1) {
-    classes.splice(classId, 1);
-    vNode.properties.className = classes.join(' ');
-  }
-}
-
-function generateUUID(){
-  /* jshint bitwise:false */
-  var d = new Date().getTime();
-  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = (d + Math.random()*16)%16 | 0;
-      d = Math.floor(d/16);
-      return (c=='x' ? r : (r&0x7|0x8)).toString(16);
-  });
-  return uuid;
-};
-
-// Update note properties, adding them if they aren't already there.
-// Note that this is also a way of merging notes, as we update the
-// start and end classes as well as give the segments the same edited
-// by information.
-function updateNoteProperties(noteSegments) {
-  updateStartAndEndClasses(noteSegments);
-
-  // FIXME JP 20/11/14
-  // This is a bug with users not being updated on the right note
-  // noteSegments.forEach(updateEditedBy);
-
-  var uuid = generateUUID();
-  noteSegments.forEach(function (segment) {
-    segment.vNode.properties.dataset['noteId'] = uuid;
-  });
-
-}
 
 // Ensure the first (and only the first) note segment has a
 // `note--start` class and that the last (and only the last)
 // note segment has a `note--end` class.
-function updateStartAndEndClasses(noteSegments) {
-  function addStartAndEndClasses(noteSegments) {
-    addUniqueVNodeClass(noteSegments[0].vNode, 'note--start');
-    addUniqueVNodeClass(noteSegments[noteSegments.length - 1].vNode, 'note--end');
-  }
-
-  function removeStartAndEndClasses(noteSegments) {
-    noteSegments.forEach(function(segment) {
-      removeVNodeClass(segment.vNode, 'note--start');
-      removeVNodeClass(segment.vNode, 'note--end');
-    });
-  }
-
-  removeStartAndEndClasses(noteSegments);
-  addStartAndEndClasses(noteSegments);
-}
-
-function getEditedByTitleText(dataAttrs) {
-  var date = new Date(dataAttrs[DATA_DATE_CAMEL]),
-
-  // crude formatting avoids a "momentjs" dependency - should be adequate
-  // forced UK formatted time in local timezone:  dd/MM/YYYY at hh:mm
-  formattedDate = [
-    date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(),
-    'at',
-    date.getHours() + ':' + (date.getMinutes() < 9 ? '0' : '') + date.getMinutes()
-  ].join(' ');
-
-  return dataAttrs[DATA_NAME_CAMEL] + '  ' + formattedDate;
-}
-
-function updateEditedBy(noteSegment) {
-  var dataset = userAndTimeAsDatasetAttrs();
-
-  noteSegment.vNode.properties.dataset[DATA_NAME_CAMEL] = dataset[DATA_NAME_CAMEL];
-  noteSegment.vNode.properties.dataset[DATA_DATE_CAMEL] = dataset[DATA_DATE_CAMEL];
-
-  noteSegment.vNode.properties.title = getEditedByTitleText(dataset);
-}
-
-function userAndTimeAsDatasetAttrs() {
-  var dataset = {};
-  dataset[DATA_NAME_CAMEL] = exports.user;
-  dataset[DATA_DATE_CAMEL] = new Date().toISOString();
-
-  return dataset;
-}
-
-function createVirtualScribeMarker() {
-  return h('em.scribe-marker', []);
-}
-
-// We need these to make it possible to place the caret immediately
-// inside/outside of a note.
-function createNoteBarrier() {
-  return new VText('\u200B');
-}
-
-function updateNoteBarriers(treeFocus) {
-  function removeNoteBarriers(treeFocus) {
-    treeFocus.filter(vdom.focusOnTextNode).forEach(function (focus) {
-      focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
-    });
-  }
-
-  function insertNoteBarriers(treeFocus) {
-    vdom.findAllNotes(treeFocus).forEach(function (noteSegments) {
-
-      _.first(noteSegments).next().insertBefore(createNoteBarrier());
-      // This is necessarily complex (been through a few iterations) because
-      // of Chrome's lack of flexibility when it comes to placing the caret.
-      var afterNote = _.last(noteSegments).find(vdom.focusOutsideNote);
-      var textNodeAfterNoteFocus = afterNote && afterNote.find(vdom.focusOnNonEmptyTextNode);
-
-      if (textNodeAfterNoteFocus) {
-        textNodeAfterNoteFocus.vNode.text = '\u200B' + textNodeAfterNoteFocus.vNode.text;
-      }
-
-    });
-  }
-
-  removeNoteBarriers(treeFocus);
-  insertNoteBarriers(treeFocus);
-}
-
+var updateNoteProperties = require('../actions/noting/reset-note-segment-classes');
+var userAndTimeAsDatasetAttrs = require('../utils/get-note-data-attrs');
+var createVirtualScribeMarker = require('../utils/create-virtual-scribe-marker');
+var createNoteBarrier = require('../utils/create-note-barrier');
+var updateNoteBarriers = require('../actions/noting/reset-note-barriers');
 
 // tree - tree containing a marker.
 // Note that we will mutate the tree.
@@ -228,7 +70,7 @@ function createNoteFromSelection(treeFocus) {
 
   // Wrap the text nodes.
   var userAndTime = userAndTimeAsDatasetAttrs();
-  var wrappedTextNodes = toWrapAndReplace.map(function (focus) {
+  var wrappedTextNodes = toWrapAndReplace.map(function(focus) {
     return wrapInNote(focus.vNode, userAndTime);
   });
 
@@ -259,6 +101,15 @@ function createNoteFromSelection(treeFocus) {
   updateNoteProperties(noteSegments);
 
 
+  // We need to clear the cache, and this has to be done before we place
+  // our markers or we'll end up placing the cursor inside the note instead
+  // of immediately after it.
+  //
+  // TODO: Revisit our caching strategy to make it less of a "foot gun", or
+  // refactor so that we do less tree traversals and remove the caching.
+  vdom.updateNotesCache(treeFocus);
+
+
   // Now let's place that caret.
   var outsideNoteFocus = _.last(noteSegments).find(vdom.focusOutsideNote);
 
@@ -266,7 +117,7 @@ function createNoteFromSelection(treeFocus) {
   // Scribe instance. In that case we don't bother placing the cursor.
   // (What behaviour would a user expect?)
   if (outsideNoteFocus) {
-    if (! vdom.focusOnParagraph(outsideNoteFocus)) {
+    if (!vdom.focusOnParagraph(outsideNoteFocus)) {
       // The user's selection ends within a paragraph.
 
       // To place a marker we have to place an element inbetween the note barrier
@@ -285,7 +136,6 @@ function createNoteFromSelection(treeFocus) {
   }
 
   vdom.removeEmptyNotes(treeFocus);
-  exports.ensureNoteIntegrity(treeFocus);
 }
 
 function unnote(treeFocus) {
@@ -345,10 +195,14 @@ function unnotePartOfNote(treeFocus) {
   var entireNoteTextNodeFocuses = _(entireNote).map(vdom.focusAndDescendants)
     .flatten().value().filter(vdom.focusOnTextNode);
 
-  var entireNoteTextNodes = entireNoteTextNodeFocuses.map(function (focus) { return focus.vNode; });
+  var entireNoteTextNodes = entireNoteTextNodeFocuses.map(function(focus) {
+    return focus.vNode;
+  });
 
 
-  var textNodesToUnnote = focusesToUnnote.map(function (focus) { return focus.vNode; });
+  var textNodesToUnnote = focusesToUnnote.map(function(focus) {
+    return focus.vNode;
+  });
   var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnnote);
 
 
@@ -357,7 +211,7 @@ function unnotePartOfNote(treeFocus) {
 
 
   // Wrap the text nodes.
-  var wrappedTextNodes = toWrapAndReplace.map(function (vNode) {
+  var wrappedTextNodes = toWrapAndReplace.map(function(vNode) {
     return wrapInNote(vNode, userAndTime);
   });
 
@@ -437,15 +291,20 @@ function mergeIfNecessary(treeFocus) {
     var hasNoteStart = 'noteStart' in note[0].vNode.properties.dataset;
     var hasNoteEnd = 'noteEnd' in note[note.length - 1].vNode.properties.dataset;
 
-    return ! (hasNoteStart && hasNoteEnd);
+    return !(hasNoteStart && hasNoteEnd);
   }
 
   // Merging is simply a matter of updating the attributes of any notes
   // where all the segments of the note doesn't have the same timestamp,
   // or where there's no start or end property (e.g. when the user has deleted
   // the last note segment of a note).
-  function criteria(note) { return inconsistentTimestamps(note) || lacksStartOrEnd(note); }
-  vdom.findAllNotes(treeFocus).filter(criteria).forEach(updateNoteProperties);
+  function criteria(note) {
+    return inconsistentTimestamps(note) || lacksStartOrEnd(note);
+  }
+  vdom.findAllNotes(treeFocus).filter(criteria).forEach(function(note) {
+    note[0].vNode.hasBeenRound = true;
+    updateNoteProperties(note);
+  });
 }
 
 
@@ -455,12 +314,14 @@ function mergeIfNecessary(treeFocus) {
 // anytime a note segment might be empty (as defined by `vdom.consideredEmpty`).
 // TODO: Fix this in Scribe.
 function preventBrTags(treeFocus) {
-  function isTrue(obj) { return !!obj; }
+  function isTrue(obj) {
+    return !!obj;
+  }
 
   function removeEmptyAncestors(focus) {
     var f = focus;
     while (f) {
-      if (! f.canDown()) f.remove();
+      if (!f.canDown()) f.remove();
       f = f.up();
     }
   }
@@ -468,12 +329,12 @@ function preventBrTags(treeFocus) {
   // When we delete a space we want to add a space to the previous
   // note segment.
   function addSpaceToPrevSegment(segment) {
-      var prevNoteSegment = segment.prev().find(vdom.focusOnNote, 'prev');
+    var prevNoteSegment = segment.prev().find(vdom.focusOnNote, 'prev');
 
-      if (prevNoteSegment) {
-        var lastTextNode = _.last(prevNoteSegment.vNode.children.filter(isVText));
-        if (lastTextNode) lastTextNode.text = lastTextNode.text + ' ';
-      }
+    if (prevNoteSegment) {
+      var lastTextNode = _.last(prevNoteSegment.vNode.children.filter(isVText));
+      if (lastTextNode) lastTextNode.text = lastTextNode.text + ' ';
+    }
   }
 
   // We're only interested in when content is removed, meaning
@@ -495,23 +356,26 @@ function preventBrTags(treeFocus) {
   ].filter(isTrue);
 
   // Replace/delete empty notes, and parents that might have become empty.
-  segments.filter(function (segment) { return !!segment; })
-    .map(function (segment) {
+  segments.filter(function(segment) {
+      return !!segment;
+    })
+    .map(function(segment) {
       if (vdom.withEmptyTextNode(segment)) addSpaceToPrevSegment(segment);
 
       if (vdom.withoutText(segment) || vdom.withEmptyTextNode(segment)) {
-      // In Chrome, removing causes text before the note to be deleted when
-      // deleting the last note segment. Replacing with an empty node works
-      // fine in Chrome and FF.
-      var replaced = segment.replace(new VText('\u200B'));
+        // In Chrome, removing causes text before the note to be deleted when
+        // deleting the last note segment. Replacing with an empty node works
+        // fine in Chrome and FF.
+        var replaced = segment.replace(new VText('\u200B'));
 
-      removeEmptyAncestors(replaced);
-    }
-  });
+        removeEmptyAncestors(replaced);
+      }
+    });
+
 }
 
 
-exports.ensureNoteIntegrity = function (treeFocus) {
+exports.ensureNoteIntegrity = function(treeFocus) {
   // cache must be up to date before running this
   vdom.updateNotesCache(treeFocus);
   mergeIfNecessary(treeFocus);
@@ -541,10 +405,18 @@ exports.toggleNoteAtSelection = function toggleNoteAtSelection(treeFocus, select
   }
 
   var scenarios = {
-    caretWithinNote: function (treeFocus) { unnote(treeFocus); },
-    selectionWithinNote: function (treeFocus) {  unnotePartOfNote(treeFocus); },
-    caretOutsideNote: function (treeFocus) { createEmptyNoteAtCaret(treeFocus); },
-    selectionOutsideNote: function (treeFocus) { createNoteFromSelection(treeFocus); }
+    caretWithinNote: function(treeFocus) {
+      unnote(treeFocus);
+    },
+    selectionWithinNote: function(treeFocus) {
+      unnotePartOfNote(treeFocus);
+    },
+    caretOutsideNote: function(treeFocus) {
+      createEmptyNoteAtCaret(treeFocus);
+    },
+    selectionOutsideNote: function(treeFocus) {
+      createNoteFromSelection(treeFocus);
+    }
   };
 
   // Perform action depending on which state we're in.
@@ -556,7 +428,9 @@ exports.isSelectionInANote = function isSelectionInANote(selectionRange, parentC
 
   // Walk up the (real) DOM checking isTargetNode.
   function domWalkUpFind(node, isTargetNode) {
-    if (!node.parentNode || node === parentContainer) { return false; }
+    if (!node.parentNode || node === parentContainer) {
+      return false;
+    }
 
     return isTargetNode(node) ? node : domWalkUpFind(node.parentNode, isTargetNode);
   }

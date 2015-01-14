@@ -10,7 +10,7 @@ To install dependecies:
 
 To build, run:
 
-`$ npm run build
+`$ npm run build`
 
 This will output the built source files into the _build_ directory.
 
