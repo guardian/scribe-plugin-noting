@@ -117,7 +117,7 @@ module.exports = function(scribe, attrs){
         }
         //if we have a selection outside of a note
         else {
-          createNoteFromSelection(focus);
+          createNoteFromSelection(focus, tagName);
         }
 
       });

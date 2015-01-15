@@ -31,6 +31,8 @@ module.exports = function findEntireNote(focus, tagName = config.get('defaultTag
     return;
   }
 
-  return firstNoteSegment.takeWhile((node)=>isWithinNote(node, tagName)).filter((node)=>isNoteSegment(node, tagName));
+  return firstNoteSegment
+    .takeWhile((node)=>isWithinNote(node, tagName))
+    .filter((node)=>isNoteSegment(node, tagName));
 
 };
