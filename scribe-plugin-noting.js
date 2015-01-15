@@ -7,11 +7,6 @@ var generateNoteController = require('./src/generate-note-controller');
 //   scribeInstancesSelector: '.ui-rich-text-editor__input' }
 module.exports = function(config) {
   return function(scribe) {
-
-    console.log('-----------------------');
-    console.log('init', config);
-    console.log('-----------------------');
-
     generateNoteController(scribe, config);
   };
 };
