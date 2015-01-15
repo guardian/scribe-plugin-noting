@@ -101,11 +101,11 @@ module.exports = function(scribe, attrs){
         //figure out what kind of selection we have
         var markers = findScribeMarkers(focus);
         var selectionIsCollapsed = (markers.length === 1);
-        var isWithinNote = isSelectionWithinNote(markers);
+        var isWithinNote = isSelectionWithinNote(markers, tagName);
 
         //If the caret is within a note and nothing is selected
         if (selectionIsCollapsed && isWithinNote){
-          removeNote(focus);
+          removeNote(focus, tagName);
         }
         //if we have a selection within a note
         else if (isWithinNote){

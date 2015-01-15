@@ -6,8 +6,9 @@ var isNotScribeMarker = require('./is-not-scribe-marker');
 var isVText = require('../vfocus/is-vtext');
 var findScribeMarkers = require('./find-scribe-markers');
 var errorHandle = require('../error-handle');
+var config = require('../../config');
 
-module.exports = function isSelectionBetweenNotes(markers) {
+module.exports = function isSelectionBetweenNotes(markers, tagName = config.get('defaultTagName')) {
 
   //if we pass a raw VFocus
   if (isVFocus(markers)) {
@@ -31,12 +32,12 @@ module.exports = function isSelectionBetweenNotes(markers) {
       // contains notes for example.
       .filter(isVText);
 
-    return selection.every(findParentNoteSegment);
+    return selection.every((node)=> findParentNoteSegment(node, tagName));
   }
   //if we only have on valid marker
   //we see if it has a parent note
   else {
-    return !!findParentNoteSegment(markers[0]);
+    return !!findParentNoteSegment(markers[0], tagName);
   }
 
 

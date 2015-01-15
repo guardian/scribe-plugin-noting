@@ -13,8 +13,8 @@ module.exports = function findAllNotes(focus, tagName = config.get('defaultTagNa
 
   // Returns an array of arrays of note segments
   return focus
-    .filter((node)=> isNoteSegment(node))
-    .map((node)=> findEntireNote(node))
+    .filter((node)=> isNoteSegment(node, tagName))
+    .map((node)=> findEntireNote(node, tagName))
     .reduce(function(uniqueNotes, note) {
       // First iteration: Add the note.
       if (uniqueNotes.length === 0) return uniqueNotes.concat([note]);
