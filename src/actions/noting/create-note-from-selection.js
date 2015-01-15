@@ -50,7 +50,7 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   // Update note properties (merges if necessary).
   var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0], tagName);
   var noteSegments = findEntireNote(lastNoteSegment, tagName);
-  resetNoteSegmentClasses(noteSegments);
+  resetNoteSegmentClasses(noteSegments, tagName);
 
   // We need to clear the cache, and this has to be done before we place
   // our markers or we'll end up placing the cursor inside the note instead

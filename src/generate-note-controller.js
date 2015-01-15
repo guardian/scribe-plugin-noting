@@ -81,17 +81,41 @@ module.exports = function(scribe){
       });
     }
 
-    //onElementClicked when scribe is clicked we need to figure out if the target is a note
-    //and set the selection so we can act on it
+    //onElementClicked when scribe is clicked we need to figure out what kind of interaction to perform
     onElementClicked(e) {
+      switch(e.target.getAttribute('data-click-action')){
+        case 'activate':
+          e.preventDefault();
+          this.activateClickedNode(e.target);
+        break;
+
+        default:
+          e.preventDefault();
+          this.collapseSingleNote(e.target);
+        break;
+      }
+    }
+
+    //TODO jp 15/1/15 add unit test for this
+    activateClickedNode(target){
+      if(/active/g.test(target.className)){
+        target.classList.remove('active');
+      }
+      else{
+        target.classList.add('active');
+      }
+    }
+
+    //collapseSingleNote when note is clicked we need to figure out if the target is a note
+    //and set the selection so we can act on it
+    collapseSingleNote(target){
       var selectors = config.get('selectors');
       selectors.forEach( selector => {
         //if we have a valid note element
-        if(e.target.nodeName === selector.tagName.toUpperCase()){
-          e.preventDefault();
+        if(target.nodeName === selector.tagName.toUpperCase()){
           var vSelection = new scribe.api.Selection();
           var range = document.createRange();
-          range.selectNodeContents(e.target);
+          range.selectNodeContents(target);
           vSelection.selection.removeAllRanges();
           vSelection.selection.addRange(range);
           this.toggleSelectedNotes();

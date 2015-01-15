@@ -59,6 +59,6 @@ module.exports = function mergeIfNecessary(focus, tagName = config.get('defaultT
   })
   //reset any resulting notes properties
   .forEach(note =>{
-    resetNoteSegmentClasses(note);
+    resetNoteSegmentClasses(note, tagName);
   });
 }

@@ -33,7 +33,7 @@ module.exports = function createNoteAtCaret(focus, tagName = config.get('default
 
   //get any adjoining note segments
   var noteSegments = findEntireNote(marker, tagName);
-  resetNoteSegmentClasses(noteSegments);
+  resetNoteSegmentClasses(noteSegments, tagName);
 
   return focus;
 
