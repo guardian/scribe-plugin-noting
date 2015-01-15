@@ -11,7 +11,7 @@ var hasClass = require(path.resolve(process.cwd(), 'src/utils/vdom/has-class'));
 
 describe('toggleAllNoteCollapseState()', function() {
 
-  it('should toggle a class only on selected notes', function() {
+  it('should toggle a class only on selected notes', function(){
 
     var firstNote = h('gu-note');
     var secondNote = h('gu-note', [
