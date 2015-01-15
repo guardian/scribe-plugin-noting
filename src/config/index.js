@@ -15,7 +15,10 @@ var config = {
   noteBarrierTag: 'gu-note-barrier',
   noteCollapsedClass: 'note--collapsed',
   scribeInstanceSelector: '.scribe',
-  selectors: [{ commandName: 'note', tagName: 'gu-note', keyCodes: [119, 121, {'altKey': 8}] }]
+  selectors: [
+    { commandName: 'note', tagName: 'gu-note', keyCodes: [119, 121, {'altKey': 8}] },
+    { commandName: 'flag', tagName: 'gu-flag', keyCodes: [120] }
+  ]
 };
 
 module.exports = {

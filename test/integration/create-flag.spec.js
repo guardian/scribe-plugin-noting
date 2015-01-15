@@ -15,22 +15,22 @@ beforeEach(function() {
   driver = helpers.driver;
 });
 
-var note = require('./helpers/create-note');
+var flag = require('./helpers/create-flag');
 
 var selectionIsInsideNote = require('./helpers/selection-within-note');
 
 describe('Creating Scribe Flags', function() {
 
   // Select & Note
-  given('a selection', function() {
-    givenContentOf('<p>On the 24th of |February, 1815, |the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
-      when('pressing the noting key', function() {
+  given('no selection', function() {
+    givenContentOf('<p>On the 24th of | February, 1815, the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+      when('pressing the flag key', function() {
 
-        it.skip('wraps the text in a note', function() {
-          note().then(function() {
+        it('wraps the text in a flag note', function() {
+          flag().then(function() {
             scribeNode.getInnerHTML().then(function(innerHTML) {
 
-              expect(innerHTML).to.include('February, 1815, </gu-flag>');
+              expect(innerHTML).to.include('</gu-flag>');
 
               // Expect one start and one end attribute
               var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;

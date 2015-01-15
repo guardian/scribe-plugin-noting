@@ -59,7 +59,7 @@ module.exports = function(scribe, attrs){
         selector.keyCodes.forEach(keyCode => {
           //if we get just a number we check the keyCode
           if (!_.isObject(keyCode) && e.keyCode === keyCode){
-            e.preventDefault()
+            e.preventDefault();
             this.note(tagName);
           } else if(_.isObject(keyCode)){
             //in the dynamic case we need to check for BOTH the modifier key AND keycode
@@ -95,7 +95,7 @@ module.exports = function(scribe, attrs){
     //- creating
     //- deleting
     //- merging
-    note(selector = config.get('defaultTagName')) {
+    note(tagName = config.get('defaultTagName')) {
       //get scribe.el content (virtualized) and the current selection
       mutateScribe(scribe, (focus, selection) => {
         //figure out what kind of selection we have
@@ -113,7 +113,7 @@ module.exports = function(scribe, attrs){
         }
         //if we have no selection outside of a note
         else if (selectionIsCollapsed){
-          createEmptyNoteAtCaret(focus);
+          createEmptyNoteAtCaret(focus, tagName);
         }
         //if we have a selection outside of a note
         else {
@@ -146,7 +146,7 @@ module.exports = function(scribe, attrs){
       }, 1000)();
     }
 
-  };
+  }
 
   return new NoteController();
 
