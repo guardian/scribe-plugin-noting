@@ -59,7 +59,7 @@ describe('VFocus - Mutations', function() {
       expect(removeTreeFocus).to.deep.equal(returnedTreeFocus);
     });
 
-    it('removes the node correctly', function() {
+    it('removes the node in focus correctly', function() {
       var expectedTreeFocus = new VFocus(h('div'));
       var returnedTreeFocus = removeTreeFocus.down().remove();
 
@@ -113,13 +113,13 @@ describe('VFocus - Mutations', function() {
       expect(insertAfterTreeFocus.vNode.children.length).to.equal(2);
     });
 
-    it.only('inserts the new nodes after the last node', function() {
+    it('inserts the new nodes after the last node', function() {
       insertAfterTreeFocus.next().next().insertAfter(newNodes);
 
       expect(insertAfterTreeFocus.vNode.children.length).to.equal(4);
     });
 
-    it.only('inserts the new nodes before the next sibling', function() {
+    it('inserts the new nodes before the next sibling', function() {
       insertAfterTreeFocus.next().insertAfter(newNodes);
 
       expect(insertAfterTreeFocus.vNode.children[1]).to.equal(newNodes[1]);
