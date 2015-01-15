@@ -5,13 +5,17 @@ var config = {
   user: 'unknown',
   nodeName: 'GU-NOTE',
   tagName: 'gu-note',
+  defaultTagName: 'gu-note',
   className: 'note',
+  defaultClassName: 'note',
   dataName: 'data-note-edited-by',
   dataNameCamel: 'dataNoteEditedBy',
   dataDate: 'data-note-edited-date',
   dataDateCamel: 'dataNoteEditedDate',
   noteBarrierTag: 'gu-note-barrier',
-  noteCollapsedClass: 'note--collapsed'
+  noteCollapsedClass: 'note--collapsed',
+  scribeInstanceSelector: '.scribe',
+  selectors: [{ commandName: 'note', tagName: 'gu-note', keyCodes: [119, 121, {'altKey': 8}] }]
 };
 
 module.exports = {
