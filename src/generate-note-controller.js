@@ -109,7 +109,7 @@ module.exports = function(scribe, attrs){
         }
         //if we have a selection within a note
         else if (isWithinNote){
-          removePartOfNote(focus);
+          removePartOfNote(focus, tagName);
         }
         //if we have no selection outside of a note
         else if (selectionIsCollapsed){
