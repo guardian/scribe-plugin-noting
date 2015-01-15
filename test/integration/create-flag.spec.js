@@ -37,9 +37,14 @@ describe('Creating Scribe Flags', function() {
               var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
               var numberOfNoteUndefinedElements = innerHTML.match(/undefined/g);
 
+
               expect(numberOfNoteStartAttributes).to.equal(1);
               expect(numberOfNoteEndAttributes).to.equal(1);
               expect(numberOfNoteUndefinedElements).to.be.a('null');
+
+              //we need to check that the interaction types are specified correctly
+              expect(innerHTML).to.include('data-click');
+              expect(innerHTML).to.include('activate');
 
               expect(innerHTML).to.include('data-note-edited-by');
               expect(innerHTML).to.include('data-note-edited-date');
@@ -70,9 +75,11 @@ describe('Creating Scribe Flags', function() {
               var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;
               var numberOfNoteEndAttributes = innerHTML.match(/note--end/g).length;
               var numberOfNoteUndefinedElements = innerHTML.match(/undefined/g);
+              var numberOfDataClickAttributes = innerHTML.match(/data-click-action/g).length;
 
               expect(numberOfNoteStartAttributes).to.equal(1);
               expect(numberOfNoteEndAttributes).to.equal(1);
+              expect(numberOfDataClickAttributes).to.equal(1);
               expect(numberOfNoteUndefinedElements).to.be.a('null');
 
               expect(innerHTML).to.include('data-note-edited-by');
