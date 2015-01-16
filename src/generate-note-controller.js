@@ -15,6 +15,7 @@ var createNoteFromSelection = require('./actions/noting/create-note-from-selecti
 var ensureNoteIntegrity = require('./actions/noting/ensure-note-integrity');
 var toggleSelectedNoteCollapseState = require('./actions/noting/toggle-selected-note-collapse-state');
 var toggleAllNoteCollapseState = require('./actions/noting/toggle-all-note-collapse-state');
+var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -100,6 +101,17 @@ module.exports = function(scribe, attrs){
       mutateScribe(scribe, (focus, selection) => {
         //figure out what kind of selection we have
         var markers = findScribeMarkers(focus);
+
+        //we need to figure out if our caret or selection is within a conflicting note
+        var isWithinConflictingNote = config.get('selectors').reduce((last, selector)=>{
+          return selector.tagName !== tagName ? !!findParentNoteSegment(markers[0], selector.tagName) : last;
+        }, false);
+
+        //if we ARE within a confilicting note type bail out.
+        if(isWithinConflictingNote){
+          return;
+        }
+
         var selectionIsCollapsed = (markers.length === 1);
         var isWithinNote = isSelectionWithinNote(markers, tagName);
 
