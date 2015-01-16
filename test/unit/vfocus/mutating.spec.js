@@ -29,15 +29,15 @@ describe('VFocus - Mutations', function() {
     });
 
     it('replaces and focuses the root node', function() {
-      var returnedRootVFocus = replaceTreeFocus.replace(replaceRootNode);
+      replaceTreeFocus.replace(replaceRootNode);
     
-      expect(returnedRootVFocus.vNode).to.equal(replaceRootNode);
+      expect(replaceTreeFocus.vNode).to.equal(replaceRootNode);
     });
 
     it('replaces the node in focus', function() {
-      var returnedVFocus = replaceTreeFocus.down().replace(replaceNode);
+      replaceTreeFocus.down().replace(replaceNode);
 
-      expect(replaceNode).to.equal(returnedVFocus.vNode);
+      expect(replaceTreeFocus.down().vNode).to.equal(replaceNode);
     });
 
   });
@@ -54,14 +54,14 @@ describe('VFocus - Mutations', function() {
     });
 
     it('does not remove the root node', function() {
-      var returnedTreeFocus = removeTreeFocus.remove();
+      var unchangedTreeFocus = removeTreeFocus;
+      removeTreeFocus.remove();
 
-      expect(removeTreeFocus).to.deep.equal(returnedTreeFocus);
+      expect(removeTreeFocus).to.deep.equal(unchangedTreeFocus);
     });
 
     it('removes the node in focus correctly', function() {
-      var expectedTreeFocus = new VFocus(h('div'));
-      var returnedTreeFocus = removeTreeFocus.down().remove();
+      removeTreeFocus.down().remove();
 
       expect(removeTreeFocus.vNode.children).to.be.empty;
     });
