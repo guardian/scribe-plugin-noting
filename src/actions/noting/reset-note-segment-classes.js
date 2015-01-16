@@ -22,8 +22,8 @@ module.exports = function updateStartAndEndClasses(noteSegments, tagName = confi
 
   //get the click interaction type
   var clickInteractionType = config.get('selectors').reduce((last, selector) => {
-    return (selector.tagName === tagName) ? selector.clickAction : config.get('defaultClickInteractionType');
-  });
+    return (selector.tagName === tagName) ? selector.clickAction : last;
+  }, config.get('defaultClickInteractionType'));
 
   noteSegments.forEach(function(note, index) {
     var node = (note.vNode || note);
