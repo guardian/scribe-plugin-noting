@@ -7,6 +7,7 @@ var noteCollapseState = require('./utils/collapse-state');
 var NoteCommandFactory = require('./note-command-factory');
 
 var findScribeMarkers = require('./utils/noting/find-scribe-markers');
+var isSelectionEntirelyWithinNote = require('./utils/noting/is-selection-entirely-within-note');
 var isSelectionWithinNote = require('./utils/noting/is-selection-within-note');
 var removeNote = require('./actions/noting/remove-note');
 var removePartOfNote = require('./actions/noting/remove-part-of-note');
@@ -101,10 +102,11 @@ module.exports = function(scribe, attrs){
       mutateScribe(scribe, (focus, selection) => {
         //figure out what kind of selection we have
         var markers = findScribeMarkers(focus);
+        var selectionIsCollapsed = (markers.length === 1);
 
         //we need to figure out if our caret or selection is within a conflicting note
         var isWithinConflictingNote = config.get('selectors').reduce((last, selector)=>{
-          return selector.tagName !== tagName ? !!findParentNoteSegment(markers[0], selector.tagName) : last;
+          return selector.tagName !== tagName ? !!isSelectionWithinNote(markers[0], selector.tagName) : last;
         }, false);
 
         //if we ARE within a confilicting note type bail out.
@@ -112,8 +114,7 @@ module.exports = function(scribe, attrs){
           return;
         }
 
-        var selectionIsCollapsed = (markers.length === 1);
-        var isWithinNote = isSelectionWithinNote(markers, tagName);
+        var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
 
         //If the caret is within a note and nothing is selected
         if (selectionIsCollapsed && isWithinNote){
