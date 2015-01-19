@@ -20,7 +20,9 @@ module.exports = function isSelectionBetweenNotes(markers, tagName = config.get(
     errorHandle('Only an array of markers or valid VFocus can be passed to isSelectionBetweenMarkers, you passed: %s', focus);
   }
 
-  if (markers.length <= 0) return;
+  if (markers.length <= 0) {
+    return;
+  }
 
   // if we have two valid markers
   if (markers.length === 2) {
@@ -32,7 +34,9 @@ module.exports = function isSelectionBetweenNotes(markers, tagName = config.get(
       // contains notes for example.
       .filter(isVText);
 
-    return selection.every((node)=> findParentNoteSegment(node, tagName));
+    return selection.reduce((last, node)=> {
+      return (!!findParentNoteSegment(node, tagName) || last);
+    }, false);
   }
   //if we only have on valid marker
   //we see if it has a parent note
