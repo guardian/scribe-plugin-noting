@@ -11,18 +11,4 @@ var isWithinNote = require(path.resolve(process.cwd(), 'src/utils/noting/is-with
 
 
 describe('isWithinNote()', function() {
-
-  it('should identify when a focus is not contained within a note', function() {
-    var p = new VText('This is some text');
-    p = new VFocus(p);
-    expect(isWithinNote(p)).to.be.false;
-  });
-
-
-  it('should identify when a focus is contained within a note', function() {
-    var div = h('div')
-    var note = new VFocus(h('gu-note', [div]));
-    expect(isWithinNote(note.next())).to.be.true;
-  });
-
 });
