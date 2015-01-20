@@ -68,7 +68,7 @@ module.exports = function createNoteFromSelection(focus){
   // Scribe instance. In that case we don't bother placing the cursor.
   // (What behaviour would a user expect?)
   if (outsideNoteFocus){
-    if (isParagraph(outsideNoteFocus)){
+    if (!isParagraph(outsideNoteFocus)){
       // The user's selection ends within a paragraph.
       // To place a marker we have to place an element inbetween the note barrier
       // and the marker, or Chrome will place the caret inside the note.
