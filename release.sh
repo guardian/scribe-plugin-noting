@@ -13,7 +13,7 @@ git reset --hard
 git checkout master
 
 echo "-- Building distribution files"
-npm run build
+npm run build-prod
 
 echo "-- Copying distribution files to dist branch"
 git checkout dist
