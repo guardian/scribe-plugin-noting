@@ -1,0 +1,7 @@
+.note-chevron-left(@color, @position, @background-size, @repeat){
+  @note-border-left: %("<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 0 0 L 6 0 L 0 6 L 0 0 L 2 0 L 2 20 L 0 20' fill='%A' stroke='none'/></svg>", @color);
+  @note-border-left-url: url("data:image/svg+xml;utf8,@{note-border-left}");
+  background+: @note-border-left-url @position / @background-size @repeat;
+}
+
+
