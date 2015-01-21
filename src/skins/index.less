@@ -1,0 +1,31 @@
+@import 'vars.less';
+@import 'gu-note.less';
+@import 'gu-flag.less';
+@import 'gu-correct.less';
+
+/**
+ * Hitzone pseudo-elements used for hitzones at start and end of notes for
+ * toggling note collapse.
+ */
+.note-hitzone() {
+  content: ' ';
+  position: absolute;
+  width: 8px;
+  height: 100%;
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.note--start::before {
+  .note-hitzone;
+  margin-left: -5px;
+}
+
+.note--end::after {
+  .note-hitzone;
+}
+
+.note-barrier {
+  /* Keeps note barriers inline. */
+  display: inline-block;
+}
