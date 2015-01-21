@@ -81,12 +81,12 @@ module.exports = function(scribe, attrs){
       switch(e.target.getAttribute('data-click-action')){
         case 'toggle-tag':
           e.preventDefault();
-        this.toggleClickedNotesTagNames(e.target);
+          this.toggleClickedNotesTagNames(e.target);
         break;
 
         default:
           e.preventDefault();
-        this.toggleClickedNotesCollapseState(e.target);
+          this.toggleClickedNotesCollapseState(e.target);
         break;
       }
     }
