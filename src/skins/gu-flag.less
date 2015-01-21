@@ -1,6 +1,6 @@
 @import 'vars.less';
 @import 'mixins/dotted-border.less';
-@import 'mixins/note/note-chevron-left.less';
+@import 'mixins/decal-left.less';
 @import 'mixins/note/note-chevron-right.less';
 @import 'mixins/note/note-background.less';
 @import 'mixins/note/note.less';
@@ -13,7 +13,7 @@ gu-flag.note {
 }
 
 gu-flag.note--start {
-  .note-chevron-left(@flag-border-colour, top left, contain, no-repeat);
+  .decal-left('\2713', @flag-border-colour, @flag-decal-colour);
   .note-edge(left);
 }
 
@@ -28,7 +28,7 @@ gu-flag.note--collapsed {
 
 gu-flag.note--start.note--end,
 gu-flag.note--start.note--collapsed {
-  .note-chevron-left(@flag-border-colour, top left, contain, no-repeat);
+  .decal-left('\2713', @flag-border-colour, @flag-decal-colour);
   .note-background(@flag-border-colour, @flag-background-colour);
   .note-chevron-right(@flag-border-colour, bottom right, contain, no-repeat);
 }

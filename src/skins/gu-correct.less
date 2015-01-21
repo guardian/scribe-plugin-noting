@@ -1,6 +1,6 @@
 @import 'vars.less';
 @import 'mixins/dotted-border.less';
-@import 'mixins/note/note-chevron-left.less';
+@import 'mixins/dotted-border.less';
 @import 'mixins/note/note-chevron-right.less';
 @import 'mixins/note/note-background.less';
 @import 'mixins/note/note.less';
@@ -13,6 +13,7 @@ gu-correct.note {
 }
 
 gu-correct.note--start {
+  .decal-left('\2691', @correct-border-colour, @correct-decal-colour);
   .note-chevron-left(@correct-border-colour, top left, contain, no-repeat);
   .note-edge(left);
 }
@@ -28,7 +29,7 @@ gu-correct.note--collapsed {
 
 gu-correct.note--start.note--end,
 gu-correct.note--start.note--collapsed {
-  .note-chevron-left(@correct-border-colour, top left, contain, no-repeat);
+  .decal-left('\2691', @correct-border-colour, @correct-decal-colour);
   .note-background(@correct-border-colour, @correct-background-colour);
   .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
 }
