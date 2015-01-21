@@ -41,7 +41,11 @@
     "build-js": "npm run browserify-js && uglifyjs ./build/scribe-plugin-noting.js --source-map ./build/scribe-plugin-noting.js.map -c > ./build/scribe-plugin-noting.min.js",
     "build-less": "lessc -sm=on ./src/skins/gu-noting.less ./build/skins/gu-noting.css",
     "build": "npm run pre-build && npm run build-js && npm run build-less",
-    "watch": "nodemon --watch src --watch test --exec 'npm run test'"
+    "browserify-js-prod": "browserify --standalone scribe-plugin-noting scribe-plugin-noting.js -t 6to5ify -t deamdify -t debowerify -o ./build/scribe-plugin-noting.js",
+    "build-js-prod": "npm run browserify-js-prod && uglifyjs ./build/scribe-plugin-noting.js > ./build/scribe-plugin-noting.min.js",
+    "build-prod": "npm run pre-build && npm run build-js-prod && npm run build-less",
+    "watch": "nodemon --watch src --watch test --exec 'npm run test'",
+    "example": "./run-example.sh"
   },
   "repository": {
     "type": "git",

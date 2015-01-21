@@ -197,6 +197,7 @@ VFocus.prototype.insertAfter = function(newVNodes) {
     if (siblings.length === vNodeIndex + 1) {
       // Last element of array
       siblings = siblings.concat(newVNodes);
+      this.parent.vNode.children = siblings;
     } else {
       // Insert before the next sibling.
       newVNodes.reverse().forEach(function (vNode) {
