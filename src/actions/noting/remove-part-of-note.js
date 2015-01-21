@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var VText = require('vtree/vtext');
+var config = require('../../config');
 
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var errorHandle = require('../../utils/error-handle');
@@ -39,14 +40,14 @@ var removeEmptyNotes = require('./remove-empty-notes');
    been laden, and I had been her master, he would have bought her.</p>
 
 */
-module.exports = function removePartofNote(focus){
+module.exports = function removePartofNote(focus, tagName = config.get('defaultTagName')){
 
   if (!isVFocus(focus)){
     errorHandle('Only a valid VFocus can be passed to unNotePartOfNote, you passed: %s', focus);
   }
 
   var focusesToUnnote = findTextBetweenScribeMarkers(focus);
-  var entireNote = findEntireNote(focusesToUnnote[0]);
+  var entireNote = findEntireNote(focusesToUnnote[0], tagName);
 
   var entireNoteTextNodeFocuses = _(entireNote).map(flattenTree)
   .flatten().value().filter(isVText);
@@ -62,20 +63,20 @@ module.exports = function removePartofNote(focus){
   var noteData = getNoteDataAttribs();
 
   // Wrap the text nodes.
-  var wrappedTextNodes = toWrapAndReplace.map(nodeFocus => wrapInNote(nodeFocus, noteData));
+  var wrappedTextNodes = toWrapAndReplace.map(nodeFocus => wrapInNote(nodeFocus, noteData, tagName));
 
   // Replace the nodes in the tree with the wrapped versions.
   _.zip(focusesToNote, wrappedTextNodes).forEach(node => node[0].replace(node[1]));
 
   // Unwrap previously existing note.
-  entireNote.forEach(unWrapNote);
+  entireNote.forEach((node)=> unWrapNote(node, tagName));
 
   // Unless the user selected the entire note contents, notes to the left
   // and/or right of the selection will have been created. We need to update
   // their attributes and CSS classes.
   var onlyPartOfContentsSelected = focusesToNote[0];
   if (onlyPartOfContentsSelected){
-    ensureNoteIntegrity(onlyPartOfContentsSelected.top());
+    ensureNoteIntegrity(onlyPartOfContentsSelected.top(), tagName);
   }
 
   // Place marker immediately before the note to the right (this way of doing
@@ -88,7 +89,7 @@ module.exports = function removePartofNote(focus){
 
   // If the user selected everything but a space (or zero width space), we remove
   // the remaining note. Most likely that's what our user intended.
-  removeEmptyNotes(focus.refresh());
+  removeEmptyNotes(focus.refresh(), tagName);
 
   return focus;
 };

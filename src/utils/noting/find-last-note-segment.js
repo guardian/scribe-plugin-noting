@@ -1,14 +1,18 @@
 var isVFocus = require('../vfocus/is-vfocus');
-var isWithinNote = require('./is-within-note');
+var stillWithinNote = require('./still-within-note');
 var isNoteSegment = require('./is-note-segment');
 var errorHandle = require('../error-handle');
+var config = require('../../config');
 
-module.exports = function findLastNoteSegment(focus) {
+module.exports = function findLastNoteSegment(focus, tagName = config.get('defaultTagName')) {
 
   if (!isVFocus(focus)) {
     errorHandle('only a valid VFocus can be passed to findFirstNoteSegment, you passed: %s', focus);
   }
 
-  return focus.takeWhile(isWithinNote).filter(isNoteSegment).splice(-1)[0];
+  return focus
+    .takeWhile((node)=> stillWithinNote(node, tagName))
+    .filter((node)=> isNoteSegment(node, tagName))
+    .splice(-1)[0];
 
 };

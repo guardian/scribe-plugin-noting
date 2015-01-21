@@ -2,15 +2,16 @@ var _ = require('lodash');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isNoteSegment = require('../../utils/noting/is-note-segment');
 var errorHandle = require('../../utils/error-handle');
+var config = require('../../config');
 
-module.exports = function unWrapNote(focus) {
+module.exports = function unWrapNote(focus, tagName = config.get('defaultTagName')) {
 
   if (!isVFocus(focus) || !focus.parent) {
     errorHandle('Only a valid VFocus can be passed to unWrapNote, you passed: %s', focus);
   }
 
-  if (!isNoteSegment(focus)) {
-    errorHandle('Only a valid VFocus can be passed to unWrapnote, you passed: %s', focus);
+  if (!isNoteSegment(focus, tagName)) {
+    errorHandle('Only a valid note segment can be passed to unWrapnote, you passed: %s', focus);
   }
 
   var note = focus.vNode;
