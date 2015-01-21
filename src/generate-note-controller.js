@@ -43,7 +43,7 @@ module.exports = function(scribe, attrs){
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
       emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotesCollapseState(tag));
-      emitter.on('command:toggle:all-notes', tag => this.toggleAllNotes(tag));
+      emitter.on('command:toggle:all-notes', tag => this.toggleAllNotesCollapseState(tag));
     }
 
 
@@ -134,7 +134,7 @@ module.exports = function(scribe, attrs){
 
     // This command is a bit special in the sense that it will operate on all
     // Scribe instances on the page.
-    toggleAllNotes() {
+    toggleAllNotesCollapseState() {
       var state = !!noteCollapseState.get();
       var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
       scribeInstances = _.toArray(scribeInstances);
