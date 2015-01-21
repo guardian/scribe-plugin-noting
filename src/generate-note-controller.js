@@ -17,6 +17,8 @@ var ensureNoteIntegrity = require('./actions/noting/ensure-note-integrity');
 var toggleSelectedNoteCollapseState = require('./actions/noting/toggle-selected-note-collapse-state');
 var toggleAllNoteCollapseState = require('./actions/noting/toggle-all-note-collapse-state');
 var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
+var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-tag-names');
+var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -41,7 +43,7 @@ module.exports = function(scribe, attrs){
 
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
-      emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotes(tag));
+      emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotesCollapseState(tag));
       emitter.on('command:toggle:all-notes', tag => this.toggleAllNotes(tag));
     }
 
@@ -75,23 +77,87 @@ module.exports = function(scribe, attrs){
       });
     }
 
-    //onElementClicked when scribe is clicked we need to figure out if the target is a note
-    //and set the selection so we can act on it
+    //onElementClicked when scribe is clicked we need to figure out what kind of interaction to perform
     onElementClicked(e) {
-      var selectors = config.get('selectors');
-      selectors.forEach( selector => {
-        //if we have a valid note element
-        if(e.target.nodeName === selector.tagName.toUpperCase()){
+      switch(e.target.getAttribute('data-click-action')){
+        case 'toggle-tag':
           e.preventDefault();
-          var vSelection = new scribe.api.Selection();
-          var range = document.createRange();
-          range.selectNodeContents(e.target);
-          vSelection.selection.removeAllRanges();
-          vSelection.selection.addRange(range);
-          this.toggleSelectedNotes();
+        this.toggleClickedNotesTagNames(e.target);
+        break;
+
+        default:
+          e.preventDefault();
+        this.toggleClickedNotesCollapseState(e.target);
+        break;
+      }
+    }
+
+    // ------------------------------
+    // TOGGLE TAG NAMES
+    // ------------------------------
+
+    //toggleSelectedNotesTagNames toggles the tag names og any notes within a given selection
+    toggleClickedNotesTagNames(target){
+      config.get('selectors').forEach( selector => {
+        //if we have a valid note element
+        if(target.nodeName === selector.tagName.toUpperCase()){
+          this.selectClickedElement(target);
+          this.toggleSelectedNotesTagNames(selector.tagName, selector.toggleTagTo);
         }
       });
     }
+
+    //toggleAllNotesTagNames will toggle the tag names of clicked notes
+    toggleSelectedNotesTagNames(tagName, replacementTagName) {
+      mutateScribe(scribe, (focus)=> toggleSelectedNotesTagName(focus, tagName, replacementTagName));
+    }
+
+    // ------------------------------
+    // COLLAPSE / EXPAND NOTES
+    // ------------------------------
+
+    //toggleClickedNotesCollapseState when note is clicked we need to figure out if the target is a note
+    //and set the selection so we can act on it
+    toggleClickedNotesCollapseState(target){
+      config.get('selectors').forEach( selector => {
+        //if we have a valid note element
+        if(target.nodeName === selector.tagName.toUpperCase()){
+          this.selectClickedElement(target);
+          this.toggleSelectedNotesCollapseState(selector.tagName);
+        }
+      });
+    }
+
+    //toggleSelectedNotesCollapseState will collapse or expand all (or a selected) note
+    toggleSelectedNotesCollapseState(tagName) {
+      mutateScribe(scribe, (focus)=> toggleSelectedNoteCollapseState(focus, tagName));
+    }
+
+    // This command is a bit special in the sense that it will operate on all
+    // Scribe instances on the page.
+    toggleAllNotes() {
+      var state = !!noteCollapseState.get();
+      var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
+      scribeInstances = _.toArray(scribeInstances);
+      scribeInstances.forEach(instance => {
+        mutate(instance, focus => toggleAllNoteCollapseState(focus));
+      });
+    }
+
+
+    //selectClickedElement will create a selection around a clicked element
+    selectClickedElement(target) {
+      var vSelection = new scribe.api.Selection();
+      var range = document.createRange();
+      range.selectNodeContents(target);
+      vSelection.selection.removeAllRanges();
+      vSelection.selection.addRange(range);
+    }
+
+
+    // ------------------------------
+    // NOTING
+    // ------------------------------
 
     //Note function does all the heavy lifting when:
     //- creating
@@ -105,9 +171,12 @@ module.exports = function(scribe, attrs){
         var selectionIsCollapsed = (markers.length === 1);
 
         //we need to figure out if our caret or selection is within a conflicting note
-        var isWithinConflictingNote = config.get('selectors').reduce((last, selector)=>{
-          return selector.tagName !== tagName ? !!isSelectionWithinNote(markers[0], selector.tagName) : last;
-        }, false);
+        var isWithinConflictingNote = false;
+        config.get('selectors').forEach((selector)=>{
+          if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
+            isWithinConflictingNote = true;
+          }
+        });
 
         //if we ARE within a confilicting note type bail out.
         if(isWithinConflictingNote){
@@ -135,23 +204,6 @@ module.exports = function(scribe, attrs){
 
       });
     }
-
-    //toggleAllNotes will collapse or expand all (or a selected) note
-    toggleSelectedNotes() {
-      mutateScribe(scribe, (focus)=> toggleSelectedNoteCollapseState(focus));
-    }
-
-    // This command is a bit special in the sense that it will operate on all
-    // Scribe instances on the page.
-    toggleAllNotes() {
-      var state = !!noteCollapseState.get();
-      var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
-      scribeInstances = _.toArray(scribeInstances);
-      scribeInstances.forEach(instance => {
-        mutate(instance, focus => toggleAllNoteCollapseState(focus));
-      });
-    }
-
     //validateNotes makes sure all note--start note--end and data attributes are in place
     validateNotes() {
       _.throttle(()=> {

@@ -15,9 +15,11 @@ var config = {
   noteBarrierTag: 'gu-note-barrier',
   noteCollapsedClass: 'note--collapsed',
   scribeInstanceSelector: '.scribe',
+  defaultClickInteractionType: 'collapse',
   selectors: [
-    { commandName: 'note', tagName: 'gu-note', keyCodes: [119, 121, {'altKey': 8}] },
-    { commandName: 'flag', tagName: 'gu-flag', keyCodes: [120] }
+    { commandName: 'note',    tagName: 'gu-note',    clickAction: 'collapse',   keyCodes: [119, 121, {'altKey': 8}] },
+    { commandName: 'flag',    tagName: 'gu-flag',    clickAction: 'toggle-tag', toggleTagTo: 'gu-correct', keyCodes: [120] },
+    { commandName: 'correct', tagName: 'gu-correct', clickAction: 'toggle-tag', toggleTagTo: 'gu-flag', keyCodes: [] }
   ]
 };
 
