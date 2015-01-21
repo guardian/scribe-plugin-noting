@@ -102,6 +102,7 @@ module.exports = function(scribe, attrs){
         if(target.nodeName === selector.tagName.toUpperCase()){
           this.selectClickedElement(target);
           this.toggleSelectedNotesTagNames(selector.tagName, selector.toggleTagTo);
+          this.clearSelection();
         }
       });
     }
@@ -151,6 +152,11 @@ module.exports = function(scribe, attrs){
       range.selectNodeContents(target);
       vSelection.selection.removeAllRanges();
       vSelection.selection.addRange(range);
+    }
+
+    clearSelection(){
+      var selection = new scribe.api.Selection();
+      selection.selection.removeAllRanges();
     }
 
 
