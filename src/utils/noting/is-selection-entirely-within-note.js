@@ -34,10 +34,7 @@ module.exports = function isSelectionBetweenNotes(markers, tagName = config.get(
       // contains notes for example.
       .filter(isVText);
 
-    return selection.reduce((last, node)=> {
-      return (!!findParentNoteSegment(node, tagName) || last);
-    }, false);
-
+      return !!selection.every((node)=> findParentNoteSegment(node, tagName));
   }
   //if we only have on valid marker
   //we see if it has a parent note

@@ -7,6 +7,7 @@ var noteCollapseState = require('./utils/collapse-state');
 var NoteCommandFactory = require('./note-command-factory');
 
 var findScribeMarkers = require('./utils/noting/find-scribe-markers');
+var isSelectionEntirelyWithinNote = require('./utils/noting/is-selection-entirely-within-note');
 var isSelectionWithinNote = require('./utils/noting/is-selection-within-note');
 var removeNote = require('./actions/noting/remove-note');
 var removePartOfNote = require('./actions/noting/remove-part-of-note');
@@ -15,6 +16,7 @@ var createNoteFromSelection = require('./actions/noting/create-note-from-selecti
 var ensureNoteIntegrity = require('./actions/noting/ensure-note-integrity');
 var toggleSelectedNoteCollapseState = require('./actions/noting/toggle-selected-note-collapse-state');
 var toggleAllNoteCollapseState = require('./actions/noting/toggle-all-note-collapse-state');
+var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
 var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-tag-names');
 
 var notingVDom = require('./noting-vdom');
@@ -166,7 +168,21 @@ module.exports = function(scribe, attrs){
         //figure out what kind of selection we have
         var markers = findScribeMarkers(focus);
         var selectionIsCollapsed = (markers.length === 1);
-        var isWithinNote = isSelectionWithinNote(markers, tagName);
+
+        //we need to figure out if our caret or selection is within a conflicting note
+        var isWithinConflictingNote = false;
+        config.get('selectors').forEach((selector)=>{
+          if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
+            isWithinConflictingNote = true;
+          }
+        });
+
+        //if we ARE within a confilicting note type bail out.
+        if(isWithinConflictingNote){
+          return;
+        }
+
+        var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
 
         //If the caret is within a note and nothing is selected
         if (selectionIsCollapsed && isWithinNote){
