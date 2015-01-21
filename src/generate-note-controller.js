@@ -18,7 +18,6 @@ var toggleSelectedNoteCollapseState = require('./actions/noting/toggle-selected-
 var toggleAllNoteCollapseState = require('./actions/noting/toggle-all-note-collapse-state');
 var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
 var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-tag-names');
-var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
