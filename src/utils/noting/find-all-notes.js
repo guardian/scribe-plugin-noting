@@ -3,9 +3,8 @@ var isVFocus = require('../vfocus/is-vfocus');
 var isNoteSegment = require('./is-note-segment');
 var findEntireNote = require('./find-entire-note');
 var errorHandle = require('../error-handle');
-var config = require('../../config');
 
-module.exports = function findAllNotes(focus, tagName = config.get('defaultTagName')) {
+module.exports = function findAllNotes(focus) {
 
   if (!isVFocus(focus)) {
     errorHandle('Only a valid VFocus can be passed to findAllNotes, you passed: ', focus);
@@ -13,8 +12,8 @@ module.exports = function findAllNotes(focus, tagName = config.get('defaultTagNa
 
   // Returns an array of arrays of note segments
   return focus
-    .filter((node)=> isNoteSegment(node, tagName))
-    .map((node)=> findEntireNote(node, tagName))
+    .filter(isNoteSegment)
+    .map(findEntireNote)
     .reduce(function(uniqueNotes, note) {
       // First iteration: Add the note.
       if (uniqueNotes.length === 0) return uniqueNotes.concat([note]);

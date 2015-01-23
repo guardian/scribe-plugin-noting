@@ -1,6 +1,5 @@
 var _ = require('lodash');
 var VText = require('vtree/vtext');
-var config = require('../../config');
 
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var errorHandle = require('../../utils/error-handle');
@@ -21,18 +20,18 @@ var removeEmptyNotes = require('../../actions/noting/remove-empty-notes');
 
 // treeFocus: tree focus of tree containing two scribe markers
 // Note that we will mutate the tree.
-module.exports = function createNoteFromSelection(focus, tagName = config.get('defaultTagName')){
+module.exports = function createNoteFromSelection(focus){
 
   if (!isVFocus(focus)){
     errorHandle('Only a valid VFocus element can be passed to createNoteFromSelection, you passed: %s', focus);
   }
   // We want to wrap text nodes between the markers. We filter out nodes that have
   // already been wrapped.
-  var toWrapAndReplace = findTextBetweenScribeMarkers(focus).filter((node)=> isNotWithinNote(node, tagName));
+  var toWrapAndReplace = findTextBetweenScribeMarkers(focus).filter(isNotWithinNote);
 
   //wrap text nodes
   var noteDataSet = getNoteDataAttributes();
-  var wrappedTextNodes = toWrapAndReplace.map(focus => wrapInNote(focus.vNode, noteDataSet, tagName));
+  var wrappedTextNodes = toWrapAndReplace.map(focus => wrapInNote(focus.vNode, noteDataSet));
 
   // Replace the nodes in the tree with the wrapped versions.
   _.zip(toWrapAndReplace, wrappedTextNodes).forEach(focusAndReplacementVNode => {
@@ -43,15 +42,15 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
 
   // If we end up with an empty note a <BR> tag would be created. We have to do
   // this before we remove the markers.
-  removeErroneousBrTags(focus, tagName);
+  removeErroneousBrTags(focus);
 
   // We want to place the caret after the note. First we have to remove the
   // existing markers.
   removeScribeMarkers(focus);
 
   // Update note properties (merges if necessary).
-  var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0], tagName);
-  var noteSegments = findEntireNote(lastNoteSegment, tagName);
+  var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0]);
+  var noteSegments = findEntireNote(lastNoteSegment);
   resetNoteSegmentClasses(noteSegments);
 
   // We need to clear the cache, and this has to be done before we place
@@ -63,7 +62,7 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   notesCache.set(focus);
 
   // Now let's place that caret.
-  var outsideNoteFocus = noteSegments.splice(-1)[0].find((node)=> isNotWithinNote(node, tagName));
+  var outsideNoteFocus = noteSegments.splice(-1)[0].find(isNotWithinNote);
 
   // We guard against the case when the user notes the last piece of text in a
   // Scribe instance. In that case we don't bother placing the cursor.
@@ -89,7 +88,7 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
     }
   }
 
-  removeEmptyNotes(focus, tagName);
+  removeEmptyNotes(focus);
 
   return focus;
 };

@@ -3,7 +3,6 @@ var isVFocus = require('../../utils/vfocus/is-vfocus');
 var errorHandle = require('../../utils/error-handle');
 var findAllNotes = require('../../utils/noting/find-all-notes');
 var resetNoteSegmentClasses = require('./reset-note-segment-classes');
-var config = require('../../config');
 
 /*
    Example. We have two notes:
@@ -26,7 +25,7 @@ var config = require('../../config');
    listed as being edited by The Count of Monte Cristo and the timestamp
    shows the time when the notes were merged.
    */
-module.exports = function mergeIfNecessary(focus, tagName = config.get('defaultTagName')){
+module.exports = function mergeIfNecessary(focus){
 
   if (!isVFocus(focus)){
     errorHandle('Only a valid VFocus can be passed to mergeIfNecessary, you pased: %s', focus);
@@ -37,7 +36,7 @@ module.exports = function mergeIfNecessary(focus, tagName = config.get('defaultT
   // or where there's no start or end property (e.g. when the user has deleted
   // the last note segment of a note).
 
-  findAllNotes(focus, tagName)
+  findAllNotes(focus)
   //find any notes that need to be reset
   .filter(note => {
 

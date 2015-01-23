@@ -39,15 +39,7 @@
             var toolbarElement = document.querySelector('.toolbar');
             scribe.use(scribePluginToolbar(toolbarElement));
 
-            scribe.use(scribePluginNoting({
-              user: "Example User",
-              scribeInstanceSelector: '.scribe',
-               selectors: [
-                { commandName: 'note', tagName: 'gu-note', keyCodes: [119, 121, {'altKey': 8}] },
-                { commandName: 'flag', tagName: 'gu-flag', keyCodes: [120] }
-              ]
-
-            }));
+            scribe.use(scribePluginNoting({ user: "Example User", scribeInstancesSelector: '.scribe' }));
 
           }
         );
