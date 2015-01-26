@@ -100,6 +100,9 @@ module.exports = function(scribe, attrs){
       mutateScribe(scribe, (focus, selection) => {
         //figure out what kind of selection we have
         var markers = findScribeMarkers(focus);
+        if(markers.length <= 0){
+          return;
+        }
         var selectionIsCollapsed = (markers.length === 1);
         var isWithinNote = isSelectionWithinNote(markers);
 
