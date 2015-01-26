@@ -7,16 +7,15 @@ var findAllNotes = require('../../utils/noting/find-all-notes');
 var flattenTree = require('../../utils/vfocus/flatten-tree');
 
 var errorHandle = require('../../utils/error-handle');
-var config = require('../../config');
 
-module.exports = function removeEmptyNotes(focus, tagName = config.get('defaultTagName')) {
+module.exports = function removeEmptyNotes(focus) {
 
   if (!isVFocus(focus)) {
     errorHandle('Only a valid VFocus can be passed to removeEmptyNotes, you passed: %s', focus);
   }
 
   //return all notes from the given tree
-  var allNoteSegments = _.flatten(findAllNotes(focus, tagName));
+  var allNoteSegments = _.flatten(findAllNotes(focus));
 
   var noteSequences = allNoteSegments.map(flattenTree);
 
@@ -32,8 +31,12 @@ module.exports = function removeEmptyNotes(focus, tagName = config.get('defaultT
 
     //assume we have only empty child elements
     //if one is not change the state of the check
-    var childrenAreEmpty = noteSequence.reduce((check, childFocus)=> {
-      return !isEmpty(childFocus) ? false : true;
+    var childrenAreEmpty = noteSequence.reduce(function(check, childFocus) {
+      if (!isEmpty(childFocus)) {
+        return false;
+      } else {
+        return true;
+      }
     }, true);
 
     //if a note is totally empty remove it
