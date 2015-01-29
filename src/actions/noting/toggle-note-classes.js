@@ -23,7 +23,6 @@ module.exports = function toggleNoteClasses(notes, className) {
     //if we have more than one note then we want them all to share state
     var state = collapseState.get();
     state ? action = removeClass : action = addClass;
-    collapseState.set(!state);
   }
 
   notes.forEach(function(vNode) {
