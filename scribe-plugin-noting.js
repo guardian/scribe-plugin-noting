@@ -9620,18 +9620,24 @@ module.exports=require(15)
 
 // Scribe noting plugin
 var generateNoteController = require("./src/generate-note-controller");
-
+var NoteCommandFactory = require("./src/note-command-factory");
+var config = require("./src/config");
 
 // config, example:
 // { user: 'Firstname Lastname',
 //   scribeInstancesSelector: '.ui-rich-text-editor__input' }
-module.exports = function (config) {
+module.exports = function (attrs) {
+  config.set(attrs);
+
   return function (scribe) {
-    generateNoteController(scribe, config);
+    config.get("selectors").forEach(function (selector) {
+      NoteCommandFactory(scribe, selector.commandName, selector.tagName);
+    });
+    generateNoteController(scribe);
   };
 };
 
-},{"./src/generate-note-controller":83}],62:[function(require,module,exports){
+},{"./src/config":82,"./src/generate-note-controller":83,"./src/note-command-factory":84}],62:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -10259,7 +10265,6 @@ module.exports = function toggleNoteClasses(notes, className) {
     //if we have more than one note then we want them all to share state
     var state = collapseState.get();
     state ? action = removeClass : action = addClass;
-    collapseState.set(!state);
   }
 
   notes.forEach(function (vNode) {
@@ -10514,18 +10519,27 @@ var notingVDom = require("./noting-vdom");
 var mutate = notingVDom.mutate;
 var mutateScribe = notingVDom.mutateScribe;
 
-module.exports = function (scribe, attrs) {
+//setup a listener for toggling ALL notes
+// This command is a bit special in the sense that it will operate on all
+// Scribe instances on the page.
+emitter.on("command:toggle:all-notes", function (tag) {
+  var state = !!noteCollapseState.get();
+  var scribeInstances = document.querySelectorAll(config.get("scribeInstanceSelector"));
+  scribeInstances = _.toArray(scribeInstances);
+  scribeInstances.forEach(function (instance) {
+    mutate(instance, function (focus) {
+      return toggleAllNoteCollapseState(focus);
+    });
+  });
+  noteCollapseState.set(!state);
+});
+
+
+module.exports = function (scribe) {
   var NoteController = (function () {
     function NoteController() {
       var _this = this;
 
-
-      //setup the config
-      config.set(attrs);
-
-      config.get("selectors").forEach(function (selector) {
-        NoteCommandFactory(scribe, selector.commandName, selector.tagName);
-      });
 
       //browser events
       scribe.el.addEventListener("keydown", function (e) {
@@ -10544,9 +10558,6 @@ module.exports = function (scribe, attrs) {
       });
       emitter.on("command:toggle:single-note", function (tag) {
         return _this.toggleSelectedNotes(tag);
-      });
-      emitter.on("command:toggle:all-notes", function (tag) {
-        return _this.toggleAllNotes(tag);
       });
     }
 
@@ -10659,24 +10670,6 @@ module.exports = function (scribe, attrs) {
         value: function toggleSelectedNotes() {
           mutateScribe(scribe, function (focus) {
             return toggleSelectedNoteCollapseState(focus);
-          });
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      toggleAllNotes: {
-
-        // This command is a bit special in the sense that it will operate on all
-        // Scribe instances on the page.
-        value: function toggleAllNotes() {
-          var state = !!noteCollapseState.get();
-          var scribeInstances = document.querySelectorAll(config.get("scribeInstanceSelector"));
-          scribeInstances = _.toArray(scribeInstances);
-          scribeInstances.forEach(function (instance) {
-            mutate(instance, function (focus) {
-              return toggleAllNoteCollapseState(focus);
-            });
           });
         },
         writable: true,
