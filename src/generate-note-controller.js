@@ -20,17 +20,24 @@ var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
 var mutateScribe = notingVDom.mutateScribe;
 
-module.exports = function(scribe, attrs){
+//setup a listener for toggling ALL notes
+// This command is a bit special in the sense that it will operate on all
+// Scribe instances on the page.
+emitter.on('command:toggle:all-notes', tag => {
+  var state = !!noteCollapseState.get();
+  var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
+  scribeInstances = _.toArray(scribeInstances);
+  scribeInstances.forEach(instance => {
+    mutate(instance, focus => toggleAllNoteCollapseState(focus));
+  });
+  noteCollapseState.set(!state);
+});
+
+
+module.exports = function(scribe){
 
   class NoteController {
     constructor() {
-
-      //setup the config
-      config.set(attrs);
-
-      config.get('selectors').forEach(selector => {
-        NoteCommandFactory(scribe, selector.commandName, selector.tagName);
-      });
 
       //browser events
       scribe.el.addEventListener('keydown', e => this.onNoteKeyAction(e));
@@ -40,7 +47,6 @@ module.exports = function(scribe, attrs){
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
       emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotes(tag));
-      emitter.on('command:toggle:all-notes', tag => this.toggleAllNotes(tag));
     }
 
 
@@ -129,17 +135,6 @@ module.exports = function(scribe, attrs){
     //toggleAllNotes will collapse or expand all (or a selected) note
     toggleSelectedNotes() {
       mutateScribe(scribe, (focus)=> toggleSelectedNoteCollapseState(focus));
-    }
-
-    // This command is a bit special in the sense that it will operate on all
-    // Scribe instances on the page.
-    toggleAllNotes() {
-      var state = !!noteCollapseState.get();
-      var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
-      scribeInstances = _.toArray(scribeInstances);
-      scribeInstances.forEach(instance => {
-        mutate(instance, focus => toggleAllNoteCollapseState(focus));
-      });
     }
 
     //validateNotes makes sure all note--start note--end and data attributes are in place
