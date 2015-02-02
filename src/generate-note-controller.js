@@ -7,6 +7,7 @@ var noteCollapseState = require('./utils/collapse-state');
 var NoteCommandFactory = require('./note-command-factory');
 
 var findScribeMarkers = require('./utils/noting/find-scribe-markers');
+var isSelectionEntirelyWithinNote = require('./utils/noting/is-selection-entirely-within-note');
 var isSelectionWithinNote = require('./utils/noting/is-selection-within-note');
 var removeNote = require('./actions/noting/remove-note');
 var removePartOfNote = require('./actions/noting/remove-part-of-note');
@@ -15,6 +16,7 @@ var createNoteFromSelection = require('./actions/noting/create-note-from-selecti
 var ensureNoteIntegrity = require('./actions/noting/ensure-note-integrity');
 var toggleSelectedNoteCollapseState = require('./actions/noting/toggle-selected-note-collapse-state');
 var toggleAllNoteCollapseState = require('./actions/noting/toggle-all-note-collapse-state');
+var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -65,7 +67,7 @@ module.exports = function(scribe){
         selector.keyCodes.forEach(keyCode => {
           //if we get just a number we check the keyCode
           if (!_.isObject(keyCode) && e.keyCode === keyCode){
-            e.preventDefault()
+            e.preventDefault();
             this.note(tagName);
           } else if(_.isObject(keyCode)){
             //in the dynamic case we need to check for BOTH the modifier key AND keycode
@@ -101,7 +103,7 @@ module.exports = function(scribe){
     //- creating
     //- deleting
     //- merging
-    note(selector = config.get('defaultTagName')) {
+    note(tagName = config.get('defaultTagName')) {
       //get scribe.el content (virtualized) and the current selection
       mutateScribe(scribe, (focus, selection) => {
         //figure out what kind of selection we have
@@ -110,23 +112,34 @@ module.exports = function(scribe){
           return;
         }
         var selectionIsCollapsed = (markers.length === 1);
-        var isWithinNote = isSelectionWithinNote(markers);
+
+        //we need to figure out if our caret or selection is within a conflicting note
+        var isWithinConflictingNote = config.get('selectors').reduce((last, selector)=>{
+          return selector.tagName !== tagName ? !!isSelectionWithinNote(markers[0], selector.tagName) : last;
+        }, false);
+
+        //if we ARE within a confilicting note type bail out.
+        if(isWithinConflictingNote){
+          return;
+        }
+
+        var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
 
         //If the caret is within a note and nothing is selected
         if (selectionIsCollapsed && isWithinNote){
-          removeNote(focus);
+          removeNote(focus, tagName);
         }
         //if we have a selection within a note
         else if (isWithinNote){
-          removePartOfNote(focus);
+          removePartOfNote(focus, tagName);
         }
         //if we have no selection outside of a note
         else if (selectionIsCollapsed){
-          createEmptyNoteAtCaret(focus);
+          createEmptyNoteAtCaret(focus, tagName);
         }
         //if we have a selection outside of a note
         else {
-          createNoteFromSelection(focus);
+          createNoteFromSelection(focus, tagName);
         }
 
       });
@@ -144,7 +157,7 @@ module.exports = function(scribe){
       }, 1000)();
     }
 
-  };
+  }
 
   return new NoteController();
 

@@ -2,6 +2,8 @@ var VText = require('vtree/vtext');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isVText = require('../../utils/vfocus/is-vtext');
 var errorHandle = require('../../utils/error-handle');
+var config = require('../../config');
+
 var findScribeMarkers = require('../../utils/noting/find-scribe-markers');
 var isNoteSegment = require('../../utils/noting/is-note-segment');
 var hasOnlyEmptyTextChildren = require('../../utils/vfocus/has-only-empty-text-children');
@@ -12,7 +14,7 @@ var hasNoTextChildren = require('../../utils/vfocus/has-no-text-children');
 // e.g. using backspace. This function provides a workaround and should be run
 // anytime a note segment might be empty (as defined by `vdom.consideredEmpty`).
 // TODO: Fix this in Scribe.
-module.exports = function preventBrTags(focus) {
+module.exports = function preventBrTags(focus, tagName = config.get('defaultTagName')) {
   if (!isVFocus(focus)) {
     errorHandle('Only a valid VFocus element can be passed to preventBrTags, you passsed: %s', focus);
   }
@@ -33,8 +35,8 @@ module.exports = function preventBrTags(focus) {
 
   //find the previous and next note segment
   var segments = [
-    marker.find(isNoteSegment, 'prev'),
-    marker.find(isNoteSegment)
+    marker.find((node)=> isNoteSegment(node, tagName), 'prev'),
+    marker.find((node)=> isNoteSegment(node, tagName))
   ].filter(o => !!o);
 
   // Replace/delete empty notes, and parents that might have become empty.
@@ -42,7 +44,7 @@ module.exports = function preventBrTags(focus) {
     if (hasOnlyEmptyTextChildren(segment)){
       // When we delete a space we want to add a space to the previous
       // note segment.
-      var prevNoteSegment  = segment.prev().find(isNoteSegment, 'prev');
+      var prevNoteSegment  = segment.prev().find((node)=> isNoteSegment(node, tagName), 'prev');
       if (prevNoteSegment){
         //get the last text node
         var lastTextNode = prevNoteSegment.vNode.children.filter(isVText).slice(-1)[0];

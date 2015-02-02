@@ -45,4 +45,50 @@ describe('isSelectionWithinNote()', function() {
 
   });
 
+  it('should identify when the caret is within a note', function(){
+    var marker = h('em.scribe-marker');
+    var tree = h('gu-note', [
+      marker
+    ]);
+    tree = new VFocus(tree);
+    expect(isSelectionWithinNote(tree)).to.be.true;
+  });
+
+
+  it('should identify when a note is within a selection', function(){
+    var tree = h('p', [
+      new VText('This'),
+      h('em.scribe-marker'),
+      new VText('is'),
+      h('gu-note', [
+        new VText('some'),
+      ]),
+      h('em.scribe-marker'),
+      new VText('content')
+    ]);
+
+    tree = new VFocus(tree);
+    var result = isSelectionWithinNote(tree);
+    expect(result).to.be.true;
+  });
+
+  it('should identify when a selection spans a note on the right hand side', function(){
+    var tree = h('p', [
+      new VText('This'),
+      new VText('is'),
+      h('gu-note', [
+        h('em.scribe-marker'),
+        new VText('some'),
+      ]),
+      new VText('content'),
+      h('em.scribe-marker')
+    ]);
+
+    tree = new VFocus(tree);
+    var result = isSelectionWithinNote(tree);
+    expect(result).to.be.true;
+  });
+
+
+
 });
