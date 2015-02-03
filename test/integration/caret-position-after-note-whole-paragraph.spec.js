@@ -26,7 +26,7 @@ describe('Caret position after noting a paragraph', ()=>{
   given('we have a selection within a note', ()=>{
     givenContentOf('<p>|This is some content|</p><p>This is some more content</p>', ()=> {
       when('we create a note', ()=>{
-        it.only('should place the caret outside of the collapsed note', ()=> {
+        it('should place the caret outside of the collapsed note', ()=> {
 
           note()
           .then(()=> scribeNode.sendKeys('test'))
@@ -35,6 +35,17 @@ describe('Caret position after noting a paragraph', ()=>{
             expect(html).not.to.include('<p>\u200Btest');
             expect(html).not.to.include('<p>\u200BThis');
           })
+          .then(()=> {
+            return driver.executeScript(function(){
+              var s = new scribe.api.Selection();
+              s.placeMarkers();
+            });
+          })
+          .then(()=> scribeNode.getInnerHTML())
+          .then((html)=> {
+            expect(html).to.include('</em></p>');
+          });
+
         });
       });
     });
