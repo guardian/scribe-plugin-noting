@@ -52,10 +52,13 @@ describe('Caret position after noting a paragraph', ()=>{
     });
   });
 
+  //when a note is created at the end of a paragraph and the next paragraph ONLY contains a link
+  //composer can't call up an embed as a zero width space is added to the beginning
+  //see: https://github.com/guardian/scribe-plugin-noting/issues/86
  given('we have a selection within a note', ()=>{
-    givenContentOf('<p>|This is some content|</p><p>This is some more content</p>', ()=> {
+    givenContentOf('<p>|This is some content|</p><p>https://github.com/guardian/scribe-plugin-noting/issues/86</p>', ()=> {
       when('we create a note and the add a return', ()=>{
-        it.only('should place the caret outside of the collapsed note', ()=> {
+        it('should place the caret outside of the collapsed note', ()=> {
 
           note()
           .then(()=> scribeNode.sendKeys(webdriver.Key.ENTER))
