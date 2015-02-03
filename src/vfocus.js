@@ -292,3 +292,7 @@ VFocus.prototype.find = function(predicate, movement) {
 
   return focus;
 };
+
+VFocus.prototype.children = function(){
+  return this.vNode.children;
+};
