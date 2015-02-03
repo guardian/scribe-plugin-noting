@@ -58,7 +58,7 @@ describe('Caret position after noting a paragraph', ()=>{
  given('we have a selection within a note', ()=>{
     givenContentOf('<p>|This is some content|</p><p>https://github.com/guardian/scribe-plugin-noting/issues/86</p>', ()=> {
       when('we create a note and the add a return', ()=>{
-        it('should place the caret outside of the collapsed note', ()=> {
+        it('should not add a zero width space to an adjacent text node which starts with a url', ()=> {
 
           note()
           .then(()=> scribeNode.sendKeys(webdriver.Key.ENTER))
