@@ -23,9 +23,10 @@ var note = require('./helpers/create-note');
 //this space should be added after the note but before the end of the paragraph
 //see: https://github.com/guardian/scribe-plugin-noting/issues/85
 describe('Caret position after noting a paragraph', ()=>{
+
   given('we have a selection within a note', ()=>{
     givenContentOf('<p>|This is some content|</p><p>This is some more content</p>', ()=> {
-      when('we create a note', ()=>{
+      when('we create a note and then add some text', ()=>{
         it('should place the caret outside of the collapsed note', ()=> {
 
           note()
@@ -50,4 +51,23 @@ describe('Caret position after noting a paragraph', ()=>{
       });
     });
   });
+
+ given('we have a selection within a note', ()=>{
+    givenContentOf('<p>|This is some content|</p><p>This is some more content</p>', ()=> {
+      when('we create a note and the add a return', ()=>{
+        it.only('should place the caret outside of the collapsed note', ()=> {
+
+          note()
+          .then(()=> scribeNode.sendKeys(webdriver.Key.ENTER))
+          .then(()=> scribeNode.getInnerHTML())
+          .then((html)=> {
+            expect(html).not.to.include('<p>\u200BThis');
+          });
+
+        });
+      });
+    });
+  });
+
+
 });
