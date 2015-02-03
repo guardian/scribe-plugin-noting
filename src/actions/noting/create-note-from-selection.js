@@ -85,8 +85,6 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   // Scribe instance. In that case we don't bother placing the cursor.
   // (What behaviour would a user expect?)
   if (outsideNoteFocus) {
-
-
     if (!isParagraph(outsideNoteFocus)) {
       // The user's selection ends within a paragraph.
       // To place a marker we have to place an element inbetween the note barrier
