@@ -101,7 +101,7 @@ module.exports = function(scribe){
     // TOGGLE TAG NAMES
     // ------------------------------
 
-    //toggleSelectedNotesTagNames toggles the tag names og any notes within a given selection
+    //toggleSelectedNotesTagNames toggles the tag names of any notes within a given selection
     toggleClickedNotesTagNames(target){
       config.get('selectors').forEach( selector => {
         //if we have a valid note element
