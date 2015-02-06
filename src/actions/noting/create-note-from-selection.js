@@ -85,23 +85,15 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   // Scribe instance. In that case we don't bother placing the cursor.
   // (What behaviour would a user expect?)
   if (outsideNoteFocus) {
-    if (!isParagraph(outsideNoteFocus)) {
-      // The user's selection ends within a paragraph.
-      // To place a marker we have to place an element inbetween the note barrier
-      // and the marker, or Chrome will place the caret inside the note.
-      outsideNoteFocus.insertBefore([new VText('\u200B'), createVirtualScribeMarker()]);
-    } else {
-
+    if (isParagraph(outsideNoteFocus)) {
       // The user's selection ends with a whole paragraph being selected. Now
       // we need to place the caret in a different manner (or we will end up
       // with a new empty paragraph). So we place the caret at the start of the
       // next paragraph.
-
       var firstNodeWithChildren = outsideNoteFocus.find(isNotEmpty);
       if (firstNodeWithChildren) {
         firstNodeWithChildren.insertBefore(createVirtualScribeMarker());
       }
-
     }
   }
 
