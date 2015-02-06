@@ -1,4 +1,4 @@
-var state = false;
+var state = true;
 
 module.exports = {
   get: function() {
