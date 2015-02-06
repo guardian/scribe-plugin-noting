@@ -7,6 +7,7 @@ var noteCollapseState = require('./utils/collapse-state');
 var NoteCommandFactory = require('./note-command-factory');
 
 var findScribeMarkers = require('./utils/noting/find-scribe-markers');
+var isSelectionEntirelyWithinNote = require('./utils/noting/is-selection-entirely-within-note');
 var isSelectionWithinNote = require('./utils/noting/is-selection-within-note');
 var removeNote = require('./actions/noting/remove-note');
 var removePartOfNote = require('./actions/noting/remove-part-of-note');
@@ -15,23 +16,31 @@ var createNoteFromSelection = require('./actions/noting/create-note-from-selecti
 var ensureNoteIntegrity = require('./actions/noting/ensure-note-integrity');
 var toggleSelectedNoteCollapseState = require('./actions/noting/toggle-selected-note-collapse-state');
 var toggleAllNoteCollapseState = require('./actions/noting/toggle-all-note-collapse-state');
+var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
 var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-tag-names');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
 var mutateScribe = notingVDom.mutateScribe;
 
-module.exports = function(scribe, attrs){
+//setup a listener for toggling ALL notes
+// This command is a bit special in the sense that it will operate on all
+// Scribe instances on the page.
+emitter.on('command:toggle:all-notes', tag => {
+  var state = !!noteCollapseState.get();
+  var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
+  scribeInstances = _.toArray(scribeInstances);
+  scribeInstances.forEach(instance => {
+    mutate(instance, focus => toggleAllNoteCollapseState(focus));
+  });
+  noteCollapseState.set(!state);
+});
+
+
+module.exports = function(scribe){
 
   class NoteController {
     constructor() {
-
-      //setup the config
-      config.set(attrs);
-
-      config.get('selectors').forEach(selector => {
-        NoteCommandFactory(scribe, selector.commandName, selector.tagName);
-      });
 
       //browser events
       scribe.el.addEventListener('keydown', e => this.onNoteKeyAction(e));
@@ -41,7 +50,6 @@ module.exports = function(scribe, attrs){
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
       emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotesCollapseState(tag));
-      emitter.on('command:toggle:all-notes', tag => this.toggleAllNotes(tag));
     }
 
 
@@ -165,8 +173,24 @@ module.exports = function(scribe, attrs){
       mutateScribe(scribe, (focus, selection) => {
         //figure out what kind of selection we have
         var markers = findScribeMarkers(focus);
+        if(markers.length <= 0){
+          return;
+        }
         var selectionIsCollapsed = (markers.length === 1);
-        var isWithinNote = isSelectionWithinNote(markers, tagName);
+
+        var isWithinConflictingNote = false;
+        config.get('selectors').forEach((selector)=>{
+          if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
+            isWithinConflictingNote = true;
+          }
+        });
+
+        //if we ARE within a confilicting note type bail out.
+        if(isWithinConflictingNote){
+          return;
+        }
+
+        var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
 
         //If the caret is within a note and nothing is selected
         if (selectionIsCollapsed && isWithinNote){
@@ -187,6 +211,7 @@ module.exports = function(scribe, attrs){
 
       });
     }
+
     //validateNotes makes sure all note--start note--end and data attributes are in place
     validateNotes() {
       _.throttle(()=> {

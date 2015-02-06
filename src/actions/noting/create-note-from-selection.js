@@ -18,17 +18,19 @@ var isParagraph = require('../../utils/vfocus/is-paragraph');
 var createVirtualScribeMarker = require('../../utils/create-virtual-scribe-marker');
 var isNotEmpty = require('../../utils/vfocus/is-not-empty');
 var removeEmptyNotes = require('../../actions/noting/remove-empty-notes');
+var findScribeMarkers = require('../../utils/noting/find-scribe-markers');
+var hasClass = require('../../utils/vdom/has-class');
 
 // treeFocus: tree focus of tree containing two scribe markers
 // Note that we will mutate the tree.
-module.exports = function createNoteFromSelection(focus, tagName = config.get('defaultTagName')){
+module.exports = function createNoteFromSelection(focus, tagName = config.get('defaultTagName')) {
 
-  if (!isVFocus(focus)){
+  if (!isVFocus(focus)) {
     errorHandle('Only a valid VFocus element can be passed to createNoteFromSelection, you passed: %s', focus);
   }
   // We want to wrap text nodes between the markers. We filter out nodes that have
   // already been wrapped.
-  var toWrapAndReplace = findTextBetweenScribeMarkers(focus).filter((node)=> isNotWithinNote(node, tagName));
+  var toWrapAndReplace = findTextBetweenScribeMarkers(focus).filter((node) => isNotWithinNote(node, tagName));
 
   //wrap text nodes
   var noteDataSet = getNoteDataAttributes();
@@ -45,10 +47,6 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   // this before we remove the markers.
   removeErroneousBrTags(focus, tagName);
 
-  // We want to place the caret after the note. First we have to remove the
-  // existing markers.
-  removeScribeMarkers(focus);
-
   // Update note properties (merges if necessary).
   var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0], tagName);
   var noteSegments = findEntireNote(lastNoteSegment, tagName);
@@ -63,13 +61,31 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   notesCache.set(focus);
 
   // Now let's place that caret.
-  var outsideNoteFocus = noteSegments.splice(-1)[0].find((node)=> isNotWithinNote(node, tagName));
+  var firstNoteSegment = noteSegments.splice(-1)[0];
+  var outsideNoteFocus = firstNoteSegment.find((node) => isNotWithinNote(node, tagName));
+
+  //we need to detect if the current selection spans to the END of the current paragraph
+  var containingParagraph = firstNoteSegment.find(isParagraph, 'prev');
+  var selectionIsAtEndOfParagraph = hasClass(containingParagraph && containingParagraph.children().slice(-1)[0], 'scribe-marker');
+
+  // We want to place the caret after the note. First we have to remove the
+  // existing markers.
+  removeScribeMarkers(focus);
+
+  //if the current selection ENDS at the END of a paragraph
+  //we need to place the caret at the end of the paragraph OUTSIDE of the note
+  if (selectionIsAtEndOfParagraph) {
+    containingParagraph.addChild(new VText('\u200B'));
+    containingParagraph.addChild(createVirtualScribeMarker());
+    return focus;
+  }
+
 
   // We guard against the case when the user notes the last piece of text in a
   // Scribe instance. In that case we don't bother placing the cursor.
   // (What behaviour would a user expect?)
-  if (outsideNoteFocus){
-    if (isParagraph(outsideNoteFocus)){
+  if (outsideNoteFocus) {
+    if (!isParagraph(outsideNoteFocus)) {
       // The user's selection ends within a paragraph.
       // To place a marker we have to place an element inbetween the note barrier
       // and the marker, or Chrome will place the caret inside the note.
@@ -82,7 +98,7 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
       // next paragraph.
 
       var firstNodeWithChildren = outsideNoteFocus.find(isNotEmpty);
-      if (firstNodeWithChildren){
+      if (firstNodeWithChildren) {
         firstNodeWithChildren.insertBefore(createVirtualScribeMarker());
       }
 

@@ -1,5 +1,5 @@
 var isVFocus = require('../vfocus/is-vfocus');
-var isWithinNote = require('./is-within-note');
+var stillWithinNote = require('./still-within-note');
 var isNoteSegment = require('./is-note-segment');
 var errorHandle = require('../error-handle');
 var config = require('../../config');
@@ -11,7 +11,7 @@ module.exports = function findLastNoteSegment(focus, tagName = config.get('defau
   }
 
   return focus
-    .takeWhile((node)=> isWithinNote(node, tagName))
+    .takeWhile((node)=> stillWithinNote(node, tagName))
     .filter((node)=> isNoteSegment(node, tagName))
     .splice(-1)[0];
 

@@ -1,5 +1,5 @@
 var isVFocus = require('../vfocus/is-vfocus');
-var isWithinNote = require('./is-within-note');
+var stillWithinNote = require('./still-within-note');
 var isNoteSegment = require('./is-note-segment');
 var findFirstNoteSegment = require('./find-first-note-segment');
 var errorHandle = require('../error-handle');
@@ -32,7 +32,7 @@ module.exports = function findEntireNote(focus, tagName = config.get('defaultTag
   }
 
   return firstNoteSegment
-    .takeWhile((node)=>isWithinNote(node, tagName))
+    .takeWhile((node)=>stillWithinNote(node, tagName))
     .filter((node)=>isNoteSegment(node, tagName));
 
 };
