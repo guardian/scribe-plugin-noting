@@ -178,10 +178,12 @@ module.exports = function(scribe){
         }
         var selectionIsCollapsed = (markers.length === 1);
 
-        //we need to figure out if our caret or selection is within a conflicting note
-        var isWithinConflictingNote = config.get('selectors').reduce((last, selector)=>{
-          return selector.tagName !== tagName ? !!isSelectionWithinNote(markers[0], selector.tagName) : last;
-        }, false);
+        var isWithinConflictingNote = false;
+        config.get('selectors').forEach((selector)=>{
+          if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
+            isWithinConflictingNote = true;
+          }
+        });
 
         //if we ARE within a confilicting note type bail out.
         if(isWithinConflictingNote){
