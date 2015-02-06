@@ -50,7 +50,6 @@ module.exports = function(scribe){
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
       emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotesCollapseState(tag));
-      emitter.on('command:toggle:all-notes', tag => this.toggleAllNotesCollapseState(tag));
     }
 
 

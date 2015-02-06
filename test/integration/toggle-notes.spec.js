@@ -39,10 +39,9 @@ describe('Toggle Scribe Notes', function(){
 
   given('we have on expanded note', function(){
     givenContentOf('<p>On the 24th of February, <gu-note class="note note--start note--end">1815, the</gu-note> look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
-      it.only('should toggle both notes into the correct state', function (){
+      it('should toggle both notes into the correct state', function (){
 
         driver.executeScript(function(){
-          scribe.commands.correctCollapseToggleAll.execute();
           scribe.commands.correctCollapseToggleAll.execute();
         })
         .then(function(){
