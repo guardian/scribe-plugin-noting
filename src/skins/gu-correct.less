@@ -16,7 +16,7 @@ gu-correct.note--start {
   .decal-left('\2691', @correct-border-colour, @correct-decal-colour);
   .note-chevron-left(@correct-border-colour, top left, contain, no-repeat);
   .note-body(@correct-border-colour, @correct-background-colour);
-  .note-edge(left);
+  padding-left: 6px;
 }
 
 gu-correct.note--end {
@@ -34,6 +34,6 @@ gu-correct.note--start.note--collapsed {
   .decal-left('\2691', @correct-border-colour, @correct-decal-colour);
   .note-background(@correct-border-colour, @correct-background-colour);
   .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
+  .note-edge(right);
+  padding-left: 6px;
 }
-
-
