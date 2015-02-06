@@ -37,6 +37,6 @@ module.exports = function updateStartAndEndClasses(noteSegments, tagName = confi
   addClass(noteSegments[0].vNode, 'note--start');
   addClass(noteSegments[noteSegments.length - 1].vNode, 'note--end');
 
-  return noteSegments
+  return noteSegments;
 };
 

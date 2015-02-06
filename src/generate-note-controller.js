@@ -50,6 +50,7 @@ module.exports = function(scribe){
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
       emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotesCollapseState(tag));
+      emitter.on('command:toggle:all-notes', tag => this.toggleAllNotesCollapseState(tag));
     }
 
 
@@ -87,12 +88,12 @@ module.exports = function(scribe){
       switch(e.target.getAttribute('data-click-action')){
         case 'toggle-tag':
           e.preventDefault();
-        this.toggleClickedNotesTagNames(e.target);
+          this.toggleClickedNotesTagNames(e.target);
         break;
 
         default:
           e.preventDefault();
-        this.toggleClickedNotesCollapseState(e.target);
+          this.toggleClickedNotesCollapseState(e.target);
         break;
       }
     }
@@ -140,7 +141,7 @@ module.exports = function(scribe){
 
     // This command is a bit special in the sense that it will operate on all
     // Scribe instances on the page.
-    toggleAllNotes() {
+    toggleAllNotesCollapseState() {
       var state = !!noteCollapseState.get();
       var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
       scribeInstances = _.toArray(scribeInstances);
@@ -178,6 +179,7 @@ module.exports = function(scribe){
         }
         var selectionIsCollapsed = (markers.length === 1);
 
+        //we need to figure out if our caret or selection is within a conflicting note
         var isWithinConflictingNote = false;
         config.get('selectors').forEach((selector)=>{
           if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
