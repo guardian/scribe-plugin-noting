@@ -14,11 +14,13 @@ gu-note.note {
 
 gu-note.note--start {
   .note-chevron-left(@note-border-colour, top left, contain, no-repeat);
+  .note-body(@note-border-colour, @note-background-colour);
   .note-edge(left);
 }
 
 gu-note.note--end {
   .note-chevron-right(@note-border-colour, bottom right, contain, no-repeat);
+  .note-body(@note-border-colour, @note-background-colour);
   .note-edge(right);
 }
 

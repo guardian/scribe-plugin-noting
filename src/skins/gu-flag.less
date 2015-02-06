@@ -14,11 +14,13 @@ gu-flag.note {
 
 gu-flag.note--start {
   .decal-left('\2713', @flag-border-colour, @flag-decal-colour);
+  .note-body(@flag-border-colour, @flag-background-colour);
   .note-edge(left);
 }
 
 gu-flag.note--end {
   .note-chevron-right(@flag-border-colour, bottom right, contain, no-repeat);
+  .note-body(@flag-border-colour, @flag-background-colour);
   .note-edge(right);
 }
 
