@@ -55,7 +55,7 @@ describe('Caret position after noting a paragraph', ()=>{
   //when a note is created at the end of a paragraph and the next paragraph ONLY contains a link
   //composer can't call up an embed as a zero width space is added to the beginning
   //see: https://github.com/guardian/scribe-plugin-noting/issues/86
- given('we have a selection within a note', ()=>{
+  given('we have a selection within a note', ()=>{
     givenContentOf('<p>|This is some content|</p><p>https://github.com/guardian/scribe-plugin-noting/issues/86</p>', ()=> {
       when('we create a note and the add a return', ()=>{
         it('should not add a zero width space to an adjacent text node which starts with a url', ()=> {
@@ -71,6 +71,32 @@ describe('Caret position after noting a paragraph', ()=>{
       });
     });
   });
+
+  //when we have a note that spans to the end of a paragraph
+  //when we add a note previously within that paragraph the caret should be placed
+  //at the end of the NEW paragraph not the end of the paragraph
+  //see: https://github.com/guardian/scribe-plugin-noting/issues/91
+  given('we have a note that spans to the end of a paragraph', ()=>{
+    givenContentOf('<p>|This| is some <gu-note>content</gu-note></p>', ()=> {
+      when('we create a note and the add a return', ()=>{
+        it('should not add a zero width space to an adjacent text node which starts with a url', ()=> {
+
+          note()
+          .then(()=> driver.executeScript(function(){
+            var s = new scribe.api.Selection();
+            s.placeMarkers();
+          }))
+          .then(()=> scribeNode.getInnerHTML())
+          .then((html)=> {
+            expect(html).not.to.include('</em><gu-note>content');
+            expect(html).to.include('This</gu-note>');
+          });
+
+        });
+      });
+    });
+  });
+
 
 
 });

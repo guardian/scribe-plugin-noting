@@ -60,52 +60,27 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   // refactor so that we do less tree traversals and remove the caching.
   notesCache.set(focus);
 
-  // Now let's place that caret.
-  var firstNoteSegment = noteSegments.splice(-1)[0];
-  var outsideNoteFocus = firstNoteSegment.find((node) => isNotWithinNote(node, tagName));
-
-  //we need to detect if the current selection spans to the END of the current paragraph
-  var containingParagraph = firstNoteSegment.find(isParagraph, 'prev');
-  var selectionIsAtEndOfParagraph = hasClass(containingParagraph && containingParagraph.children().slice(-1)[0], 'scribe-marker');
-
-  // We want to place the caret after the note. First we have to remove the
-  // existing markers.
+  // Now let's place that caret.var
   removeScribeMarkers(focus);
 
-  //if the current selection ENDS at the END of a paragraph
-  //we need to place the caret at the end of the paragraph OUTSIDE of the note
-  if (selectionIsAtEndOfParagraph) {
-    containingParagraph.addChild(new VText('\u200B'));
-    containingParagraph.addChild(createVirtualScribeMarker());
-    return focus;
-  }
+  var endingNoteSegment = noteSegments.slice(-1)[0];
+  var nextNode = endingNoteSegment.find(isNotWithinNote);
+  //check whether the adjacent node is a child of the notes parent
+  //if not the note is at the end of a paragraph and the caret needs to be placed within that paragraph
+  //NOT within the adjacent node
+  var isWithinSameElement = !!nextNode ? (endingNoteSegment.parent.vNode.children.indexOf(nextNode.vNode) !== -1) : false;
 
-
-  // We guard against the case when the user notes the last piece of text in a
-  // Scribe instance. In that case we don't bother placing the cursor.
-  // (What behaviour would a user expect?)
-  if (outsideNoteFocus) {
-    if (!isParagraph(outsideNoteFocus)) {
-      // The user's selection ends within a paragraph.
-      // To place a marker we have to place an element inbetween the note barrier
-      // and the marker, or Chrome will place the caret inside the note.
-      outsideNoteFocus.insertBefore([new VText('\u200B'), createVirtualScribeMarker()]);
-    } else {
-
-      // The user's selection ends with a whole paragraph being selected. Now
-      // we need to place the caret in a different manner (or we will end up
-      // with a new empty paragraph). So we place the caret at the start of the
-      // next paragraph.
-
-      var firstNodeWithChildren = outsideNoteFocus.find(isNotEmpty);
-      if (firstNodeWithChildren) {
-        firstNodeWithChildren.insertBefore(createVirtualScribeMarker());
-      }
-
+  if (!isWithinSameElement) {
+    endingNoteSegment.parent.addChild(new VText('\u200B'));
+    endingNoteSegment.parent.addChild(createVirtualScribeMarker());
+  } else {
+    var index = nextNode.parent.vNode.children.indexOf(nextNode.vNode);
+    if (index === -1) {
+      return focus;
     }
+    nextNode.parent.vNode.children.splice(index, 0, new VText('\u200B'), createVirtualScribeMarker());
   }
 
   removeEmptyNotes(focus, tagName);
-
   return focus;
 };
