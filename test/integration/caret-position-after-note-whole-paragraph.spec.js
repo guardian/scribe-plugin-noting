@@ -2,6 +2,7 @@ var chai = require('chai');
 var webdriver = require('selenium-webdriver');
 var helpers = require('scribe-test-harness/helpers');
 var note = require('./helpers/create-note');
+var flag = require('./helpers/create-flag');
 
 var expect = chai.expect;
 
@@ -97,6 +98,43 @@ describe('Caret position after noting a paragraph', ()=>{
     });
   });
 
+  given('we have a selection', ()=>{
+    givenContentOf('<p>|This is some |content</p>', ()=> {
+      when('we create a note', ()=>{
+        it('should place the caret after the note', ()=> {
 
+          note()
+          .then(()=> driver.executeScript(function(){
+            var s = new scribe.api.Selection();
+            s.placeMarkers();
+          }))
+          .then(()=> scribeNode.getInnerHTML())
+          .then((html)=> {
+            expect(html).to.include('some </gu-note>\u200B<em')
+          });
 
+        });
+      });
+    });
+  });
+
+  given('we have a selection', ()=>{
+    givenContentOf('<p>|This is some |content</p>', ()=> {
+      when('we create a flag', ()=>{
+        it('should place the caret after the flag', ()=> {
+
+          flag()
+          .then(()=> driver.executeScript(function(){
+            var s = new scribe.api.Selection();
+            s.placeMarkers();
+          }))
+          .then(()=> scribeNode.getInnerHTML())
+          .then((html)=> {
+            expect(html).to.include('some </gu-flag>\u200B<em')
+          });
+
+        });
+      });
+    });
+  });
 });

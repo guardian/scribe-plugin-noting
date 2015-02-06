@@ -64,7 +64,7 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   removeScribeMarkers(focus);
 
   var endingNoteSegment = noteSegments.slice(-1)[0];
-  var nextNode = endingNoteSegment.find(isNotWithinNote);
+  var nextNode = endingNoteSegment.find((node)=> isNotWithinNote(node, tagName));
   //check whether the adjacent node is a child of the notes parent
   //if not the note is at the end of a paragraph and the caret needs to be placed within that paragraph
   //NOT within the adjacent node
