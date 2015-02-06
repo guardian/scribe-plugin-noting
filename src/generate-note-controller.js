@@ -23,17 +23,24 @@ var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
 var mutateScribe = notingVDom.mutateScribe;
 
-module.exports = function(scribe, attrs){
+//setup a listener for toggling ALL notes
+// This command is a bit special in the sense that it will operate on all
+// Scribe instances on the page.
+emitter.on('command:toggle:all-notes', tag => {
+  var state = !!noteCollapseState.get();
+  var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
+  scribeInstances = _.toArray(scribeInstances);
+  scribeInstances.forEach(instance => {
+    mutate(instance, focus => toggleAllNoteCollapseState(focus));
+  });
+  noteCollapseState.set(!state);
+});
+
+
+module.exports = function(scribe){
 
   class NoteController {
     constructor() {
-
-      //setup the config
-      config.set(attrs);
-
-      config.get('selectors').forEach(selector => {
-        NoteCommandFactory(scribe, selector.commandName, selector.tagName);
-      });
 
       //browser events
       scribe.el.addEventListener('keydown', e => this.onNoteKeyAction(e));
@@ -43,7 +50,7 @@ module.exports = function(scribe, attrs){
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
       emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotesCollapseState(tag));
-      emitter.on('command:toggle:all-notes', tag => this.toggleAllNotes(tag));
+      emitter.on('command:toggle:all-notes', tag => this.toggleAllNotesCollapseState(tag));
     }
 
 
@@ -81,12 +88,12 @@ module.exports = function(scribe, attrs){
       switch(e.target.getAttribute('data-click-action')){
         case 'toggle-tag':
           e.preventDefault();
-        this.toggleClickedNotesTagNames(e.target);
+          this.toggleClickedNotesTagNames(e.target);
         break;
 
         default:
           e.preventDefault();
-        this.toggleClickedNotesCollapseState(e.target);
+          this.toggleClickedNotesCollapseState(e.target);
         break;
       }
     }
@@ -135,7 +142,7 @@ module.exports = function(scribe, attrs){
 
     // This command is a bit special in the sense that it will operate on all
     // Scribe instances on the page.
-    toggleAllNotes() {
+    toggleAllNotesCollapseState() {
       var state = !!noteCollapseState.get();
       var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
       scribeInstances = _.toArray(scribeInstances);
@@ -173,6 +180,9 @@ module.exports = function(scribe, attrs){
       mutateScribe(scribe, (focus, selection) => {
         //figure out what kind of selection we have
         var markers = findScribeMarkers(focus);
+        if(markers.length <= 0){
+          return;
+        }
         var selectionIsCollapsed = (markers.length === 1);
 
         //we need to figure out if our caret or selection is within a conflicting note
@@ -209,6 +219,7 @@ module.exports = function(scribe, attrs){
 
       });
     }
+
     //validateNotes makes sure all note--start note--end and data attributes are in place
     validateNotes() {
       _.throttle(()=> {

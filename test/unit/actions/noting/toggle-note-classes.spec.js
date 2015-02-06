@@ -27,6 +27,7 @@ describe('toggleClass()', function() {
       expect(note.properties.className).to.equal('my-class');
     });
 
+    collapseState.set(true);
     toggleNoteClasses(notes, 'my-class');
 
     notes.forEach(function(note) {

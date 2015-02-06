@@ -26,16 +26,22 @@ module.exports = function resetNoteBarriers(focus, tagName = config.get('default
   findAllNotes(focus, tagName).forEach(noteSegments => {
     //first note
     noteSegments[0].next().insertBefore(createNoteBarrier());
+
+
     //last note
     // This is necessarily complex (been through a few iterations) because
     // of Chrome's lack of flexibility when it comes to placing the caret.
     var lastNote = noteSegments.slice(-1)[0].find((node)=> isNotWithinNote(node, tagName));
     //find the first non-empty text node after the note
     var adjacentTextNode = lastNote && lastNote.find(isNotEmpty);
+    var adjacentTextNodeContainsOnlyLink = adjacentTextNode && adjacentTextNode.vNode.text && !!adjacentTextNode.vNode.text.match(/^https?:\/\//);
 
-    if(adjacentTextNode){
+    if(adjacentTextNodeContainsOnlyLink){
+      adjacentTextNode.parent.addChild(new VText('\u200B'))
+    } else if (adjacentTextNode){
       adjacentTextNode.vNode.text = '\u200B' + adjacentTextNode.vNode.text;
     }
+
   });
 
 
