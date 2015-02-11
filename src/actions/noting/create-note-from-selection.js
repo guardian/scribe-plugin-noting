@@ -63,6 +63,9 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   // Now let's place that caret.var
   removeScribeMarkers(focus);
 
+  //first note barrier
+  noteSegments[0].vNode.children.unshift(new VText('\u200B'));
+
   var endingNoteSegment = noteSegments.slice(-1)[0];
   var nextNode = endingNoteSegment.find((node)=> isNotWithinNote(node, tagName));
   //check whether the adjacent node is a child of the notes parent
