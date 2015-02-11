@@ -50,7 +50,7 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   // Update note properties (merges if necessary).
   var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0], tagName);
   var noteSegments = findEntireNote(lastNoteSegment, tagName);
-  resetNoteSegmentClasses(noteSegments);
+  resetNoteSegmentClasses(noteSegments, tagName);
 
   // We need to clear the cache, and this has to be done before we place
   // our markers or we'll end up placing the cursor inside the note instead
@@ -63,8 +63,11 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   // Now let's place that caret.var
   removeScribeMarkers(focus);
 
+  //first note barrier
+  noteSegments[0].vNode.children.unshift(new VText('\u200B'));
+
   var endingNoteSegment = noteSegments.slice(-1)[0];
-  var nextNode = endingNoteSegment.find(isNotWithinNote);
+  var nextNode = endingNoteSegment.find((node)=> isNotWithinNote(node, tagName));
   //check whether the adjacent node is a child of the notes parent
   //if not the note is at the end of a paragraph and the caret needs to be placed within that paragraph
   //NOT within the adjacent node

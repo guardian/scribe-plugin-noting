@@ -1,0 +1,25 @@
+.note-collapsed {
+  display: none;
+
+  /* only the start of the note used to display collapsed note */
+  &.note--start {
+    transition: width 0.15s ease,
+    margin 0.15s ease;
+    padding: 0;
+    margin: 0 2px;
+    width: 14px;
+    height: 1em;
+    display: inline-block;
+    overflow: hidden;
+    text-indent: 24px;
+    vertical-align: middle;
+    pointer-events: all;
+  }
+  &:hover {
+    margin: 0;
+    width: 18px;
+    cursor: pointer;
+  }
+
+
+}

@@ -1,0 +1,38 @@
+@import 'vars.less';
+@import 'mixins/dotted-border.less';
+@import 'mixins/note/note-chevron-left.less';
+@import 'mixins/note/note-chevron-right.less';
+@import 'mixins/note/note-background.less';
+@import 'mixins/note/note.less';
+@import 'mixins/note/note-edge.less';
+@import 'mixins/note/note-collapsed.less';
+
+
+gu-note.note {
+  .note-body(@note-border-colour, @note-background-colour);
+}
+
+gu-note.note--start {
+  .note-chevron-left(@note-border-colour, top left, contain, no-repeat);
+  .note-body(@note-border-colour, @note-background-colour);
+  .note-edge(left);
+}
+
+gu-note.note--end {
+  .note-chevron-right(@note-border-colour, bottom right, contain, no-repeat);
+  .note-body(@note-border-colour, @note-background-colour);
+  .note-edge(right);
+}
+
+gu-note.note--collapsed {
+  .note-collapsed();
+}
+
+gu-note.note--start.note--end,
+gu-note.note--start.note--collapsed {
+  .note-chevron-left(@note-border-colour, top left, contain, no-repeat);
+  .note-background(@note-border-colour, @note-background-colour);
+  .note-chevron-right(@note-border-colour, bottom right, contain, no-repeat);
+  .note-edge(right);
+  .note-edge(left);
+}

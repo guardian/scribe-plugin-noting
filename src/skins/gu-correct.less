@@ -1,0 +1,38 @@
+@import 'vars.less';
+@import 'mixins/dotted-border.less';
+@import 'mixins/dotted-border.less';
+@import 'mixins/note/note-chevron-right.less';
+@import 'mixins/note/note-background.less';
+@import 'mixins/note/note.less';
+@import 'mixins/note/note-edge.less';
+@import 'mixins/note/note-collapsed.less';
+
+gu-correct.note {
+  .note-body(@correct-border-colour, @correct-background-colour);
+}
+
+gu-correct.note--start {
+  .decal-left('\2713', @correct-border-colour, @correct-decal-colour);
+  .note-chevron-left(@correct-border-colour, top left, contain, no-repeat);
+  .note-body(@correct-border-colour, @correct-background-colour);
+  padding-left: 6px;
+}
+
+gu-correct.note--end {
+  .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
+  .note-body(@correct-border-colour, @correct-background-colour);
+  .note-edge(right);
+}
+
+gu-correct.note--collapsed {
+  .note-collapsed();
+}
+
+gu-correct.note--start.note--end,
+gu-correct.note--start.note--collapsed {
+  .decal-left('\2713', @correct-border-colour, @correct-decal-colour);
+  .note-background(@correct-border-colour, @correct-background-colour);
+  .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
+  .note-edge(right);
+  .note-edge(left);
+}
