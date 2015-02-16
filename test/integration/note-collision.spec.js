@@ -20,7 +20,7 @@ var note = require('./helpers/create-note');
 
 var selectionIsInsideNote = require('./helpers/selection-within-note');
 
-describe('Creating Notes Within a Flag', function() {
+describe.skip('Creating Notes Within a Flag', function() {
 
   // Create a note within a flag at the caret
   given('The caret within a flag', function() {

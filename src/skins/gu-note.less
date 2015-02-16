@@ -10,6 +10,7 @@
 
 gu-note.note {
   .note-body(@note-border-colour, @note-background-colour);
+  z-index: 20;
 }
 
 gu-note.note--start {
@@ -35,4 +36,14 @@ gu-note.note--start.note--collapsed {
   .note-chevron-right(@note-border-colour, bottom right, contain, no-repeat);
   .note-edge(right);
   .note-edge(left);
+}
+
+gu-note.note--collapse gu-flag,
+gu-note.note--collapse gu-correct {
+  display: none;
+}
+
+gu-note gu-flag,
+gu-note gu-correct,{
+  z-index: -1;
 }
