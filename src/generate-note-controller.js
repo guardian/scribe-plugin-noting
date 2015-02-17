@@ -226,7 +226,11 @@ module.exports = function(scribe){
     //validateNotes makes sure all note--start note--end and data attributes are in place
     validateNotes() {
       _.throttle(()=> {
-        mutateScribe(scribe, (focus)=> ensureNoteIntegrity(focus));
+        mutateScribe(scribe, (focus)=> {
+          config.get('selectors').forEach((selector)=>{
+            ensureNoteIntegrity(focus, selector.tagName);
+          })
+        });
       }, 1000)();
     }
 
