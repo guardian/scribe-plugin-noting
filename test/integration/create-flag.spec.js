@@ -65,10 +65,9 @@ describe('Creating Scribe Flags', function() {
     givenContentOf('<p>On the 24th of |February, 1815|, the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
       when('pressing the flag key', function() {
 
-        it.only('wraps the text in a flag note', function() {
+        it('wraps the text in a flag note', function() {
           flag().then(function() {
             scribeNode.getInnerHTML().then(function(innerHTML) {
-    driver.sleep(5000)
               expect(innerHTML).to.include('February, 1815</gu-flag>');
 
               // Expect one start and one end attribute
