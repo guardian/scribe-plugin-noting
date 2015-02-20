@@ -182,8 +182,8 @@ describe('Removing a Scribe Note', function() {
                 var range = document.createRange();
                 var note = document.getElementsByTagName('gu-note')[0];
 
-                range.setStart(note.firstChild, 10);
-                range.setEnd(note.firstChild, 15);
+                range.setStart(note.lastChild, 10);
+                range.setEnd(note.lastChild, 15);
 
                 selection.removeAllRanges();
                 selection.addRange(range);
