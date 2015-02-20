@@ -32,6 +32,7 @@ gu-note.note {
   margin: 0;
   color: #767676;
   padding: 2px 0;
+  z-index: 20;
 }
 gu-note.note:hover {
   cursor: inherit;
@@ -98,6 +99,14 @@ gu-note.note--start.note--collapsed {
   padding-right: 4px;
   margin-left: 1px;
   padding-left: 4px;
+}
+gu-note.note--collapse gu-flag,
+gu-note.note--collapse gu-correct {
+  display: none;
+}
+gu-note gu-flag,
+gu-note gu-correct {
+  z-index: -1;
 }
 gu-flag.note {
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
