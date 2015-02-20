@@ -62,14 +62,13 @@ describe('Creating Scribe Flags', function() {
 
   // Create flag from selection
   given('A selection', function() {
-    givenContentOf('<p>On the 24th of | February, 1815|, the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
+    givenContentOf('<p>On the 24th of |February, 1815|, the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna</p>', function() {
       when('pressing the flag key', function() {
 
         it('wraps the text in a flag note', function() {
           flag().then(function() {
             scribeNode.getInnerHTML().then(function(innerHTML) {
-
-              expect(innerHTML).to.include(' February, 1815</gu-flag>');
+              expect(innerHTML).to.include('February, 1815</gu-flag>');
 
               // Expect one start and one end attribute
               var numberOfNoteStartAttributes = innerHTML.match(/note--start/g).length;

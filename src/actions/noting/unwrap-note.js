@@ -11,7 +11,7 @@ module.exports = function unWrapNote(focus, tagName = config.get('defaultTagName
   }
 
   if (!isNoteSegment(focus, tagName)) {
-    errorHandle('Only a valid note segment can be passed to unWrapnote, you passed: %s', focus);
+    errorHandle('Only a valid note segment can be passed to unWrapNote, you passed: %s', focus);
   }
 
   var note = focus.vNode;

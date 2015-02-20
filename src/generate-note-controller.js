@@ -184,6 +184,9 @@ module.exports = function(scribe){
         }
         var selectionIsCollapsed = (markers.length === 1);
 
+        /* Removed due to legitimate concern
+         * you should be able to note a paragraph containing notes
+         * should be removed if decided the above statement is correct jp 16/2/15
         //we need to figure out if our caret or selection is within a conflicting note
         var isWithinConflictingNote = false;
         config.get('selectors').forEach((selector)=>{
@@ -196,6 +199,7 @@ module.exports = function(scribe){
         if(isWithinConflictingNote){
           return;
         }
+        */
 
         var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
 
@@ -222,7 +226,11 @@ module.exports = function(scribe){
     //validateNotes makes sure all note--start note--end and data attributes are in place
     validateNotes() {
       _.throttle(()=> {
-        mutateScribe(scribe, (focus)=> ensureNoteIntegrity(focus));
+        mutateScribe(scribe, (focus)=> {
+          config.get('selectors').forEach((selector)=>{
+            ensureNoteIntegrity(focus, selector.tagName);
+          })
+        });
       }, 1000)();
     }
 

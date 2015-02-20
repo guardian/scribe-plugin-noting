@@ -8,6 +8,8 @@ var when = helpers.when;
 var given = helpers.given;
 var givenContentOf = helpers.givenContentOf;
 
+var flag = require('./helpers/create-flag');
+
 var scribeNode;
 var driver;
 beforeEach(function() {
@@ -53,4 +55,24 @@ describe('Toggle Scribe Notes', function(){
       });
     });
   });
+
+  describe('Toggle a nested flag / correct', function(){
+    given('we have on expanded note', function(){
+      givenContentOf('<gu-correct id="correct" data-click-action="toggle-tag" class="note note--start note--end">This is |some| content</gu-correct>', function() {
+        it('should toggle both notes into the correct state', function (){
+          flag()
+          .then(()=> driver.executeScript(()=>{
+            document.getElementById('correct').click();
+          }))
+          .then(()=> scribeNode.getInnerHTML())
+          .then((html)=>{
+            expect(html.match(/gu-flag/g).length).to.equal(2);
+          });
+        });
+      });
+    });
+
+
+  });
+
 });
