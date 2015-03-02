@@ -17,9 +17,9 @@ beforeEach(()=> {
 });
 
 describe('Ensure note integrity', ()=>{
-  given('we have a note that contain no zero-width-spaces', ()=>{
+  given('we have a note that contains no zero-width-spaces', ()=>{
     givenContentOf('<p><gu-note>This is some content</gu-note>|</p>', ()=> {
-      when('add some test to the document', ()=>{
+      when('add some text to the document', ()=>{
         it('should add zero width spaces to the note', ()=>{
 
           scribeNode.sendKeys('more content')
