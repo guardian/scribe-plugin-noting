@@ -1,3 +1,4 @@
+var VText = require('vtree/vtext');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isVText = require('../../utils/vfocus/is-vtext');
 var findAllNotes = require('../../utils/noting/find-all-notes');
@@ -29,22 +30,26 @@ module.exports = function resetNoteBarriers(focus, tagName = config.get('default
     });
 
 
-    //first note
+    //add zero width space to first note segment first note
     noteSegments[0].next().insertBefore(createNoteBarrier());
 
+    //insert a note barrier after the current note
+    var endingNoteSegment = noteSegments.slice(-1)[0];
+    var nextNode = endingNoteSegment.find((node)=> isNotWithinNote(node, tagName));
 
-    //last note
-    // This is necessarily complex (been through a few iterations) because
-    // of Chrome's lack of flexibility when it comes to placing the caret.
-    var lastNote = noteSegments.slice(-1)[0].find((node)=> isNotWithinNote(node, tagName));
-    //find the first non-empty text node after the note
-    var adjacentTextNode = lastNote && lastNote.find(isNotEmpty);
-    var adjacentTextNodeContainsOnlyLink = adjacentTextNode && adjacentTextNode.vNode.text && !!adjacentTextNode.vNode.text.match(/^https?:\/\//);
+    //check whether the adjacent node is a child of the notes parent
+    //if not the note is at the end of a paragraph and the caret needs to be placed within that paragraph
+    //NOT within the adjacent node
+    var isWithinSameElement = !!nextNode ? (endingNoteSegment.parent.vNode.children.indexOf(nextNode.vNode) !== -1) : false;
 
-    if(adjacentTextNodeContainsOnlyLink){
-      adjacentTextNode.parent.addChild(new VText('\u200B'))
-    } else if (adjacentTextNode){
-      adjacentTextNode.vNode.text = '\u200B' + adjacentTextNode.vNode.text;
+    if (!isWithinSameElement) {
+      endingNoteSegment.parent.addChild(new VText('\u200B'));
+    } else {
+      var index = nextNode.parent.vNode.children.indexOf(nextNode.vNode);
+      if (index === -1) {
+        return focus;
+      }
+      nextNode.parent.vNode.children.splice(index, 0, new VText('\u200B'));
     }
 
   });
