@@ -17,13 +17,18 @@ module.exports = function resetNoteBarriers(focus, tagName = config.get('default
     errorHandle('Only a valid VFocus element can be passed to resetNoteBarriers, you passed: ', focus);
   }
 
-  //remove any note barriers that exist
-  focus.filter(isVText).forEach(focus => {
-    focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
-  });
-
   //add new note barriers
   findAllNotes(focus, tagName).forEach(noteSegments => {
+
+
+    //remove any note barriers that exist
+    noteSegments.forEach((note)=>{
+      note.filter(isVText).forEach(focus => {
+        focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
+      });
+    });
+
+
     //first note
     noteSegments[0].next().insertBefore(createNoteBarrier());
 
@@ -45,4 +50,4 @@ module.exports = function resetNoteBarriers(focus, tagName = config.get('default
   });
 
 
- };
+};
