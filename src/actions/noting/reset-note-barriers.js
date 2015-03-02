@@ -40,7 +40,9 @@ module.exports = function resetNoteBarriers(focus, tagName = config.get('default
     //check whether the adjacent node is a child of the notes parent
     //if not the note is at the end of a paragraph and the caret needs to be placed within that paragraph
     //NOT within the adjacent node
-    var isWithinSameElement = !!nextNode ? (endingNoteSegment.parent.vNode.children.indexOf(nextNode.vNode) !== -1) : false;
+    var isWithinSameElement = !!nextNode
+      ? (endingNoteSegment.parent.vNode.children.indexOf(nextNode.vNode) !== -1)
+      : false;
 
     if (!isWithinSameElement) {
       endingNoteSegment.parent.addChild(new VText('\u200B'));
