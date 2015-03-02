@@ -50,6 +50,11 @@ module.exports = function(scribe){
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
       emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotesCollapseState(tag));
+
+      config.get('selectors').forEach((selector)=>{
+        ensureNoteIntegrity(focus, selector.tagName);
+      });
+
     }
 
 
@@ -87,12 +92,12 @@ module.exports = function(scribe){
       switch(e.target.getAttribute('data-click-action')){
         case 'toggle-tag':
           e.preventDefault();
-          this.toggleClickedNotesTagNames(e.target);
+        this.toggleClickedNotesTagNames(e.target);
         break;
 
         default:
           e.preventDefault();
-          this.toggleClickedNotesCollapseState(e.target);
+        this.toggleClickedNotesCollapseState(e.target);
         break;
       }
     }
@@ -190,14 +195,14 @@ module.exports = function(scribe){
         //we need to figure out if our caret or selection is within a conflicting note
         var isWithinConflictingNote = false;
         config.get('selectors').forEach((selector)=>{
-          if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
-            isWithinConflictingNote = true;
-          }
+        if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
+        isWithinConflictingNote = true;
+        }
         });
 
         //if we ARE within a confilicting note type bail out.
         if(isWithinConflictingNote){
-          return;
+        return;
         }
         */
 
