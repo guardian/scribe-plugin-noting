@@ -16,6 +16,10 @@ function VFocus(vNode, parent) {
   this.parent = parent;
 };
 
+VFocus.prototype.index = function (){
+  return this.parent.vNode.children.indexOf(this.vNode);
+}
+
 /**
 * Internally useful
 */
@@ -23,14 +27,14 @@ function VFocus(vNode, parent) {
 VFocus.prototype.rightVNode = function() {
   if (this.isRoot()) return null;
 
-  var rightVNodeIndex = this.parent.vNode.children.indexOf(this.vNode) + 1;
+  var rightVNodeIndex = this.index() + 1;
   return this.parent.vNode.children[rightVNodeIndex];
 };
 
 VFocus.prototype.leftVNode = function() {
   if (this.isRoot()) return null;
 
-  var leftVNodeIndex = this.parent.vNode.children.indexOf(this.vNode) - 1;
+  var leftVNodeIndex = this.index() - 1;
   return leftVNodeIndex >= 0 ? this.parent.vNode.children[leftVNodeIndex] : null;
 };
 
@@ -145,7 +149,7 @@ VFocus.prototype.replace = function(replacementVNode) {
     this.vNode = replacementVNode;
   } else {
     // Replace the object in the tree we're focusing on.
-    var vNodeIndex = this.parent.vNode.children.indexOf(this.vNode);
+    var vNodeIndex = this.index();
     this.parent.vNode.children.splice(vNodeIndex, 1, replacementVNode);
 
     // And focus on the replacement.
@@ -160,7 +164,7 @@ VFocus.prototype.remove = function() {
   if (this.isRoot()) {
     // No can do. Should maybe raise an exception.
   } else {
-    var vNodeIndex = this.parent.vNode.children.indexOf(this.vNode);
+    var vNodeIndex = this.index();
     this.parent.vNode.children.splice(vNodeIndex, 1);
   }
 
@@ -173,8 +177,8 @@ VFocus.prototype.insertBefore = function(newVNodes) {
   if (this.isRoot()) {
     // No can do. Should maybe raise an exception.
   } else {
-    var siblings = this.parent.vNode.children;
-    var vNodeIndex = siblings.indexOf(this.vNode);
+    var siblings = this.parent.children();
+    var vNodeIndex = this.index();
 
     // Insert before ourself.
     newVNodes.reverse().forEach(function (vNode) {
@@ -191,8 +195,8 @@ VFocus.prototype.insertAfter = function(newVNodes) {
   if (this.isRoot()) {
     // No can do. Should maybe raise an exception.
   } else {
-    var siblings = this.parent.vNode.children;
-    var vNodeIndex = siblings.indexOf(this.vNode);
+    var siblings = this.parent.children();
+    var vNodeIndex = this.index();
 
     if (siblings.length === vNodeIndex + 1) {
       // Last element of array
