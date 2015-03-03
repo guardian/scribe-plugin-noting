@@ -41,17 +41,16 @@ module.exports = function resetNoteBarriers(focus, tagName = config.get('default
     //if not the note is at the end of a paragraph and the caret needs to be placed within that paragraph
     //NOT within the adjacent node
     var isWithinSameElement = !!nextNode
-      ? (endingNoteSegment.parent.vNode.children.indexOf(nextNode.vNode) !== -1)
+      ? (endingNoteSegment.parent.indexOf(nextNode.vNode) !== -1)
       : false;
 
     if (!isWithinSameElement) {
       endingNoteSegment.parent.addChild(new VText('\u200B'));
     } else {
-      var index = nextNode.parent.vNode.children.indexOf(nextNode.vNode);
-      if (index === -1) {
-        return focus;
-      }
-      nextNode.parent.vNode.children.splice(index, 0, new VText('\u200B'));
+      var index = nextNode.parent.indexOf(nextNode);
+      return (index === -1)
+        ? focus
+        : nextNode.parent.splice(index, 0, new VText('\u200B'));
     }
 
   });

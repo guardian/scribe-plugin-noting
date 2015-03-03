@@ -300,3 +300,13 @@ VFocus.prototype.children = function(){
 VFocus.prototype.addChild = function(child){
   this.vNode.children.push(child);
 };
+
+VFocus.prototype.indexOf = function(focus){
+  //if we are passing a VFocus use the vNode
+  var vNode = (focus.vNode || focus);
+  return this.children().indexOf(vNode);
+}
+
+VFocus.prototype.splice = function(){
+  return this.children().splice.apply(this, arguments);
+};
