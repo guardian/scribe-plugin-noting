@@ -230,14 +230,11 @@ describe('Removing a Scribe Note', function() {
     given('we have a note', function(){
       givenContentOf('<p><gu-note>\u200BThis |is some |content</gu-note>\u200B</p>', function(){
         when('we remove part of the note', function(){
-          it.only('should remove all zero width spaces from the content inbetween the notes', function(){
+          it('should remove all zero width spaces from the content inbetween the notes', function(){
             //remove the note
             note()
             .then(()=> scribeNode.getInnerHTML())
             .then((html)=>{
-              console.log('-----------------------');
-              console.log(html);
-              console.log('-----------------------');
               expect(html).not.to.include('some \u200B');
             });
           });
