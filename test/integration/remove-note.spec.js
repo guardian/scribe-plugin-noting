@@ -202,6 +202,29 @@ describe('Removing a Scribe Note', function() {
     });
   });
 
+  describe('Removing zero width spaces with a note', function(){
+    given('we have a note', function(){
+      givenContentOf('<p>|This is some content|</p>', function(){
+        when('we remove the note', function(){
+          it.only('should remove all zero width spaces', function(){
+            //create a note
+            note()
+              //re-position the caret
+              .then(()=> scribeNode.sendKeys(webdriver.Key.ARROW_LEFT))
+              .then(()=> scribeNode.sendKeys(webdriver.Key.ARROW_LEFT))
+              //remove the note
+              .then(()=> note())
+              .then(()=> scribeNode.getInnerHTML())
+              .then((html)=>{
+                //expect zero width spaces to have been stripped
+                expect(html).not.to.include('\u200BThis');
+                expect(html).not.to.include('content\u200B');
+              });
+          });
+        });
+      });
+    });
+  });
 
 
 });
