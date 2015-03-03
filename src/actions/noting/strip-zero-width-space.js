@@ -9,9 +9,6 @@ module.exports = function stripZeroWidthSpaces(focus){
   }
 
   focus.filter(isVText).forEach((node)=>{
-    console.log('-----------------------');
-    console.log('stripping', node);
-    console.log('-----------------------');
     node.vNode.text = node.vNode.text.replace(/\u200B/g, '');
   });
 
