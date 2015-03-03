@@ -18,6 +18,7 @@ var toggleSelectedNoteCollapseState = require('./actions/noting/toggle-selected-
 var toggleAllNoteCollapseState = require('./actions/noting/toggle-all-note-collapse-state');
 var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
 var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-tag-names');
+var stripZeroWidthSpaces = require('./actions/noting/strip-zero-width-space');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -227,6 +228,7 @@ module.exports = function(scribe){
     validateNotes() {
       _.throttle(()=> {
         mutateScribe(scribe, (focus)=> {
+          stripZeroWidthSpaces(focus);
           config.get('selectors').forEach((selector)=>{
             ensureNoteIntegrity(focus, selector.tagName);
           })

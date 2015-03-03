@@ -8,6 +8,7 @@ var findParentNoteSegment = require('../../utils/noting/find-parent-note-segment
 var findNoteById = require('../../utils/noting/find-note-by-id');
 var unWrapNote = require('./unwrap-note');
 var ensureNoteIntegrity = require('./ensure-note-integrity');
+var stripZeroWidthSpaces = require('./strip-zero-width-space');
 
 
 // treeFocus: tree focus of tree containing two scribe markers
@@ -29,7 +30,9 @@ module.exports = function removeNote(focus, tagName = config.get('defaultTagName
   var noteSegment = findParentNoteSegment(marker, tagName);
   var noteSegments = findNoteById(focus, noteSegment.vNode.properties.dataset.noteId, tagName);
 
-  noteSegments.forEach((node)=> unWrapNote(node, tagName));
+  noteSegments
+    .map((node) => stripZeroWidthSpaces(node))
+    .forEach((node)=> unWrapNote(node, tagName));
 
   ensureNoteIntegrity(focus, tagName);
 
