@@ -311,6 +311,6 @@ VFocus.prototype.indexOf = function(focus){
   return this.children().indexOf(vNode);
 }
 
-VFocus.prototype.splice = function(){
+VFocus.prototype.spliceChildren = function(){
   return this.children().splice.apply(this, arguments);
 };

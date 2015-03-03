@@ -50,7 +50,7 @@ module.exports = function resetNoteBarriers(focus, tagName = config.get('default
       var index = nextNode.parent.indexOf(nextNode);
       return (index === -1)
         ? focus
-        : nextNode.parent.splice(index, 0, new VText('\u200B'));
+        : nextNode.parent.spliceChildren(index, 0, new VText('\u200B'));
     }
 
   });
