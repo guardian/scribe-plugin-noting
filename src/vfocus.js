@@ -28,14 +28,14 @@ VFocus.prototype.rightVNode = function() {
   if (this.isRoot()) return null;
 
   var rightVNodeIndex = this.index() + 1;
-  return this.parent.vNode.children[rightVNodeIndex];
+  return this.parent.children()[rightVNodeIndex];
 };
 
 VFocus.prototype.leftVNode = function() {
   if (this.isRoot()) return null;
 
   var leftVNodeIndex = this.index() - 1;
-  return leftVNodeIndex >= 0 ? this.parent.vNode.children[leftVNodeIndex] : null;
+  return leftVNodeIndex >= 0 ? this.parent.children()[leftVNodeIndex] : null;
 };
 
 
@@ -56,7 +56,8 @@ VFocus.prototype.canLeft = function() {
 };
 
 VFocus.prototype.canDown = function() {
-  return this.vNode.children && this.vNode.children.length ? true : false;
+  var children = this.children();
+  return children && children.length ? true : false;
 };
 
 VFocus.prototype.canUp = function() {
@@ -108,7 +109,7 @@ VFocus.prototype.prev = function() {
 VFocus.prototype.down = function() {
   if (! this.canDown()) return null;
 
-  return new VFocus(this.vNode.children[0], this);
+  return new VFocus(this.children()[0], this);
 };
 
 // Focus parent
@@ -150,7 +151,7 @@ VFocus.prototype.replace = function(replacementVNode) {
   } else {
     // Replace the object in the tree we're focusing on.
     var vNodeIndex = this.index();
-    this.parent.vNode.children.splice(vNodeIndex, 1, replacementVNode);
+    this.parent.spliceChildren(vNodeIndex, 1, replacementVNode);
 
     // And focus on the replacement.
     this.vNode = replacementVNode;
@@ -165,7 +166,7 @@ VFocus.prototype.remove = function() {
     // No can do. Should maybe raise an exception.
   } else {
     var vNodeIndex = this.index();
-    this.parent.vNode.children.splice(vNodeIndex, 1);
+    this.parent.spliceChildren(vNodeIndex, 1);
   }
 
   return this;
@@ -298,7 +299,7 @@ VFocus.prototype.find = function(predicate, movement) {
 };
 
 VFocus.prototype.children = function(){
-  return this.vNode.children;
+  return this.vNode.children || [];
 };
 
 VFocus.prototype.addChild = function(child){
@@ -312,5 +313,5 @@ VFocus.prototype.indexOf = function(focus){
 }
 
 VFocus.prototype.spliceChildren = function(){
-  return this.children().splice.apply(this, arguments);
+  return Array.prototype.splice.apply(this.children(), arguments);
 };
