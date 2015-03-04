@@ -202,7 +202,7 @@ given('we already have a note', function() {
 //see this issue for why this is here
 //https://github.com/guardian/scribe/issues/254
 given('we create a note', function() {
-  givenContentOf('<gu-note><p>This is some <b>conte</b>nt</p><gu-note>|', function() {
+  givenContentOf('<p><gu-note>This is some </gu-note><b><gu-note>conte</gu-note></b><gu-note>nt</gu-note>|</p>', function() {
     it('should not insert erroneous <br> tags', function() {
 
       scribeNode.sendKeys(webdriver.Key.BACK_SPACE)

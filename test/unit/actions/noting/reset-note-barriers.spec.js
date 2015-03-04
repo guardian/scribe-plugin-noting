@@ -11,7 +11,7 @@ var resetNoteBarriers = require(path.resolve(process.cwd(), 'src/actions/noting/
 
 describe('resetNoteBarriers()', function() {
 
-  it('should add barriers to a selected note', function(){
+  it.skip('should add barriers to a selected note', function(){
     var tree = h('p', [
       h('gu-note', [
         new VText('This'),

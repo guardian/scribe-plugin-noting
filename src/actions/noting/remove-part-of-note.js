@@ -14,6 +14,7 @@ var unWrapNote = require('./unwrap-note');
 var ensureNoteIntegrity = require('./ensure-note-integrity');
 var findScribeMarkers = require('../../utils/noting/find-scribe-markers');
 var removeEmptyNotes = require('./remove-empty-notes');
+var stripZeroWidthSpaces = require('./strip-zero-width-space');
 /*
    Unnote part of note, splitting the rest of the original note into new notes.
 
@@ -84,7 +85,6 @@ module.exports = function removePartofNote(focus, tagName = config.get('defaultT
   // Firefox have issues with this however. To force them to behave we insert
   // an empty span element inbetween.
   var markers = findScribeMarkers(focus.refresh());
-  markers.splice(-1)[0].insertAfter(new VText('\u200B'));
   markers[0].remove();
 
   // If the user selected everything but a space (or zero width space), we remove
