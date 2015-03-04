@@ -1,3 +1,4 @@
+var VText = require('vtree/vtext');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isVText = require('../../utils/vfocus/is-vtext');
 var findAllNotes = require('../../utils/noting/find-all-notes');
@@ -17,32 +18,42 @@ module.exports = function resetNoteBarriers(focus, tagName = config.get('default
     errorHandle('Only a valid VFocus element can be passed to resetNoteBarriers, you passed: ', focus);
   }
 
-  //remove any note barriers that exist
-  focus.filter(isVText).forEach(focus => {
-    focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
-  });
-
   //add new note barriers
   findAllNotes(focus, tagName).forEach(noteSegments => {
-    //first note
+
+
+    //remove any note barriers that exist
+    noteSegments.forEach((note)=>{
+      note.filter(isVText).forEach(focus => {
+        focus.vNode.text = focus.vNode.text.replace(/\u200B/g, '');
+      });
+    });
+
+
+    //add zero width space to first note segment first note
     noteSegments[0].next().insertBefore(createNoteBarrier());
 
+    //insert a note barrier after the current note
+    var endingNoteSegment = noteSegments.slice(-1)[0];
+    var nextNode = endingNoteSegment.find((node)=> isNotWithinNote(node, tagName));
 
-    //last note
-    // This is necessarily complex (been through a few iterations) because
-    // of Chrome's lack of flexibility when it comes to placing the caret.
-    var lastNote = noteSegments.slice(-1)[0].find((node)=> isNotWithinNote(node, tagName));
-    //find the first non-empty text node after the note
-    var adjacentTextNode = lastNote && lastNote.find(isNotEmpty);
-    var adjacentTextNodeContainsOnlyLink = adjacentTextNode && adjacentTextNode.vNode.text && !!adjacentTextNode.vNode.text.match(/^https?:\/\//);
+    //check whether the adjacent node is a child of the notes parent
+    //if not the note is at the end of a paragraph and the caret needs to be placed within that paragraph
+    //NOT within the adjacent node
+    var isWithinSameElement = !!nextNode
+      ? (endingNoteSegment.parent.indexOf(nextNode.vNode) !== -1)
+      : false;
 
-    if(adjacentTextNodeContainsOnlyLink){
-      adjacentTextNode.parent.addChild(new VText('\u200B'))
-    } else if (adjacentTextNode){
-      adjacentTextNode.vNode.text = '\u200B' + adjacentTextNode.vNode.text;
+    if (!isWithinSameElement) {
+      endingNoteSegment.parent.addChild(new VText('\u200B'));
+    } else {
+      var index = nextNode.parent.indexOf(nextNode);
+      return (index === -1)
+        ? focus
+        : nextNode.parent.spliceChildren(index, 0, new VText('\u200B'));
     }
 
   });
 
 
- };
+};

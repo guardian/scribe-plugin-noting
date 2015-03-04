@@ -202,6 +202,47 @@ describe('Removing a Scribe Note', function() {
     });
   });
 
+  describe('Removing zero width spaces with a note', function(){
+    given('we have a note', function(){
+      givenContentOf('<p>|This is some content|</p>', function(){
+        when('we remove the note', function(){
+          it('should remove all zero width spaces', function(){
+            //create a note
+            note()
+            //re-position the caret
+            .then(()=> scribeNode.sendKeys(webdriver.Key.ARROW_LEFT))
+            .then(()=> scribeNode.sendKeys(webdriver.Key.ARROW_LEFT))
+            //remove the note
+            .then(()=> note())
+            .then(()=> scribeNode.getInnerHTML())
+            .then((html)=>{
+              expect(html).not.to.include('\u200BThis');
+              expect(html).not.to.include('content\u200B');
+            });
+
+          });
+        });
+      });
+    });
+  });
+
+  describe('Removing zero width spaces from content between notes', function(){
+    given('we have a note', function(){
+      givenContentOf('<p><gu-note>\u200BThis |is some |content</gu-note>\u200B</p>', function(){
+        when('we remove part of the note', function(){
+          it('should remove all zero width spaces from the content inbetween the notes', function(){
+            //remove the note
+            note()
+            .then(()=> scribeNode.getInnerHTML())
+            .then((html)=>{
+              expect(html).not.to.include('some \u200B');
+            });
+          });
+        });
+      });
+    });
+  });
+
 
 
 });

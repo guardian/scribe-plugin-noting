@@ -16,6 +16,10 @@ function VFocus(vNode, parent) {
   this.parent = parent;
 };
 
+VFocus.prototype.index = function (){
+  return this.parent.vNode.children.indexOf(this.vNode);
+}
+
 /**
 * Internally useful
 */
@@ -23,15 +27,15 @@ function VFocus(vNode, parent) {
 VFocus.prototype.rightVNode = function() {
   if (this.isRoot()) return null;
 
-  var rightVNodeIndex = this.parent.vNode.children.indexOf(this.vNode) + 1;
-  return this.parent.vNode.children[rightVNodeIndex];
+  var rightVNodeIndex = this.index() + 1;
+  return this.parent.children()[rightVNodeIndex];
 };
 
 VFocus.prototype.leftVNode = function() {
   if (this.isRoot()) return null;
 
-  var leftVNodeIndex = this.parent.vNode.children.indexOf(this.vNode) - 1;
-  return leftVNodeIndex >= 0 ? this.parent.vNode.children[leftVNodeIndex] : null;
+  var leftVNodeIndex = this.index() - 1;
+  return leftVNodeIndex >= 0 ? this.parent.children()[leftVNodeIndex] : null;
 };
 
 
@@ -52,7 +56,8 @@ VFocus.prototype.canLeft = function() {
 };
 
 VFocus.prototype.canDown = function() {
-  return this.vNode.children && this.vNode.children.length ? true : false;
+  var children = this.children();
+  return children && children.length ? true : false;
 };
 
 VFocus.prototype.canUp = function() {
@@ -104,7 +109,7 @@ VFocus.prototype.prev = function() {
 VFocus.prototype.down = function() {
   if (! this.canDown()) return null;
 
-  return new VFocus(this.vNode.children[0], this);
+  return new VFocus(this.children()[0], this);
 };
 
 // Focus parent
@@ -145,8 +150,8 @@ VFocus.prototype.replace = function(replacementVNode) {
     this.vNode = replacementVNode;
   } else {
     // Replace the object in the tree we're focusing on.
-    var vNodeIndex = this.parent.vNode.children.indexOf(this.vNode);
-    this.parent.vNode.children.splice(vNodeIndex, 1, replacementVNode);
+    var vNodeIndex = this.index();
+    this.parent.spliceChildren(vNodeIndex, 1, replacementVNode);
 
     // And focus on the replacement.
     this.vNode = replacementVNode;
@@ -160,8 +165,8 @@ VFocus.prototype.remove = function() {
   if (this.isRoot()) {
     // No can do. Should maybe raise an exception.
   } else {
-    var vNodeIndex = this.parent.vNode.children.indexOf(this.vNode);
-    this.parent.vNode.children.splice(vNodeIndex, 1);
+    var vNodeIndex = this.index();
+    this.parent.spliceChildren(vNodeIndex, 1);
   }
 
   return this;
@@ -173,8 +178,8 @@ VFocus.prototype.insertBefore = function(newVNodes) {
   if (this.isRoot()) {
     // No can do. Should maybe raise an exception.
   } else {
-    var siblings = this.parent.vNode.children;
-    var vNodeIndex = siblings.indexOf(this.vNode);
+    var siblings = this.parent.children();
+    var vNodeIndex = this.index();
 
     // Insert before ourself.
     newVNodes.reverse().forEach(function (vNode) {
@@ -191,8 +196,8 @@ VFocus.prototype.insertAfter = function(newVNodes) {
   if (this.isRoot()) {
     // No can do. Should maybe raise an exception.
   } else {
-    var siblings = this.parent.vNode.children;
-    var vNodeIndex = siblings.indexOf(this.vNode);
+    var siblings = this.parent.children();
+    var vNodeIndex = this.index();
 
     if (siblings.length === vNodeIndex + 1) {
       // Last element of array
@@ -294,9 +299,19 @@ VFocus.prototype.find = function(predicate, movement) {
 };
 
 VFocus.prototype.children = function(){
-  return this.vNode.children;
+  return this.vNode.children || [];
 };
 
 VFocus.prototype.addChild = function(child){
   this.vNode.children.push(child);
+};
+
+VFocus.prototype.indexOf = function(focus){
+  //if we are passing a VFocus use the vNode
+  var vNode = (focus.vNode || focus);
+  return this.children().indexOf(vNode);
+}
+
+VFocus.prototype.spliceChildren = function(){
+  return Array.prototype.splice.apply(this.children(), arguments);
 };
