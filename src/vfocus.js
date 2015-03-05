@@ -322,3 +322,8 @@ VFocus.prototype.getChildAt = function(index){
   }
   return null;
 }
+
+VFocus.prototype.prependChildren = function(children){
+  children = Array.isArray(children) ? children : [children];
+  children.forEach((child)=> this.vNode.children.splice(0, 0, child));
+};
