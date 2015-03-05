@@ -235,8 +235,10 @@ module.exports = function(scribe){
 
     ensureNoteIntegrity(){
       mutateScribe(scribe, (focus)=> {
+        //strip the document of ALL zero width spaces
         stripZeroWidthSpaces(focus);
         config.get('selectors').forEach((selector)=>{
+          //run through EACH kind of note and re-add the zero width spaces
           ensureNoteIntegrity(focus, selector.tagName);
         });
       });
