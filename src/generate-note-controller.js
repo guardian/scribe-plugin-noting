@@ -51,6 +51,7 @@ module.exports = function(scribe){
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
       emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotesCollapseState(tag));
+      //Run ensureNoteIntegrity to place missing zero-width-spaces
       this.ensureNoteIntegrity();
     }
 
