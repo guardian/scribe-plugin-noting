@@ -11,7 +11,7 @@ var selectNoteFromCaret = require(path.resolve(process.cwd(), 'src/actions/notin
 
 describe('selectNoteFromCaret()', function() {
 
-  it('should create an empty note at the caret', function() {
+  it('should select note contents', function() {
 
     var tree = h('p', [
       h('gu-note', [
