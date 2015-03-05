@@ -298,6 +298,11 @@ VFocus.prototype.find = function(predicate, movement) {
   return focus;
 };
 
+
+
+/**
+* Managing VFocus Children
+*/
 VFocus.prototype.children = function(){
   return this.vNode.children || [];
 };
