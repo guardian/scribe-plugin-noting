@@ -21,6 +21,7 @@ var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-
 var stripZeroWidthSpaces = require('./actions/noting/strip-zero-width-space');
 var isCaretNextToNote = require('./utils/noting/is-caret-next-to-note');
 var removeCharacterFromNote = require('./actions/noting/remove-character-from-adjacent-note');
+var selectNoteFromCaret = require('./actions/noting/select-note-from-caret');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -72,10 +73,10 @@ module.exports = function(scribe){
           config.get('selectors').forEach((selector)=>{
             //and there is an adjacent note
             if (isCaretNextToNote(focus, 'prev', selector.tagName)
-                  && !isSelectionWithinNote(focus, selector.tagName)) {
-              e.preventDefault();
-              removeCharacterFromNote(focus, 'prev', selector.tagName);
-            }
+                && !isSelectionWithinNote(focus, selector.tagName)) {
+                  e.preventDefault();
+                  removeCharacterFromNote(focus, 'prev', selector.tagName);
+                }
           })
         });
       }
@@ -86,197 +87,229 @@ module.exports = function(scribe){
           config.get('selectors').forEach((selector)=>{
             //and there is an adjacent note
             if (isCaretNextToNote(focus, 'next', selector.tagName)
-                  && !isSelectionWithinNote(focus, selector.tagName)) {
-              e.preventDefault();
-              removeCharacterFromNote(focus, 'next', selector.tagName);
-            }
+                && !isSelectionWithinNote(focus, selector.tagName)) {
+                  e.preventDefault();
+                  removeCharacterFromNote(focus, 'next', selector.tagName);
+                }
           })
         });
-      }
 
-      var selectors = config.get('selectors');
-      selectors.forEach(selector => {
-        //we need to store the tagName to be passed to this.note()
-        var tagName = selector.tagName;
+        //selecting notes
+        if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.keyCode === 65){
+          this.selectNote();
+        }
 
-        selector.keyCodes.forEach(keyCode => {
-          //if we get just a number we check the keyCode
-          if (!_.isObject(keyCode) && e.keyCode === keyCode){
-            e.preventDefault();
-            this.note(tagName);
-          } else if(_.isObject(keyCode)){
-            //in the dynamic case we need to check for BOTH the modifier key AND keycode
-            var modifier = Object.keys(keyCode)[0];
-            if(e[modifier] && e.keyCode === keyCode[modifier]){
+        var selectors = config.get('selectors');
+        selectors.forEach(selector => {
+          //we need to store the tagName to be passed to this.note()
+          var tagName = selector.tagName;
+
+          selector.keyCodes.forEach(keyCode => {
+            //if we get just a number we check the keyCode
+            if (!_.isObject(keyCode) && e.keyCode === keyCode){
               e.preventDefault();
               this.note(tagName);
+            } else if(_.isObject(keyCode)){
+              //in the dynamic case we need to check for BOTH the modifier key AND keycode
+              var modifier = Object.keys(keyCode)[0];
+              if(e[modifier] && e.keyCode === keyCode[modifier]){
+                e.preventDefault();
+                this.note(tagName);
+              }
             }
+          });
+        });
+      }
+
+      //onElementClicked when scribe is clicked we need to figure out what kind of interaction to perform
+      onElementClicked(e) {
+
+        //selecting whole notes
+        if (e.detail === 2) {
+          this.selectnote();
+        }
+
+        switch(e.target.getAttribute('data-click-action')){
+          case 'toggle-tag':
+            e.preventDefault();
+          this.toggleClickedNotesTagNames(e.target);
+          break;
+
+          default:
+            e.preventDefault();
+          this.toggleClickedNotesCollapseState(e.target);
+          break;
+        }
+      }
+
+      // ------------------------------
+      // TOGGLE TAG NAMES
+      // ------------------------------
+
+      //toggleSelectedNotesTagNames toggles the tag names of any notes within a given selection
+      toggleClickedNotesTagNames(target){
+        config.get('selectors').forEach( selector => {
+          //if we have a valid note element
+          if(target.nodeName === selector.tagName.toUpperCase()){
+            this.selectClickedElement(target);
+            this.toggleSelectedNotesTagNames(selector.tagName, selector.toggleTagTo);
+            this.clearSelection();
           }
         });
-      });
-    }
-
-    //onElementClicked when scribe is clicked we need to figure out what kind of interaction to perform
-    onElementClicked(e) {
-      switch(e.target.getAttribute('data-click-action')){
-        case 'toggle-tag':
-          e.preventDefault();
-          this.toggleClickedNotesTagNames(e.target);
-        break;
-
-        default:
-          e.preventDefault();
-          this.toggleClickedNotesCollapseState(e.target);
-        break;
       }
-    }
 
-    // ------------------------------
-    // TOGGLE TAG NAMES
-    // ------------------------------
+      //toggleAllNotesTagNames will toggle the tag names of clicked notes
+      toggleSelectedNotesTagNames(tagName, replacementTagName) {
+        mutateScribe(scribe, (focus)=> toggleSelectedNotesTagName(focus, tagName, replacementTagName));
+      }
 
-    //toggleSelectedNotesTagNames toggles the tag names of any notes within a given selection
-    toggleClickedNotesTagNames(target){
-      config.get('selectors').forEach( selector => {
-        //if we have a valid note element
-        if(target.nodeName === selector.tagName.toUpperCase()){
-          this.selectClickedElement(target);
-          this.toggleSelectedNotesTagNames(selector.tagName, selector.toggleTagTo);
-          this.clearSelection();
-        }
-      });
-    }
+      // ------------------------------
+      // COLLAPSE / EXPAND NOTES
+      // ------------------------------
 
-    //toggleAllNotesTagNames will toggle the tag names of clicked notes
-    toggleSelectedNotesTagNames(tagName, replacementTagName) {
-      mutateScribe(scribe, (focus)=> toggleSelectedNotesTagName(focus, tagName, replacementTagName));
-    }
+      //toggleClickedNotesCollapseState when note is clicked we need to figure out if the target is a note
+      //and set the selection so we can act on it
+      toggleClickedNotesCollapseState(target){
+        config.get('selectors').forEach( selector => {
+          //if we have a valid note element
+          if(target.nodeName === selector.tagName.toUpperCase()){
+            this.selectClickedElement(target);
+            this.toggleSelectedNotesCollapseState(selector.tagName);
+          }
+        });
+      }
 
-    // ------------------------------
-    // COLLAPSE / EXPAND NOTES
-    // ------------------------------
+      //toggleSelectedNotesCollapseState will collapse or expand all (or a selected) note
+      toggleSelectedNotesCollapseState(tagName) {
+        mutateScribe(scribe, (focus)=> toggleSelectedNoteCollapseState(focus, tagName));
+      }
 
-    //toggleClickedNotesCollapseState when note is clicked we need to figure out if the target is a note
-    //and set the selection so we can act on it
-    toggleClickedNotesCollapseState(target){
-      config.get('selectors').forEach( selector => {
-        //if we have a valid note element
-        if(target.nodeName === selector.tagName.toUpperCase()){
-          this.selectClickedElement(target);
-          this.toggleSelectedNotesCollapseState(selector.tagName);
-        }
-      });
-    }
-
-    //toggleSelectedNotesCollapseState will collapse or expand all (or a selected) note
-    toggleSelectedNotesCollapseState(tagName) {
-      mutateScribe(scribe, (focus)=> toggleSelectedNoteCollapseState(focus, tagName));
-    }
-
-    // This command is a bit special in the sense that it will operate on all
-    // Scribe instances on the page.
-    toggleAllNotesCollapseState() {
-      var state = !!noteCollapseState.get();
-      var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
-      scribeInstances = _.toArray(scribeInstances);
-      scribeInstances.forEach(instance => {
-        mutate(instance, focus => toggleAllNoteCollapseState(focus));
-      });
-    }
+      // This command is a bit special in the sense that it will operate on all
+      // Scribe instances on the page.
+      toggleAllNotesCollapseState() {
+        var state = !!noteCollapseState.get();
+        var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
+        scribeInstances = _.toArray(scribeInstances);
+        scribeInstances.forEach(instance => {
+          mutate(instance, focus => toggleAllNoteCollapseState(focus));
+        });
+      }
 
 
-    //selectClickedElement will create a selection around a clicked element
-    selectClickedElement(target) {
-      var vSelection = new scribe.api.Selection();
-      var range = document.createRange();
-      range.selectNodeContents(target);
-      vSelection.selection.removeAllRanges();
-      vSelection.selection.addRange(range);
-    }
+      //selectClickedElement will create a selection around a clicked element
+      selectClickedElement(target) {
+        var vSelection = new scribe.api.Selection();
+        var range = document.createRange();
+        range.selectNodeContents(target);
+        vSelection.selection.removeAllRanges();
+        vSelection.selection.addRange(range);
+      }
 
-    clearSelection(){
-      var selection = new scribe.api.Selection();
-      selection.selection.removeAllRanges();
-    }
+      clearSelection(){
+        var selection = new scribe.api.Selection();
+        selection.selection.removeAllRanges();
+      }
 
 
-    // ------------------------------
-    // NOTING
-    // ------------------------------
+      // ------------------------------
+      // SELECTING A WHOLE NOTE
+      // ------------------------------
 
-    //Note function does all the heavy lifting when:
-    //- creating
-    //- deleting
-    //- merging
-    note(tagName = config.get('defaultTagName')) {
-      //get scribe.el content (virtualized) and the current selection
-      mutateScribe(scribe, (focus, selection) => {
-        //figure out what kind of selection we have
-        var markers = findScribeMarkers(focus);
-        if(markers.length <= 0){
+      selectNote() {
+        mutateScribe(scribe, (focus, selection) => {
+          //ensure we have a selection
+          var markers = findScribeMarkers(focus);
+          if(markers.length >= 0){
+            //check that the selection is within a note
+            config.get('selectors').forEach((selector)=>{
+              if(isSelectionEntirelyWithinNote(markers, selector.tagName)){
+                //if the selection is within a note select that note
+                window.getSelection().removeAllRanges();
+                selectNoteFromCaret(focus, selector.tagName);
+              }
+            });
+          }
+        });
+      }
+
+
+      // ------------------------------
+      // NOTING
+      // ------------------------------
+
+      //Note function does all the heavy lifting when:
+      //- creating
+      //- deleting
+      //- merging
+      note(tagName = config.get('defaultTagName')) {
+        //get scribe.el content (virtualized) and the current selection
+        mutateScribe(scribe, (focus, selection) => {
+          //figure out what kind of selection we have
+          var markers = findScribeMarkers(focus);
+          if(markers.length <= 0){
+            return;
+          }
+          var selectionIsCollapsed = (markers.length === 1);
+
+          /* Removed due to legitimate concern
+           * you should be able to note a paragraph containing notes
+           * should be removed if decided the above statement is correct jp 16/2/15
+          //we need to figure out if our caret or selection is within a conflicting note
+          var isWithinConflictingNote = false;
+          config.get('selectors').forEach((selector)=>{
+          if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
+          isWithinConflictingNote = true;
+          }
+          });
+
+          //if we ARE within a confilicting note type bail out.
+          if(isWithinConflictingNote){
           return;
-        }
-        var selectionIsCollapsed = (markers.length === 1);
+          }
+          */
 
-        /* Removed due to legitimate concern
-         * you should be able to note a paragraph containing notes
-         * should be removed if decided the above statement is correct jp 16/2/15
-        //we need to figure out if our caret or selection is within a conflicting note
-        var isWithinConflictingNote = false;
-        config.get('selectors').forEach((selector)=>{
-        if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
-        isWithinConflictingNote = true;
-        }
+          var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
+
+          //If the caret is within a note and nothing is selected
+          if (selectionIsCollapsed && isWithinNote){
+            removeNote(focus, tagName);
+          }
+          //if we have a selection within a note
+          else if (isWithinNote){
+            removePartOfNote(focus, tagName);
+          }
+          //if we have no selection outside of a note
+          else if (selectionIsCollapsed){
+            createEmptyNoteAtCaret(focus, tagName);
+          }
+          //if we have a selection outside of a note
+          else {
+            createNoteFromSelection(focus, tagName);
+          }
+
         });
+      }
 
-        //if we ARE within a confilicting note type bail out.
-        if(isWithinConflictingNote){
-        return;
-        }
-        */
+      //validateNotes makes sure all note--start note--end and data attributes are in place
+      validateNotes() {
+        _.throttle(()=> {
+          this.ensureNoteIntegrity();
+        }, 1000)();
+      }
 
-        var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
-
-        //If the caret is within a note and nothing is selected
-        if (selectionIsCollapsed && isWithinNote){
-          removeNote(focus, tagName);
-        }
-        //if we have a selection within a note
-        else if (isWithinNote){
-          removePartOfNote(focus, tagName);
-        }
-        //if we have no selection outside of a note
-        else if (selectionIsCollapsed){
-          createEmptyNoteAtCaret(focus, tagName);
-        }
-        //if we have a selection outside of a note
-        else {
-          createNoteFromSelection(focus, tagName);
-        }
-
-      });
-    }
-
-    //validateNotes makes sure all note--start note--end and data attributes are in place
-    validateNotes() {
-      _.throttle(()=> {
-        this.ensureNoteIntegrity();
-      }, 1000)();
-    }
-
-    ensureNoteIntegrity(){
-      mutateScribe(scribe, (focus)=> {
-        //strip the document of ALL zero width spaces
-        stripZeroWidthSpaces(focus);
-        config.get('selectors').forEach((selector)=>{
-          //run through EACH kind of note and re-add the zero width spaces
-          ensureNoteIntegrity(focus, selector.tagName);
+      ensureNoteIntegrity(){
+        mutateScribe(scribe, (focus)=> {
+          //strip the document of ALL zero width spaces
+          stripZeroWidthSpaces(focus);
+          config.get('selectors').forEach((selector)=>{
+            //run through EACH kind of note and re-add the zero width spaces
+            ensureNoteIntegrity(focus, selector.tagName);
+          });
         });
-      });
+      }
+
     }
 
-  }
+    return new NoteController();
 
-  return new NoteController();
-
-};
+  };
