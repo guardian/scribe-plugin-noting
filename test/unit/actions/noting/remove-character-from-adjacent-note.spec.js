@@ -5,7 +5,7 @@ var h = require('virtual-hyperscript');
 
 var VText = require('vtree/vtext');
 var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
-var isCaretNextToNote = require(path.resolve(process.cwd(), 'src/utils/noting/is-caret-next-to-note'));
+var removeCharacterFromAdjacentNote = require(path.resolve(process.cwd(), 'src/actions/noting/remove-character-from-adjacent-note'));
 
 var focus;
 var beforeFocus;
@@ -40,20 +40,15 @@ beforeEach(()=>{
 
 });
 
-describe('isCaretNextToNote()', function(){
+describe('removeCharacterFromAdjacentNote()', function(){
 
-  it('should detect if the caret is next to a note', function(){
+  it('should remove a character from an adjacent note', function(){
 
-    expect(isCaretNextToNote(beforeFocus)).to.be.true;
-    expect(isCaretNextToNote(afterFocus)).to.be.false;
+    removeCharacterFromAdjacentNote(beforeFocus)
+    var note = beforeFocus.next().next();
+    var lastTextNode = note.getChildAt(1);
+    expect(lastTextNode.text).to.equal('his');
 
   });
-
-  it('should detect if the caret is after a note', function(){
-
-    expect(isCaretNextToNote(afterFocus, 'prev')).to.be.true;
-    expect(isCaretNextToNote(beforeFocus, 'prev')).to.be.false;
-
-  })
 
 });

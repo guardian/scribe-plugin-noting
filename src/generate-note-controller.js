@@ -19,6 +19,7 @@ var toggleAllNoteCollapseState = require('./actions/noting/toggle-all-note-colla
 var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
 var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-tag-names');
 var stripZeroWidthSpaces = require('./actions/noting/strip-zero-width-space');
+var isCaretNextToNote = require('./utils/noting/is-caret-next-to-note');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -61,6 +62,17 @@ module.exports = function(scribe){
     // where the key is the modifier (expected on the event object)
     // and the val is the key code
     onNoteKeyAction(e) {
+
+      //if we press backspace
+      if (e.keyCode === 8) {
+        mutateScribe(scribe, (focus)=>{
+          //and there is an adjacent note
+          if (isCaretNextToNote(focus, 'prev')) {
+            e.preventDefault();
+          }
+        });
+      }
+
       var selectors = config.get('selectors');
       selectors.forEach(selector => {
         //we need to store the tagName to be passed to this.note()
