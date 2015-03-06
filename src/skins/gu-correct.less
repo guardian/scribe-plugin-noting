@@ -12,7 +12,7 @@ gu-correct.note {
 }
 
 gu-correct.note--start {
-  .decal-left('svgs/tick-white.svg', @correct-border-colour);
+  .decal-left(@correct-uri, @correct-border-colour);
   .note-chevron-left(@correct-border-colour, top left, contain, no-repeat);
   .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
   padding-left: 6px;
@@ -30,7 +30,7 @@ gu-correct.note--collapsed {
 
 gu-correct.note--start.note--end,
 gu-correct.note--start.note--collapsed {
-  .decal-left('svgs/tick-white.svg', @correct-border-colour);
+  .decal-left(@correct-uri, @correct-border-colour);
   .note-background(@correct-border-colour, @correct-background-colour);
   .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
   .note-edge(right);
