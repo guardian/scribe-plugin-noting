@@ -1,14 +1,19 @@
-.decal-left (@content, @background-color, @color){
+.decal-left (@svgPath, @background-color){
   &:before {
-    content: @content;
+    content: "";
+    background-image: url(@svgPath);
+    background-size: 11px;
+    background-position: 50%;
+    background-repeat: no-repeat;
     position: inherit;
     margin-left: -4px;
     margin-right: 2px;
-    padding: 0.17em 0.3em;
+    padding-top: 0.12em;
+    padding-bottom: 0.05em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
     background-color: @background-color;
     border-bottom: 1px solid @background-color;
-    color: @color;
-    font-size: 0.9em;
     cursor:pointer;
   }
 }

@@ -9,18 +9,18 @@
 
 
 gu-flag.note {
-  .note-body(@flag-border-colour, @flag-background-colour);
+  .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
 }
 
 gu-flag.note--start {
-  .decal-left('\2691', @flag-border-colour, @flag-decal-colour);
-  .note-body(@flag-border-colour, @flag-background-colour);
+  .decal-left('svgs/flag.svg', @flag-border-colour);
+  .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
   .note-edge(left);
 }
 
 gu-flag.note--end {
   .note-chevron-right(@flag-border-colour, bottom right, contain, no-repeat);
-  .note-body(@flag-border-colour, @flag-background-colour);
+  .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
   .note-edge(right);
 }
 
@@ -30,7 +30,7 @@ gu-flag.note--collapsed {
 
 gu-flag.note--start.note--end,
 gu-flag.note--start.note--collapsed {
-  .decal-left('\2691', @flag-border-colour, @flag-decal-colour);
+  .decal-left('svgs/flag.svg', @flag-border-colour);
   .note-background(@flag-border-colour, @flag-background-colour);
   .note-chevron-right(@flag-border-colour, bottom right, contain, no-repeat);
   .note-edge(right);

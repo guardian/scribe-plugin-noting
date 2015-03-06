@@ -9,19 +9,19 @@
 
 
 gu-note.note {
-  .note-body(@note-border-colour, @note-background-colour);
+  .note-body(@note-border-colour, @note-background-colour, @note-text-colour);
   z-index: 20;
 }
 
 gu-note.note--start {
   .note-chevron-left(@note-border-colour, top left, contain, no-repeat);
-  .note-body(@note-border-colour, @note-background-colour);
+  .note-body(@note-border-colour, @note-background-colour, @note-text-colour);
   .note-edge(left);
 }
 
 gu-note.note--end {
   .note-chevron-right(@note-border-colour, bottom right, contain, no-repeat);
-  .note-body(@note-border-colour, @note-background-colour);
+  .note-body(@note-border-colour, @note-background-colour, @note-text-colour);
   .note-edge(right);
 }
 

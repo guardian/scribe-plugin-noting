@@ -1,6 +1,6 @@
 @import './note-background.less';
 
-.note-body(@border-color, @background-color) {
+.note-body(@border-color, @background-color, @text-color) {
   .note-background(@border-color, @background-color);
 
   position: relative;
@@ -9,7 +9,7 @@
 
   display: inline;
   margin: 0;
-  color: @note-text-colour;
+  color: @text-color;
   padding: 2px 0;
 
   &:hover {
