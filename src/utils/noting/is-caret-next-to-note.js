@@ -21,7 +21,7 @@ module.exports = function isCaretNextToNote(focus, direction = 'next', tagName =
   var marker = markers[0];
 
   if (direction === 'next') {
-    return !!marker.next() && !!marker.next().vNode && marker.next().vNode.tagName === tagName;
+    return !!marker.next() && !!marker.next().vNode && marker.next().vNode.tagName.toLowerCase() === tagName;
   } else {
     var previousNoteSegment = findPreviousNoteSegment(marker);
     if (!previousNoteSegment) {

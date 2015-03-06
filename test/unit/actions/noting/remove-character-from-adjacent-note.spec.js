@@ -42,7 +42,7 @@ beforeEach(()=>{
 
 describe('removeCharacterFromAdjacentNote()', function(){
 
-  it('should remove a character from an adjacent note', function(){
+  it.skip('should remove a character from an adjacent note', function(){
 
     removeCharacterFromAdjacentNote(beforeFocus)
     var note = beforeFocus.next().next();
@@ -50,5 +50,16 @@ describe('removeCharacterFromAdjacentNote()', function(){
     expect(lastTextNode.text).to.equal('his');
 
   });
+
+  it('should remove a character from an adjacent note', function(){
+
+    removeCharacterFromAdjacentNote(afterFocus, 'prev');
+    var note = afterFocus.next();
+    var lastTextNode = note.getChildAt(4);
+    expect(lastTextNode.text).to.equal('conten');
+
+  });
+
+
 
 });

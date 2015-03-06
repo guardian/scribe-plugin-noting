@@ -32,9 +32,6 @@ describe('Zero width spaces', ()=>{
               .then(()=> scribeNode.sendKeys(webdriver.Key.BACK_SPACE))
               .then(()=> scribeNode.getInnerHTML())
               .then((html)=>{
-                console.log('-----------------------');
-                console.log(html);
-                console.log('-----------------------');
                 expect(html).to.include('conten</gu-note');
               });
 

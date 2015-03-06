@@ -20,6 +20,7 @@ var findParentNoteSegment = require('./utils/noting/find-parent-note-segment');
 var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-tag-names');
 var stripZeroWidthSpaces = require('./actions/noting/strip-zero-width-space');
 var isCaretNextToNote = require('./utils/noting/is-caret-next-to-note');
+var removeCharacterFromNote = require('./actions/noting/remove-character-from-adjacent-note');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -67,8 +68,21 @@ module.exports = function(scribe){
       if (e.keyCode === 8) {
         mutateScribe(scribe, (focus)=>{
           //and there is an adjacent note
-          if (isCaretNextToNote(focus, 'prev')) {
+          if (isCaretNextToNote(focus, 'prev') && !isSelectionWithinNote(focus)) {
+            console.log('got it');
             e.preventDefault();
+            removeCharacterFromNote(focus, 'prev');
+          }
+        });
+      }
+
+      //when we press delete
+      if (e.keyCode === 46) {
+        mutateScribe(scribe, (focus)=>{
+          //and there is an adjacent note
+          if (isCaretNextToNote(focus) && !isSelectionWithinNote(focus)) {
+            e.preventDefault();
+            removeCharacterFromNote(focus);
           }
         });
       }
