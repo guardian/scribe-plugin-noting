@@ -69,7 +69,6 @@ module.exports = function(scribe){
         mutateScribe(scribe, (focus)=>{
           //and there is an adjacent note
           if (isCaretNextToNote(focus, 'prev') && !isSelectionWithinNote(focus)) {
-            console.log('got it');
             e.preventDefault();
             removeCharacterFromNote(focus, 'prev');
           }

@@ -39,6 +39,7 @@ module.exports = function removeCharacterFromAdjacentNote(focus, direction = 'ne
       return;
     }
 
+    //remove only the first character from the next note
     characters = textNode.vNode.text.split('');
     characters.splice(1, 1);
     textNode.vNode.text = characters.join('');
@@ -49,12 +50,13 @@ module.exports = function removeCharacterFromAdjacentNote(focus, direction = 'ne
     textNodes = note.filter(isVText);
     textNode = textNodes[textNodes.length -1].vNode.text === '\u200B'
       ? textNodes[textNodes.length - 2]
-      : textNodes[textNodes.length - 1]
+      : textNodes[textNodes.length - 1];
 
     if (!textNode) {
       return
     }
 
+    //remove only the previous character from the previsou note
     characters = textNode.vNode.text.split('');
     characters.splice(characters.length -1, 1);
     textNode.vNode.text = characters.join('');
