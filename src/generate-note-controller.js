@@ -67,22 +67,28 @@ module.exports = function(scribe){
       //if we press backspace
       if (e.keyCode === 8) {
         mutateScribe(scribe, (focus)=>{
-          //and there is an adjacent note
-          if (isCaretNextToNote(focus, 'prev') && !isSelectionWithinNote(focus)) {
-            e.preventDefault();
-            removeCharacterFromNote(focus, 'prev');
-          }
+          config.get('selectors').forEach((selector)=>{
+            //and there is an adjacent note
+            if (isCaretNextToNote(focus, 'prev', selector.tagName)
+                  && !isSelectionWithinNote(focus, selector.tagName)) {
+              e.preventDefault();
+              removeCharacterFromNote(focus, 'prev', selector.tagName);
+            }
+          })
         });
       }
 
       //when we press delete
       if (e.keyCode === 46) {
         mutateScribe(scribe, (focus)=>{
-          //and there is an adjacent note
-          if (isCaretNextToNote(focus) && !isSelectionWithinNote(focus)) {
-            e.preventDefault();
-            removeCharacterFromNote(focus);
-          }
+          config.get('selectors').forEach((selector)=>{
+            //and there is an adjacent note
+            if (isCaretNextToNote(focus, 'next', selector.tagName)
+                  && !isSelectionWithinNote(focus, selector.tagName)) {
+              e.preventDefault();
+              removeCharacterFromNote(focus);
+            }
+          })
         });
       }
 

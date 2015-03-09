@@ -51,9 +51,40 @@ describe('isCaretNextToNote()', function(){
 
   it('should detect if the caret is after a note', function(){
 
+    expect(isCaretNextToNote(afterFocus, 'prev', 'gu-flag')).to.be.false;
     expect(isCaretNextToNote(afterFocus, 'prev')).to.be.true;
     expect(isCaretNextToNote(beforeFocus, 'prev')).to.be.false;
 
-  })
+  });
+
+  it('should return false if the caret is next to a flag', function(){
+    var focus = h('p', [
+      h('em.scribe-marker'),
+      h('gu-flag', [
+        new VText('some'),
+        new VText('content')
+      ])
+    ]);
+
+    focus = new VFocus(focus);
+    expect(isCaretNextToNote(focus)).to.be.false;
+    expect(isCaretNextToNote(focus, 'next', 'gu-flag')).to.be.true;
+  });
+
+  it('should return false if the caret is in a different paragraph', function(){
+    var focus = h('div', [
+      h('p', [
+        h('gu-note', [
+          new VText('This'),
+          new VText('is')
+        ])
+      ]),
+      h('p', [
+        h('em.scribe-marker')
+      ])
+    ]);
+    focus = new VFocus(focus);
+    expect(isCaretNextToNote(focus, 'prev')).to.be.false;
+  });
 
 });

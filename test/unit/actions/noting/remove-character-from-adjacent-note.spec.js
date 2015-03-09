@@ -56,7 +56,7 @@ describe('removeCharacterFromAdjacentNote()', function(){
     removeCharacterFromAdjacentNote(afterFocus, 'prev');
     var note = afterFocus.next();
     var lastTextNode = note.getChildAt(4);
-    expect(lastTextNode.text).to.equal('conten');
+    expect(lastTextNode.vNode.text).to.equal('conten');
 
   });
 

@@ -4,7 +4,7 @@ var config = require('../../config');
 var findScribeMarkers = require('./find-scribe-markers');
 var findPreviousNoteSegment = require('./find-previous-note-segment');
 var isNoteSegment = require('../noting/is-note-segment');
-var isScribeMarker = require('./is-scribe-marker');
+var isScribeMarker = require('./is-scribe-marker.js');
 
 module.exports = function isCaretNextToNote(focus, direction = 'next', tagName = config.get('defaultTagName')){
 
@@ -21,16 +21,16 @@ module.exports = function isCaretNextToNote(focus, direction = 'next', tagName =
   var marker = markers[0];
 
   if (direction === 'next') {
-    return !!marker.next() && !!marker.next().vNode && marker.next().vNode.tagName.toLowerCase() === tagName;
+    return !!marker.next() && !!marker.next().vNode && !!marker.next().vNode.tagName && marker.next().vNode.tagName.toLowerCase() === tagName;
   } else {
-    var previousNoteSegment = findPreviousNoteSegment(marker);
+    var previousNoteSegment = findPreviousNoteSegment(marker, tagName);
     if (!previousNoteSegment) {
       return false;
     }
     var index = previousNoteSegment.index();
-    //get the next sibling which should be a zero width space
-    var space = previousNoteSegment.parent.getChildAt(index + 1);
-    return !!space && space.text === '\u200B';
+    //get the next sibling which should be a note : note -> zero width space -> caret -> note
+    var note = previousNoteSegment.parent.getChildAt(index + 2);
+    return !!note && isScribeMarker(note);
  }
 
 };

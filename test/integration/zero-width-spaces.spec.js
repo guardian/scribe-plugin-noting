@@ -2,6 +2,7 @@ var chai = require('chai');
 var webdriver = require('selenium-webdriver');
 var helpers = require('scribe-test-harness/helpers');
 var note = require('./helpers/create-note');
+var flag = require('./helpers/create-flag');
 
 var expect = chai.expect;
 
@@ -41,5 +42,27 @@ describe('Zero width spaces', ()=>{
     });
 
   });
+
+
+  describe('Deleting the last character of a flag', function(){
+
+    given('we create a flag', ()=>{
+      givenContentOf('<p>|This is some content|</p>', ()=> {
+        when('we try to delete the last character of the flag', ()=>{
+          it('should delete the character and not the zero width space', ()=>{
+
+            flag()
+              .then(()=> scribeNode.sendKeys(webdriver.Key.BACK_SPACE))
+              .then(()=> scribeNode.getInnerHTML())
+              .then((html)=>{
+                expect(html).to.include('conten</gu-flag');
+              });
+
+          });
+        });
+      });
+    });
+  });
+
 
 });

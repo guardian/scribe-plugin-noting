@@ -317,5 +317,8 @@ VFocus.prototype.spliceChildren = function(){
 };
 
 VFocus.prototype.getChildAt = function(index){
-  return this.vNode.children[index];
+  if (this.vNode.children[index]) {
+    return new VFocus(this.vNode.children[index], this);
+  }
+  return null;
 }
