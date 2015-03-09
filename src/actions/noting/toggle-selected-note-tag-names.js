@@ -22,7 +22,7 @@ module.exports = function toggleSelectedNoteTagNames(focus, tagName, replacement
   noteSegments.forEach((note)=> {
 
     //get any child notes that are now contained within our parent note
-    var decendentNotes = note.filter((node)=> isNoteSegment(node, replacementTagName));
+    var decendentNotes = flattenTree(note).filter((node)=> isNoteSegment(node, replacementTagName));
     //if we have any child notes of the new tag type, unwrap them (like a merge)
     if (!!decendentNotes.length) {
       decendentNotes.forEach((node)=> unWrapNote(node, replacementTagName));
