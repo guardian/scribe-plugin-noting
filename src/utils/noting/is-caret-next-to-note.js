@@ -27,10 +27,9 @@ module.exports = function isCaretNextToNote(focus, direction = 'next', tagName =
     if (!previousNoteSegment) {
       return false;
     }
-    var index = previousNoteSegment.index();
     //get the next sibling which should be a note : note -> zero width space -> caret -> note
-    var zeroWidthSpace = previousNoteSegment.parent.getChildAt(index + 1);
-    var marker = previousNoteSegment.parent.getChildAt(index + 2);
+    var zeroWidthSpace = previousNoteSegment.right();
+    var marker = zeroWidthSpace.right();
     //test the marker exists
     //AND the zero width space contains ONLY a zero width space
     //AND that the marker IS a marker
