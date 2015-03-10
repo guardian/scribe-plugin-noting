@@ -8,20 +8,37 @@
 @import 'mixins/note/note-collapsed.less';
 
 
-gu-flag.note {
-  .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
-}
+/**
+ * Mixins
+ */
 
-gu-flag.note--start {
+.flag--start {
   .decal-left(@flag-decal-uri, @flag-border-colour);
   .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
   .note-edge(left);
 }
 
-gu-flag.note--end {
+.flag--end {
   .note-chevron-right(@flag-border-colour, bottom right, contain, no-repeat);
   .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
   .note-edge(right);
+}
+
+
+/**
+ * Classes
+ */
+
+gu-flag.note {
+  .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
+}
+
+gu-flag.note--start {
+  .flag--start();
+}
+
+gu-flag.note--end {
+  .flag--end();
 }
 
 gu-flag.note--collapsed {
@@ -30,9 +47,6 @@ gu-flag.note--collapsed {
 
 gu-flag.note--start.note--end,
 gu-flag.note--start.note--collapsed {
-  .decal-left(@flag-decal-uri, @flag-border-colour);
-  .note-background(@flag-border-colour, @flag-background-colour);
-  .note-chevron-right(@flag-border-colour, bottom right, contain, no-repeat);
-  .note-edge(right);
-  .note-edge(left);
+  .flag--start();
+  .flag--end();
 }

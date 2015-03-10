@@ -8,20 +8,37 @@
 @import 'mixins/note/note-collapsed.less';
 
 
-gu-correct.note {
-  .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
-}
+/**
+ * Mixins
+ */
 
-gu-correct.note--start {
+.correct--start {
   .decal-left(@correct-decal-uri, @correct-border-colour);
   .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
   .note-edge(left);
 }
 
-gu-correct.note--end {
+.correct--end {
   .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
   .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
   .note-edge(right);
+}
+
+
+/**
+ * Classes
+ */
+
+gu-correct.note {
+  .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
+}
+
+gu-correct.note--start {
+  .correct--start();
+}
+
+gu-correct.note--end {
+  .correct--end();
 }
 
 gu-correct.note--collapsed {
@@ -30,9 +47,6 @@ gu-correct.note--collapsed {
 
 gu-correct.note--start.note--end,
 gu-correct.note--start.note--collapsed {
-  .decal-left(@correct-decal-uri, @correct-border-colour);
-  .note-background(@correct-border-colour, @correct-background-colour);
-  .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
-  .note-edge(right);
-  .note-edge(left);
+  .correct--start();
+  .correct--end();
 }
