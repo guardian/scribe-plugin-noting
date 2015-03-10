@@ -28,6 +28,7 @@
     "scribe-test-harness": "~0.0.6",
     "selenium-webdriver": "^2.44.0",
     "uglify-js": "^2.4.16",
+    "watchify": "^2.4.0",
     "webdriver-manager": "^1.0.1"
   },
   "scripts": {
@@ -45,8 +46,8 @@
     "browserify-js-prod": "browserify --standalone scribe-plugin-noting scribe-plugin-noting.js -o ./build/scribe-plugin-noting.js",
     "build-js-prod": "npm run browserify-js-prod && uglifyjs ./build/scribe-plugin-noting.js > ./build/scribe-plugin-noting.min.js",
     "build-prod": "npm run pre-build && npm run build-js-prod && npm run build-less-prod",
-    "watchjs": "",
-    "watch": "nodemon --watch src --watch test --exec 'npm run test'",
+    "watchjs": "watchify ./scribe-plugin-noting.js  -v -d -s scribe-plugin-noting -o ./build/scribe-plugin-noting.js",
+    "watch": "npm run watchjs & nodemon --watch build --watch test --exec 'npm run test'",
     "example": "./run-example.sh"
   },
   "repository": {
