@@ -86,7 +86,7 @@ module.exports = function(scribe){
             if (isCaretNextToNote(focus, 'next', selector.tagName)
                   && !isSelectionWithinNote(focus, selector.tagName)) {
               e.preventDefault();
-              removeCharacterFromNote(focus);
+              removeCharacterFromNote(focus, 'next', selector.tagName);
             }
           })
         });
