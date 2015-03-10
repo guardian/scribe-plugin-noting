@@ -1,4 +1,5 @@
 var VText = require('vtree/vtext');
+var VFocus = require('../../vfocus');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isVText = require('../../utils/vfocus/is-vtext');
 var errorHandle = require('../../utils/error-handle');
@@ -47,7 +48,9 @@ module.exports = function preventBrTags(focus, tagName = config.get('defaultTagN
       var prevNoteSegment  = segment.prev().find((node)=> isNoteSegment(node, tagName), 'prev');
       if (prevNoteSegment){
         //get the last text node
-        var lastTextNode = prevNoteSegment.vNode.children.filter(isVText).slice(-1)[0];
+        var lastTextNode = prevNoteSegment.children()
+          .filter((vNode)=> isVText(new VFocus(vNode))).slice(-1)[0];
+
         if (lastTextNode){
           lastTextNode.text = lastTextNode.text + ' ';
         }

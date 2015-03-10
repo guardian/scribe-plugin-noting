@@ -315,3 +315,10 @@ VFocus.prototype.indexOf = function(focus){
 VFocus.prototype.spliceChildren = function(){
   return Array.prototype.splice.apply(this.children(), arguments);
 };
+
+VFocus.prototype.getChildAt = function(index){
+  if (this.vNode.children[index]) {
+    return new VFocus(this.vNode.children[index], this);
+  }
+  return null;
+}
