@@ -29,8 +29,12 @@ module.exports = function isCaretNextToNote(focus, direction = 'next', tagName =
     }
     var index = previousNoteSegment.index();
     //get the next sibling which should be a note : note -> zero width space -> caret -> note
-    var note = previousNoteSegment.parent.getChildAt(index + 2);
-    return !!note && isScribeMarker(note);
+    var zeroWidthSpace = previousNoteSegment.parent.getChildAt(index + 1);
+    var marker = previousNoteSegment.parent.getChildAt(index + 2);
+    //test the marker exists
+    //AND the zero width space contains ONLY a zero width space
+    //AND that the marker IS a marker
+    return !!marker && /^\u200B$/.test(zeroWidthSpace.vNode.text) && isScribeMarker(marker);
  }
 
 };
