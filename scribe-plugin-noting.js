@@ -9637,7 +9637,7 @@ module.exports = function (attrs) {
   };
 };
 
-},{"./src/config":84,"./src/generate-note-controller":85,"./src/note-command-factory":86}],62:[function(require,module,exports){
+},{"./src/config":85,"./src/generate-note-controller":86,"./src/note-command-factory":87}],62:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -9682,7 +9682,7 @@ module.exports = function createNoteAtCaret(focus) {
   })();
 };
 
-},{"../../config":84,"../../utils/create-virtual-scribe-marker":90,"../../utils/error-handle":92,"../../utils/get-note-data-attrs":94,"../../utils/noting/find-entire-note":99,"../../utils/noting/find-scribe-markers":104,"../../utils/vfocus/is-vfocus":128,"./reset-note-segment-classes":72,"./wrap-in-note":79}],63:[function(require,module,exports){
+},{"../../config":85,"../../utils/create-virtual-scribe-marker":91,"../../utils/error-handle":93,"../../utils/get-note-data-attrs":95,"../../utils/noting/find-entire-note":100,"../../utils/noting/find-scribe-markers":107,"../../utils/vfocus/is-vfocus":132,"./reset-note-segment-classes":73,"./wrap-in-note":80}],63:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -9783,7 +9783,7 @@ module.exports = function createNoteFromSelection(focus) {
   })();
 };
 
-},{"../../actions/noting/remove-empty-notes":66,"../../config":84,"../../utils/create-virtual-scribe-marker":90,"../../utils/error-handle":92,"../../utils/get-note-data-attrs":94,"../../utils/noting/find-entire-note":99,"../../utils/noting/find-last-note-segment":101,"../../utils/noting/find-scribe-markers":104,"../../utils/noting/find-text-between-scribe-markers":106,"../../utils/noting/is-not-within-note":109,"../../utils/noting/note-cache":114,"../../utils/vdom/has-class":118,"../../utils/vfocus/is-not-empty":126,"../../utils/vfocus/is-paragraph":127,"../../utils/vfocus/is-vfocus":128,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./remove-erroneous-br-tags":67,"./remove-scribe-markers":70,"./reset-note-segment-classes":72,"./wrap-in-note":79,"vtree/vtext":60}],64:[function(require,module,exports){
+},{"../../actions/noting/remove-empty-notes":67,"../../config":85,"../../utils/create-virtual-scribe-marker":91,"../../utils/error-handle":93,"../../utils/get-note-data-attrs":95,"../../utils/noting/find-entire-note":100,"../../utils/noting/find-last-note-segment":102,"../../utils/noting/find-scribe-markers":107,"../../utils/noting/find-text-between-scribe-markers":109,"../../utils/noting/is-not-within-note":113,"../../utils/noting/note-cache":118,"../../utils/vdom/has-class":122,"../../utils/vfocus/is-not-empty":130,"../../utils/vfocus/is-paragraph":131,"../../utils/vfocus/is-vfocus":132,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./remove-erroneous-br-tags":68,"./remove-scribe-markers":71,"./reset-note-segment-classes":73,"./wrap-in-note":80,"vtree/vtext":60}],64:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -9808,7 +9808,7 @@ module.exports = function ensureNoteIntegrity(focus) {
   })();
 };
 
-},{"../../config":84,"../../utils/error-handle":92,"../../utils/noting/note-cache":114,"../../utils/vfocus/is-vfocus":128,"./merge-if-necessary":65,"./remove-erroneous-br-tags":67,"./reset-note-barriers":71}],65:[function(require,module,exports){
+},{"../../config":85,"../../utils/error-handle":93,"../../utils/noting/note-cache":118,"../../utils/vfocus/is-vfocus":132,"./merge-if-necessary":65,"./remove-erroneous-br-tags":68,"./reset-note-barriers":72}],65:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -9875,7 +9875,88 @@ module.exports = function mergeIfNecessary(focus) {
   })();
 };
 
-},{"../../config":84,"../../utils/error-handle":92,"../../utils/noting/find-all-notes":97,"../../utils/vfocus/is-vfocus":128,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./reset-note-segment-classes":72}],66:[function(require,module,exports){
+},{"../../config":85,"../../utils/error-handle":93,"../../utils/noting/find-all-notes":98,"../../utils/vfocus/is-vfocus":132,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./reset-note-segment-classes":73}],66:[function(require,module,exports){
+"use strict";
+
+var VFocus = require("../../vfocus");
+var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
+var isVFocus = require("../../utils/vfocus/is-vfocus");
+var errorHandle = require("../../utils/error-handle");
+var config = require("../../config");
+var findScribeMarkers = require("../../utils/noting/find-scribe-markers");
+var findNextNoteSegment = require("../../utils/noting/find-next-note-segment");
+var isVText = require("../../utils/vfocus/is-vtext");
+var findPreviousNoteSegment = require("../../utils/noting/find-previous-note-segment");
+var removeScribeMarkers = require("./remove-scribe-markers");
+var createVirtualScribeMarker = require("../../utils/create-virtual-scribe-marker");
+var findFirstNoteSegment = require("../../utils/noting/find-first-note-segment");
+var findEntireNote = require("../../utils/noting/find-entire-note");
+
+module.exports = function removeCharacterFromAdjacentNote(focus) {
+  var direction = arguments[1] === undefined ? "next" : arguments[1];
+  var tagName = arguments[2] === undefined ? config.get("defaultTagName") : arguments[2];
+  return (function () {
+    if (!isVFocus(focus)) {
+      errorHandle("Only a valid VFocus can be passed to removeCharacterFromAdjacentNote, you passed: %s", focus);
+    }
+
+    var markers = findScribeMarkers(focus);
+    if (!markers || markers.length === 2) {
+      return focus;
+    }
+
+    var marker = markers[0];
+    var note;
+    var textNode;
+    var textNodes;
+    var characters;
+
+    //TODO make this more dry WITHOUT using more if/else statements
+    //jp 6-3-15
+    if (direction === "next") {
+      note = findNextNoteSegment(marker, tagName);
+      textNodes = note.filter(isVText);
+      //check the first element is a zero width space
+      textNode = textNodes[0].vNode.text === "​" ? textNodes[1] : textNodes[0];
+
+      if (!textNode) {
+        return;
+      }
+
+      //remove only the first character from the next note
+      characters = textNode.vNode.text.split("");
+      characters.splice(1, 1);
+      textNode.vNode.text = characters.join("");
+      removeScribeMarkers(focus);
+    } else {
+      var lastNoteSegment = findPreviousNoteSegment(marker, tagName);
+      var firstNoteSegment = findNextNoteSegment(lastNoteSegment, tagName);
+      var note = findEntireNote(firstNoteSegment, tagName);
+
+      //get all textnodes within the note
+      var textNodes = note.map(function (noteSegment) {
+        return noteSegment.children().filter(function (node) {
+          return isVText(new VFocus(node));
+        });
+      });
+      textNodes = _.flatten(textNodes);
+      textNode = textNodes[textNodes.length - 1].text === "​" ? textNodes[textNodes.length - 2] : textNodes[textNodes.length - 1];
+
+      if (!textNode) {
+        return;
+      }
+
+      //remove only the previous character from the previsou note
+      characters = textNode.text.split("");
+      characters.splice(characters.length - 1, 1);
+      textNode.text = characters.join("");
+      removeScribeMarkers(focus);
+      note.slice(-1)[0].addChild(createVirtualScribeMarker());
+    }
+  })();
+};
+
+},{"../../config":85,"../../utils/create-virtual-scribe-marker":91,"../../utils/error-handle":93,"../../utils/noting/find-entire-note":100,"../../utils/noting/find-first-note-segment":101,"../../utils/noting/find-next-note-segment":103,"../../utils/noting/find-previous-note-segment":106,"../../utils/noting/find-scribe-markers":107,"../../utils/vfocus/is-vfocus":132,"../../utils/vfocus/is-vtext":133,"../../vfocus":134,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./remove-scribe-markers":71}],67:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -9922,10 +10003,11 @@ module.exports = function removeEmptyNotes(focus) {
   })();
 };
 
-},{"../../config":84,"../../utils/error-handle":92,"../../utils/noting/find-all-notes":97,"../../utils/vfocus/flatten-tree":122,"../../utils/vfocus/is-empty":125,"../../utils/vfocus/is-vfocus":128,"../../utils/vfocus/is-vtext":129,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],67:[function(require,module,exports){
+},{"../../config":85,"../../utils/error-handle":93,"../../utils/noting/find-all-notes":98,"../../utils/vfocus/flatten-tree":126,"../../utils/vfocus/is-empty":129,"../../utils/vfocus/is-vfocus":132,"../../utils/vfocus/is-vtext":133,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],68:[function(require,module,exports){
 "use strict";
 
 var VText = require("vtree/vtext");
+var VFocus = require("../../vfocus");
 var isVFocus = require("../../utils/vfocus/is-vfocus");
 var isVText = require("../../utils/vfocus/is-vtext");
 var errorHandle = require("../../utils/error-handle");
@@ -9981,7 +10063,10 @@ module.exports = function preventBrTags(focus) {
         }, "prev");
         if (prevNoteSegment) {
           //get the last text node
-          var lastTextNode = prevNoteSegment.vNode.children.filter(isVText).slice(-1)[0];
+          var lastTextNode = prevNoteSegment.children().filter(function (vNode) {
+            return isVText(new VFocus(vNode));
+          }).slice(-1)[0];
+
           if (lastTextNode) {
             lastTextNode.text = lastTextNode.text + " ";
           }
@@ -10006,7 +10091,7 @@ module.exports = function preventBrTags(focus) {
   })();
 };
 
-},{"../../config":84,"../../utils/error-handle":92,"../../utils/noting/find-scribe-markers":104,"../../utils/noting/is-note-segment":110,"../../utils/vfocus/has-no-text-children":123,"../../utils/vfocus/has-only-empty-text-children":124,"../../utils/vfocus/is-vfocus":128,"../../utils/vfocus/is-vtext":129,"vtree/vtext":60}],68:[function(require,module,exports){
+},{"../../config":85,"../../utils/error-handle":93,"../../utils/noting/find-scribe-markers":107,"../../utils/noting/is-note-segment":114,"../../utils/vfocus/has-no-text-children":127,"../../utils/vfocus/has-only-empty-text-children":128,"../../utils/vfocus/is-vfocus":132,"../../utils/vfocus/is-vtext":133,"../../vfocus":134,"vtree/vtext":60}],69:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -10056,7 +10141,7 @@ module.exports = function removeNote(focus) {
   })();
 };
 
-},{"../../config":84,"../../utils/error-handle":92,"../../utils/noting/find-note-by-id":102,"../../utils/noting/find-parent-note-segment":103,"../../utils/noting/find-scribe-markers":104,"../../utils/noting/note-cache":114,"../../utils/vfocus/is-vfocus":128,"./ensure-note-integrity":64,"./strip-zero-width-space":73,"./unwrap-note":78}],69:[function(require,module,exports){
+},{"../../config":85,"../../utils/error-handle":93,"../../utils/noting/find-note-by-id":104,"../../utils/noting/find-parent-note-segment":105,"../../utils/noting/find-scribe-markers":107,"../../utils/noting/note-cache":118,"../../utils/vfocus/is-vfocus":132,"./ensure-note-integrity":64,"./strip-zero-width-space":74,"./unwrap-note":79}],70:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -10166,7 +10251,7 @@ module.exports = function removePartofNote(focus) {
   })();
 };
 
-},{"../../config":84,"../../utils/error-handle":92,"../../utils/get-note-data-attrs":94,"../../utils/noting/find-entire-note":99,"../../utils/noting/find-scribe-markers":104,"../../utils/noting/find-text-between-scribe-markers":106,"../../utils/vfocus/flatten-tree":122,"../../utils/vfocus/is-vfocus":128,"../../utils/vfocus/is-vtext":129,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./ensure-note-integrity":64,"./remove-empty-notes":66,"./strip-zero-width-space":73,"./unwrap-note":78,"./wrap-in-note":79,"vtree/vtext":60}],70:[function(require,module,exports){
+},{"../../config":85,"../../utils/error-handle":93,"../../utils/get-note-data-attrs":95,"../../utils/noting/find-entire-note":100,"../../utils/noting/find-scribe-markers":107,"../../utils/noting/find-text-between-scribe-markers":109,"../../utils/vfocus/flatten-tree":126,"../../utils/vfocus/is-vfocus":132,"../../utils/vfocus/is-vtext":133,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./ensure-note-integrity":64,"./remove-empty-notes":67,"./strip-zero-width-space":74,"./unwrap-note":79,"./wrap-in-note":80,"vtree/vtext":60}],71:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -10183,7 +10268,7 @@ module.exports = function removeScribemarkers(focus) {
   });
 };
 
-},{"../../utils/error-handle":92,"../../utils/noting/is-scribe-marker":111,"../../utils/vfocus/is-vfocus":128}],71:[function(require,module,exports){
+},{"../../utils/error-handle":93,"../../utils/noting/is-scribe-marker":115,"../../utils/vfocus/is-vfocus":132}],72:[function(require,module,exports){
 "use strict";
 
 var VText = require("vtree/vtext");
@@ -10244,7 +10329,7 @@ module.exports = function resetNoteBarriers(focus) {
   })();
 };
 
-},{"../../config":84,"../../utils/create-note-barrier":89,"../../utils/error-handle":92,"../../utils/noting/find-all-notes":97,"../../utils/noting/is-not-within-note":109,"../../utils/vfocus/is-not-empty":126,"../../utils/vfocus/is-vfocus":128,"../../utils/vfocus/is-vtext":129,"vtree/vtext":60}],72:[function(require,module,exports){
+},{"../../config":85,"../../utils/create-note-barrier":90,"../../utils/error-handle":93,"../../utils/noting/find-all-notes":98,"../../utils/noting/is-not-within-note":113,"../../utils/vfocus/is-not-empty":130,"../../utils/vfocus/is-vfocus":132,"../../utils/vfocus/is-vtext":133,"vtree/vtext":60}],73:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -10291,7 +10376,7 @@ module.exports = function updateStartAndEndClasses(noteSegments) {
   })();
 };
 
-},{"../../actions/vdom/add-class":81,"../../actions/vdom/remove-class":82,"../../config":84,"../../utils/generate-uuid":93,"../../utils/get-uk-date":95,"../../utils/vfocus/is-vfocus":128,"../vdom/add-attribute":80,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],73:[function(require,module,exports){
+},{"../../actions/vdom/add-class":82,"../../actions/vdom/remove-class":83,"../../config":85,"../../utils/generate-uuid":94,"../../utils/get-uk-date":96,"../../utils/vfocus/is-vfocus":132,"../vdom/add-attribute":81,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],74:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -10310,7 +10395,7 @@ module.exports = function stripZeroWidthSpaces(focus) {
   return focus;
 };
 
-},{"../../utils/error-handle":92,"../../utils/vfocus/is-vfocus":128,"../../utils/vfocus/is-vtext":129}],74:[function(require,module,exports){
+},{"../../utils/error-handle":93,"../../utils/vfocus/is-vfocus":132,"../../utils/vfocus/is-vtext":133}],75:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -10329,7 +10414,7 @@ module.exports = function toggleAllNoteCollapseState(focus) {
   return toggleNoteClasses(notes, config.get("noteCollapsedClass"));
 };
 
-},{"../../config":84,"../../utils/error-handle":92,"../../utils/noting/find-all-notes":97,"../../utils/vfocus/is-vfocus":128,"./toggle-note-classes":75}],75:[function(require,module,exports){
+},{"../../config":85,"../../utils/error-handle":93,"../../utils/noting/find-all-notes":98,"../../utils/vfocus/is-vfocus":132,"./toggle-note-classes":76}],76:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -10364,7 +10449,7 @@ module.exports = function toggleNoteClasses(notes, className) {
   });
 };
 
-},{"../../utils/collapse-state":88,"../../utils/error-handle":92,"../vdom/add-class":81,"../vdom/remove-class":82,"../vdom/toggle-class":83,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],76:[function(require,module,exports){
+},{"../../utils/collapse-state":89,"../../utils/error-handle":93,"../vdom/add-class":82,"../vdom/remove-class":83,"../vdom/toggle-class":84,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],77:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -10391,7 +10476,7 @@ module.exports = function toggleSelectedNoteCollapseState(focus) {
   })();
 };
 
-},{"../../config":84,"../../utils/error-handle":92,"../../utils/noting/find-selected-note":105,"../../utils/vfocus/is-vfocus":128,"./toggle-note-classes":75}],77:[function(require,module,exports){
+},{"../../config":85,"../../utils/error-handle":93,"../../utils/noting/find-selected-note":108,"../../utils/vfocus/is-vfocus":132,"./toggle-note-classes":76}],78:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -10416,7 +10501,7 @@ module.exports = function toggleSelectedNoteTagNames(focus, tagName, replacement
 
   noteSegments.forEach(function (note) {
     //get any child notes that are now contained within our parent note
-    var decendentNotes = note.filter(function (node) {
+    var decendentNotes = flattenTree(note).filter(function (node) {
       return isNoteSegment(node, replacementTagName);
     });
     //if we have any child notes of the new tag type, unwrap them (like a merge)
@@ -10436,7 +10521,7 @@ module.exports = function toggleSelectedNoteTagNames(focus, tagName, replacement
 
 };
 
-},{"../../utils/error-handle":92,"../../utils/noting/find-selected-note":105,"../../utils/noting/is-note-segment":110,"../../utils/vfocus/flatten-tree":122,"../../utils/vfocus/is-vfocus":128,"../../vfocus":130,"./unwrap-note":78}],78:[function(require,module,exports){
+},{"../../utils/error-handle":93,"../../utils/noting/find-selected-note":108,"../../utils/noting/is-note-segment":114,"../../utils/vfocus/flatten-tree":126,"../../utils/vfocus/is-vfocus":132,"../../vfocus":134,"./unwrap-note":79}],79:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -10474,7 +10559,7 @@ module.exports = function unWrapNote(focus) {
   })();
 };
 
-},{"../../config":84,"../../utils/error-handle":92,"../../utils/noting/is-note-segment":110,"../../utils/vfocus/is-vfocus":128,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],79:[function(require,module,exports){
+},{"../../config":85,"../../utils/error-handle":93,"../../utils/noting/is-note-segment":114,"../../utils/vfocus/is-vfocus":132,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],80:[function(require,module,exports){
 "use strict";
 
 var config = require("../../config");
@@ -10501,7 +10586,7 @@ module.exports = function wrapInNote(focus, data) {
   })();
 };
 
-},{"../../config":84,"../../utils/get-uk-date":95,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"virtual-hyperscript":30}],80:[function(require,module,exports){
+},{"../../config":85,"../../utils/get-uk-date":96,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"virtual-hyperscript":30}],81:[function(require,module,exports){
 "use strict";
 
 var toCamelCase = require("../../utils/to-camel-case");
@@ -10519,7 +10604,7 @@ module.exports = function addAttribute(node, key, val) {
   }
 };
 
-},{"../../utils/to-camel-case":116}],81:[function(require,module,exports){
+},{"../../utils/to-camel-case":120}],82:[function(require,module,exports){
 "use strict";
 
 var hasClass = require("../../utils/vdom/has-class");
@@ -10543,7 +10628,7 @@ module.exports = function addClass(vNode, className) {
   return vNode;
 };
 
-},{"../../utils/error-handle":92,"../../utils/vdom/has-class":118}],82:[function(require,module,exports){
+},{"../../utils/error-handle":93,"../../utils/vdom/has-class":122}],83:[function(require,module,exports){
 "use strict";
 
 var hasClass = require("../../utils/vdom/has-class");
@@ -10570,7 +10655,7 @@ module.exports = function removeClass(vNode, className) {
   return vNode;
 };
 
-},{"../../utils/error-handle":92,"../../utils/vdom/has-class":118}],83:[function(require,module,exports){
+},{"../../utils/error-handle":93,"../../utils/vdom/has-class":122}],84:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -10591,7 +10676,7 @@ module.exports = function toggleClass(vNode, className) {
   return hasClass(vNode, className) ? removeClass(vNode, className) : addClass(vNode, className);
 };
 
-},{"../../utils/error-handle":92,"../../utils/vdom/has-class":118,"../../utils/vfocus/is-vfocus":128,"./add-class":81,"./remove-class":82}],84:[function(require,module,exports){
+},{"../../utils/error-handle":93,"../../utils/vdom/has-class":122,"../../utils/vfocus/is-vfocus":132,"./add-class":82,"./remove-class":83}],85:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../bower_components/lodash/dist/lodash.compat.js");
@@ -10637,7 +10722,7 @@ module.exports = {
 
 };
 
-},{"./../../bower_components/lodash/dist/lodash.compat.js":2}],85:[function(require,module,exports){
+},{"./../../bower_components/lodash/dist/lodash.compat.js":2}],86:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -10666,6 +10751,8 @@ var toggleAllNoteCollapseState = require("./actions/noting/toggle-all-note-colla
 var findParentNoteSegment = require("./utils/noting/find-parent-note-segment");
 var toggleSelectedNotesTagName = require("./actions/noting/toggle-selected-note-tag-names");
 var stripZeroWidthSpaces = require("./actions/noting/strip-zero-width-space");
+var isCaretNextToNote = require("./utils/noting/is-caret-next-to-note");
+var removeCharacterFromNote = require("./actions/noting/remove-character-from-adjacent-note");
 
 var notingVDom = require("./noting-vdom");
 var mutate = notingVDom.mutate;
@@ -10711,6 +10798,8 @@ module.exports = function (scribe) {
       emitter.on("command:toggle:single-note", function (tag) {
         return _this.toggleSelectedNotesCollapseState(tag);
       });
+      //Run ensureNoteIntegrity to place missing zero-width-spaces
+      this.ensureNoteIntegrity();
     }
 
     _prototypeProperties(NoteController, null, {
@@ -10725,6 +10814,34 @@ module.exports = function (scribe) {
         // and the val is the key code
         value: function onNoteKeyAction(e) {
           var _this2 = this;
+
+
+          //if we press backspace
+          if (e.keyCode === 8) {
+            mutateScribe(scribe, function (focus) {
+              config.get("selectors").forEach(function (selector) {
+                //and there is an adjacent note
+                if (isCaretNextToNote(focus, "prev", selector.tagName) && !isSelectionWithinNote(focus, selector.tagName)) {
+                  e.preventDefault();
+                  removeCharacterFromNote(focus, "prev", selector.tagName);
+                }
+              });
+            });
+          }
+
+          //when we press delete
+          if (e.keyCode === 46) {
+            mutateScribe(scribe, function (focus) {
+              config.get("selectors").forEach(function (selector) {
+                //and there is an adjacent note
+                if (isCaretNextToNote(focus, "next", selector.tagName) && !isSelectionWithinNote(focus, selector.tagName)) {
+                  e.preventDefault();
+                  removeCharacterFromNote(focus, "next", selector.tagName);
+                }
+              });
+            });
+          }
+
           var selectors = config.get("selectors");
           selectors.forEach(function (selector) {
             //we need to store the tagName to be passed to this.note()
@@ -10909,13 +11026,13 @@ module.exports = function (scribe) {
               //we need to figure out if our caret or selection is within a conflicting note
               var isWithinConflictingNote = false;
               config.get('selectors').forEach((selector)=>{
-                if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
-                  isWithinConflictingNote = true;
-                }
+              if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
+              isWithinConflictingNote = true;
+              }
               });
                //if we ARE within a confilicting note type bail out.
               if(isWithinConflictingNote){
-                return;
+              return;
               }
               */
 
@@ -10948,15 +11065,36 @@ module.exports = function (scribe) {
 
         //validateNotes makes sure all note--start note--end and data attributes are in place
         value: function validateNotes() {
+          var _this5 = this;
           _.throttle(function () {
-            mutateScribe(scribe, function (focus) {
-              stripZeroWidthSpaces(focus);
-              config.get("selectors").forEach(function (selector) {
-                ensureNoteIntegrity(focus, selector.tagName);
-              });
-            });
+            _this5.ensureNoteIntegrity();
           }, 1000)();
         },
+        writable: true,
+        enumerable: true,
+        configurable: true
+      },
+      ensureNoteIntegrity: {
+        value: (function (_ensureNoteIntegrity) {
+          var _ensureNoteIntegrityWrapper = function ensureNoteIntegrity() {
+            return _ensureNoteIntegrity.apply(this, arguments);
+          };
+
+          _ensureNoteIntegrityWrapper.toString = function () {
+            return _ensureNoteIntegrity.toString();
+          };
+
+          return _ensureNoteIntegrityWrapper;
+        })(function () {
+          mutateScribe(scribe, function (focus) {
+            //strip the document of ALL zero width spaces
+            stripZeroWidthSpaces(focus);
+            config.get("selectors").forEach(function (selector) {
+              //run through EACH kind of note and re-add the zero width spaces
+              ensureNoteIntegrity(focus, selector.tagName);
+            });
+          });
+        }),
         writable: true,
         enumerable: true,
         configurable: true
@@ -10969,7 +11107,7 @@ module.exports = function (scribe) {
   return new NoteController();
 };
 
-},{"./../bower_components/lodash/dist/lodash.compat.js":2,"./actions/noting/create-note-at-caret":62,"./actions/noting/create-note-from-selection":63,"./actions/noting/ensure-note-integrity":64,"./actions/noting/remove-note":68,"./actions/noting/remove-part-of-note":69,"./actions/noting/strip-zero-width-space":73,"./actions/noting/toggle-all-note-collapse-state":74,"./actions/noting/toggle-selected-note-collapse-state":76,"./actions/noting/toggle-selected-note-tag-names":77,"./config":84,"./note-command-factory":86,"./noting-vdom":87,"./utils/collapse-state":88,"./utils/emitter":91,"./utils/noting/find-parent-note-segment":103,"./utils/noting/find-scribe-markers":104,"./utils/noting/is-selection-entirely-within-note":112,"./utils/noting/is-selection-within-note":113}],86:[function(require,module,exports){
+},{"./../bower_components/lodash/dist/lodash.compat.js":2,"./actions/noting/create-note-at-caret":62,"./actions/noting/create-note-from-selection":63,"./actions/noting/ensure-note-integrity":64,"./actions/noting/remove-character-from-adjacent-note":66,"./actions/noting/remove-note":69,"./actions/noting/remove-part-of-note":70,"./actions/noting/strip-zero-width-space":74,"./actions/noting/toggle-all-note-collapse-state":75,"./actions/noting/toggle-selected-note-collapse-state":77,"./actions/noting/toggle-selected-note-tag-names":78,"./config":85,"./note-command-factory":87,"./noting-vdom":88,"./utils/collapse-state":89,"./utils/emitter":92,"./utils/noting/find-parent-note-segment":105,"./utils/noting/find-scribe-markers":107,"./utils/noting/is-caret-next-to-note":111,"./utils/noting/is-selection-entirely-within-note":116,"./utils/noting/is-selection-within-note":117}],87:[function(require,module,exports){
 "use strict";
 
 var emitter = require("./utils/emitter");
@@ -11043,7 +11181,7 @@ module.exports = function NoteCommandFactory(scribe) {
   scribe.commands[toggleAllNotesCommandName] = generateToggleAllNotesCommand(scribe, tagName);
 };
 
-},{"./config":84,"./utils/collapse-state":88,"./utils/emitter":91,"./utils/is-dom-selection-within-a-note":96}],87:[function(require,module,exports){
+},{"./config":85,"./utils/collapse-state":89,"./utils/emitter":92,"./utils/is-dom-selection-within-a-note":97}],88:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11109,7 +11247,7 @@ exports.mutateScribe = function (scribe, callback) {
   });
 };
 
-},{"./../bower_components/lodash/dist/lodash.compat.js":2,"./vfocus":130,"vdom-virtualize":9,"virtual-dom/diff":16,"virtual-dom/patch":26,"vtree/is-vtext":54}],88:[function(require,module,exports){
+},{"./../bower_components/lodash/dist/lodash.compat.js":2,"./vfocus":134,"vdom-virtualize":9,"virtual-dom/diff":16,"virtual-dom/patch":26,"vtree/is-vtext":54}],89:[function(require,module,exports){
 "use strict";
 
 var state = false;
@@ -11123,7 +11261,7 @@ module.exports = {
   }
 };
 
-},{}],89:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 "use strict";
 
 var VText = require("vtree/vtext");
@@ -11134,7 +11272,7 @@ module.exports = function createNoteBarrier() {
   return new VText("​");
 };
 
-},{"vtree/vtext":60}],90:[function(require,module,exports){
+},{"vtree/vtext":60}],91:[function(require,module,exports){
 "use strict";
 
 var h = require("virtual-hyperscript");
@@ -11143,13 +11281,13 @@ module.exports = function createVirtualScribeMarker() {
   return h("em.scribe-marker");
 };
 
-},{"virtual-hyperscript":30}],91:[function(require,module,exports){
+},{"virtual-hyperscript":30}],92:[function(require,module,exports){
 "use strict";
 
 var EventEmitter = require("./../../bower_components/scribe/src/event-emitter");
 module.exports = new EventEmitter();
 
-},{"./../../bower_components/scribe/src/event-emitter":3}],92:[function(require,module,exports){
+},{"./../../bower_components/scribe/src/event-emitter":3}],93:[function(require,module,exports){
 "use strict";
 
 var _toArray = function (arr) {
@@ -11171,7 +11309,7 @@ module.exports = function handleSystemError(message) {
   throw new Error(errorMsg);
 };
 
-},{"util":8}],93:[function(require,module,exports){
+},{"util":8}],94:[function(require,module,exports){
 "use strict";
 
 module.exports = function generateUUID() {
@@ -11185,7 +11323,7 @@ module.exports = function generateUUID() {
   return uuid;
 };
 
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 "use strict";
 
 var config = require("../config");
@@ -11199,7 +11337,7 @@ module.exports = function userAndTimeAsDatasetAttrs() {
   };
 };
 
-},{"../config":84}],95:[function(require,module,exports){
+},{"../config":85}],96:[function(require,module,exports){
 "use strict";
 
 var DATA_NAME_CAMEL = "noteEditedBy";
@@ -11221,7 +11359,7 @@ module.exports = function getUKDate(data) {
   return name + " " + formattedDate;
 };
 
-},{"../config":84}],96:[function(require,module,exports){
+},{"../config":85}],97:[function(require,module,exports){
 "use strict";
 
 var config = require("../config");
@@ -11246,7 +11384,7 @@ module.exports = function isSelectionInANote(selectionRange, parentContainer) {
   return domFindAncestorNote(selectionRange.startContainer) && domFindAncestorNote(selectionRange.endContainer) && true;
 };
 
-},{"../config":84}],97:[function(require,module,exports){
+},{"../config":85}],98:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -11278,7 +11416,7 @@ module.exports = function findAllNotes(focus) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../vfocus/is-vfocus":128,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./find-entire-note":99,"./is-note-segment":110}],98:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../vfocus/is-vfocus":132,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./find-entire-note":100,"./is-note-segment":114}],99:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -11303,7 +11441,7 @@ module.exports = function findBetweenScribeMarkers(focus) {
   return startFocus.next().takeWhile(isNotScribeMarker);
 };
 
-},{"../error-handle":92,"../vfocus/is-vfocus":128,"./is-not-scribe-marker":108,"./is-scribe-marker":111}],99:[function(require,module,exports){
+},{"../error-handle":93,"../vfocus/is-vfocus":132,"./is-not-scribe-marker":112,"./is-scribe-marker":115}],100:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -11348,7 +11486,7 @@ module.exports = function findEntireNote(focus) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../vfocus/is-vfocus":128,"./find-first-note-segment":100,"./is-note-segment":110,"./still-within-note":115}],100:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../vfocus/is-vfocus":132,"./find-first-note-segment":101,"./is-note-segment":114,"./still-within-note":119}],101:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -11374,7 +11512,7 @@ module.exports = function findFirstNoteSegment(focus) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../vfocus/is-vfocus":128,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./is-note-segment":110,"./still-within-note":115}],101:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../vfocus/is-vfocus":132,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./is-note-segment":114,"./still-within-note":119}],102:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -11398,7 +11536,28 @@ module.exports = function findLastNoteSegment(focus) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../vfocus/is-vfocus":128,"./is-note-segment":110,"./still-within-note":115}],102:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../vfocus/is-vfocus":132,"./is-note-segment":114,"./still-within-note":119}],103:[function(require,module,exports){
+"use strict";
+
+var isVFocus = require("../vfocus/is-vfocus");
+var isNoteSegment = require("./is-note-segment");
+var errorHandle = require("../error-handle");
+var config = require("../../config");
+
+module.exports = function findFirstNoteSegmentBelow(focus) {
+  var tagName = arguments[1] === undefined ? config.get("defaultTagName") : arguments[1];
+  return (function () {
+    if (!isVFocus(focus)) {
+      errorHandle("Only a valid VFocus can be passed to findFirstNoteSegmentBelow, you passed: %s", focus);
+    }
+
+    return focus.find(function (node) {
+      return isNoteSegment(node, tagName);
+    });
+  })();
+};
+
+},{"../../config":85,"../error-handle":93,"../vfocus/is-vfocus":132,"./is-note-segment":114}],104:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -11430,7 +11589,7 @@ module.exports = function findNoteById(focus, noteId) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../vfocus/is-vfocus":128,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./find-all-notes":97,"./has-note-id":107}],103:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../vfocus/is-vfocus":132,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./find-all-notes":98,"./has-note-id":110}],105:[function(require,module,exports){
 "use strict";
 
 var isNoteSegment = require("../noting/is-note-segment");
@@ -11451,7 +11610,28 @@ module.exports = function findParentNote(focus) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../noting/is-note-segment":110,"../vfocus/is-vfocus":128}],104:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../noting/is-note-segment":114,"../vfocus/is-vfocus":132}],106:[function(require,module,exports){
+"use strict";
+
+var isVFocus = require("../vfocus/is-vfocus");
+var isNoteSegment = require("./is-note-segment");
+var errorHandle = require("../error-handle");
+var config = require("../../config");
+
+module.exports = function findFirstNoteSegmentAbove(focus) {
+  var tagName = arguments[1] === undefined ? config.get("defaultTagName") : arguments[1];
+  return (function () {
+    if (!isVFocus(focus)) {
+      errorHandle("Only a valid VFocus can be passed to findFirstNoteSegmentAbove, you passed: %s", focus);
+    }
+
+    return focus.find(function (node) {
+      return isNoteSegment(node, tagName);
+    }, "prev");
+  })();
+};
+
+},{"../../config":85,"../error-handle":93,"../vfocus/is-vfocus":132,"./is-note-segment":114}],107:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -11466,7 +11646,7 @@ module.exports = function findScribeMarkers(focus) {
   return focus.filter(isScribeMarker);
 };
 
-},{"../error-handle":92,"../vfocus/is-vfocus":128,"./is-scribe-marker":111}],105:[function(require,module,exports){
+},{"../error-handle":93,"../vfocus/is-vfocus":132,"./is-scribe-marker":115}],108:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -11500,7 +11680,7 @@ module.exports = function findSelectedNote(focus) {
   })();
 };
 
-},{"../../config":84,"../../vfocus":130,"../error-handle":92,"../vfocus/is-vfocus":128,"./find-entire-note":99,"./find-parent-note-segment":103,"./find-scribe-markers":104}],106:[function(require,module,exports){
+},{"../../config":85,"../../vfocus":134,"../error-handle":93,"../vfocus/is-vfocus":132,"./find-entire-note":100,"./find-parent-note-segment":105,"./find-scribe-markers":107}],109:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -11516,7 +11696,7 @@ module.exports = function findTextBetweenScribeMarkers(focus) {
   return findTextNodes(findBetweenScribeMarkers(focus));
 };
 
-},{"../error-handle":92,"../vfocus/find-text-nodes":121,"../vfocus/is-vfocus":128,"./find-between-scribe-markers":98}],107:[function(require,module,exports){
+},{"../error-handle":93,"../vfocus/find-text-nodes":125,"../vfocus/is-vfocus":132,"./find-between-scribe-markers":99}],110:[function(require,module,exports){
 "use strict";
 
 var hasAttribute = require("../vdom/has-attribute");
@@ -11526,7 +11706,55 @@ module.exports = function hasNoteId(vNode, value) {
   return hasAttribute(vNode, "data-note-id", value);
 };
 
-},{"../vdom/has-attribute":117,"../vfocus/is-vfocus":128}],108:[function(require,module,exports){
+},{"../vdom/has-attribute":121,"../vfocus/is-vfocus":132}],111:[function(require,module,exports){
+"use strict";
+
+var isVFocus = require("../vfocus/is-vfocus");
+var errorHandle = require("../error-handle");
+var config = require("../../config");
+var findScribeMarkers = require("./find-scribe-markers");
+var findPreviousNoteSegment = require("./find-previous-note-segment");
+var isNoteSegment = require("../noting/is-note-segment");
+var isScribeMarker = require("./is-scribe-marker.js");
+
+module.exports = function isCaretNextToNote(focus) {
+  var direction = arguments[1] === undefined ? "next" : arguments[1];
+  var tagName = arguments[2] === undefined ? config.get("defaultTagName") : arguments[2];
+  return (function () {
+    if (!isVFocus(focus)) {
+      errorHandle("Only a valid VFocus can be passed to isCaretNextToNote, you passed: %s", focus);
+    }
+
+    var markers = findScribeMarkers(focus);
+
+    if (!markers.length || markers.length === 2) {
+      return false;
+    }
+
+    var marker = markers[0];
+
+    if (direction === "next") {
+      return !!marker.next() && !!marker.next().vNode && !!marker.next().vNode.tagName && marker.next().vNode.tagName.toLowerCase() === tagName;
+    } else {
+      var previousNoteSegment = findPreviousNoteSegment(marker, tagName);
+      if (!previousNoteSegment) {
+        return false;
+      }
+      //get the next sibling which should be a note : note -> zero width space -> caret -> note
+      var zeroWidthSpace = previousNoteSegment.right();
+      if (!zeroWidthSpace) {
+        return false;
+      }
+      var marker = zeroWidthSpace.right();
+      //test the marker exists
+      //AND the zero width space contains ONLY a zero width space
+      //AND that the marker IS a marker
+      return !!marker && /^\u200B$/.test(zeroWidthSpace.vNode.text) && isScribeMarker(marker);
+    }
+  })();
+};
+
+},{"../../config":85,"../error-handle":93,"../noting/is-note-segment":114,"../vfocus/is-vfocus":132,"./find-previous-note-segment":106,"./find-scribe-markers":107,"./is-scribe-marker.js":115}],112:[function(require,module,exports){
 "use strict";
 
 var isScribeMarker = require("./is-scribe-marker");
@@ -11535,7 +11763,7 @@ module.exports = function isNotScribeMarker(focus) {
   return !isScribeMarker(focus);
 };
 
-},{"./is-scribe-marker":111}],109:[function(require,module,exports){
+},{"./is-scribe-marker":115}],113:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -11554,7 +11782,7 @@ module.exports = function isNotWithinNote(focus) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../vfocus/is-vfocus":128,"./find-parent-note-segment":103}],110:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../vfocus/is-vfocus":132,"./find-parent-note-segment":105}],114:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -11584,7 +11812,7 @@ module.exports = function isNote(vfocus) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../vdom/is-tag":120,"../vfocus/is-vfocus":128,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],111:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../vdom/is-tag":124,"../vfocus/is-vfocus":132,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],115:[function(require,module,exports){
 "use strict";
 
 // is our selection not a note?
@@ -11600,7 +11828,7 @@ module.exports = function isScribeMarker(vfocus) {
   return hasClass(vfocus.vNode, "scribe-marker");
 };
 
-},{"../error-handle":92,"../vdom/has-class":118,"../vfocus/is-vfocus":128}],112:[function(require,module,exports){
+},{"../error-handle":93,"../vdom/has-class":122,"../vfocus/is-vfocus":132}],116:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -11651,7 +11879,7 @@ module.exports = function isSelectionBetweenNotes(markers) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../vfocus/is-vfocus":128,"../vfocus/is-vtext":129,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./find-parent-note-segment":103,"./find-scribe-markers":104,"./is-not-scribe-marker":108}],113:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../vfocus/is-vfocus":132,"../vfocus/is-vtext":133,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./find-parent-note-segment":105,"./find-scribe-markers":107,"./is-not-scribe-marker":112}],117:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -11702,7 +11930,7 @@ module.exports = function isSelectionBetweenNotes(markers) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../vfocus/is-vfocus":128,"../vfocus/is-vtext":129,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./find-parent-note-segment":103,"./find-scribe-markers":104,"./is-not-scribe-marker":108}],114:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../vfocus/is-vfocus":132,"../vfocus/is-vtext":133,"./../../../bower_components/lodash/dist/lodash.compat.js":2,"./find-parent-note-segment":105,"./find-scribe-markers":107,"./is-not-scribe-marker":112}],118:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -11738,7 +11966,7 @@ function setNotesCache(focus) {
 
 module.exports = { get: getNotesCache, set: setNotesCache };
 
-},{"../error-handle":92,"../vfocus/is-vfocus":128,"./find-all-notes":97}],115:[function(require,module,exports){
+},{"../error-handle":93,"../vfocus/is-vfocus":132,"./find-all-notes":98}],119:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -11760,7 +11988,7 @@ module.exports = function isWithinNote(focus) {
   })();
 };
 
-},{"../../config":84,"../error-handle":92,"../noting/find-parent-note-segment":103,"../vfocus/is-empty":125,"../vfocus/is-vfocus":128,"../vfocus/is-vtext":129}],116:[function(require,module,exports){
+},{"../../config":85,"../error-handle":93,"../noting/find-parent-note-segment":105,"../vfocus/is-empty":129,"../vfocus/is-vfocus":132,"../vfocus/is-vtext":133}],120:[function(require,module,exports){
 "use strict";
 
 module.exports = function toCamelCase(string) {
@@ -11769,7 +11997,7 @@ module.exports = function toCamelCase(string) {
   });
 };
 
-},{}],117:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 "use strict";
 
 var toCamelCase = require("../to-camel-case");
@@ -11808,7 +12036,7 @@ module.exports = function hasAttribute(vNode, attribute, value) {
   }
 };
 
-},{"../error-handle":92,"../to-camel-case":116}],118:[function(require,module,exports){
+},{"../error-handle":93,"../to-camel-case":120}],122:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -11824,7 +12052,7 @@ module.exports = function hasClass(vNode, value) {
   return regEx.test(vNode.properties.className);
 };
 
-},{"./../../../bower_components/lodash/dist/lodash.compat.js":2}],119:[function(require,module,exports){
+},{"./../../../bower_components/lodash/dist/lodash.compat.js":2}],123:[function(require,module,exports){
 "use strict";
 
 // We incude regular spaces because if we have a note tag that only
@@ -11849,14 +12077,14 @@ module.exports = function (node) {
   }
 };
 
-},{"./../../../bower_components/lodash/dist/lodash.compat.js":2,"vtree/is-vtext":54}],120:[function(require,module,exports){
+},{"./../../../bower_components/lodash/dist/lodash.compat.js":2,"vtree/is-vtext":54}],124:[function(require,module,exports){
 "use strict";
 
 module.exports = function isTag(node, tag) {
   return node.tagName && node.tagName.toLowerCase() === tag;
 };
 
-},{}],121:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 "use strict";
 
 var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
@@ -11876,7 +12104,7 @@ module.exports = function findTextNodes(focuses) {
   return focuses.filter(isVText);
 };
 
-},{"../error-handle":92,"../vfocus/is-vfocus":128,"../vfocus/is-vtext":129,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],122:[function(require,module,exports){
+},{"../error-handle":93,"../vfocus/is-vfocus":132,"../vfocus/is-vtext":133,"./../../../bower_components/lodash/dist/lodash.compat.js":2}],126:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus");
@@ -11894,7 +12122,7 @@ module.exports = function flattenTree(focus) {
   });
 };
 
-},{"../error-handle":92,"./is-vfocus":128}],123:[function(require,module,exports){
+},{"../error-handle":93,"./is-vfocus":132}],127:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus");
@@ -11910,7 +12138,7 @@ module.exports = function hasNoTextChildren(focus) {
   return flatten(focus).filter(isVText).length === 0;
 };
 
-},{"../error-handle":92,"./flatten-tree":122,"./is-vfocus":128,"./is-vtext":129}],124:[function(require,module,exports){
+},{"../error-handle":93,"./flatten-tree":126,"./is-vfocus":132,"./is-vtext":133}],128:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus");
@@ -11927,7 +12155,7 @@ module.exports = function hasNoTextChildren(focus) {
   return flatten(focus).filter(isVText).every(isEmpty);
 };
 
-},{"../error-handle":92,"./flatten-tree":122,"./is-empty":125,"./is-vfocus":128,"./is-vtext":129}],125:[function(require,module,exports){
+},{"../error-handle":93,"./flatten-tree":126,"./is-empty":129,"./is-vfocus":132,"./is-vtext":133}],129:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus");
@@ -11942,7 +12170,7 @@ module.exports = function isEmptyVFocus(vfocus) {
   return isEmpty(vfocus.vNode);
 };
 
-},{"../error-handle":92,"../vdom/is-empty":119,"./is-vfocus":128}],126:[function(require,module,exports){
+},{"../error-handle":93,"../vdom/is-empty":123,"./is-vfocus":132}],130:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus");
@@ -11961,7 +12189,7 @@ module.exports = function isNotEmpty(focus) {
   return isVText(focus) && !isEmpty(focus);
 };
 
-},{"../error-handle":92,"./is-empty.js":125,"./is-vfocus":128,"./is-vtext":129}],127:[function(require,module,exports){
+},{"../error-handle":93,"./is-empty.js":129,"./is-vfocus":132,"./is-vtext":133}],131:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus.js");
@@ -11976,7 +12204,7 @@ module.exports = function isParagraphVFocus(focus) {
   return isTag(focus.vNode, "p");
 };
 
-},{"../error-handle":92,"../vdom/is-tag.js":120,"./is-vfocus.js":128}],128:[function(require,module,exports){
+},{"../error-handle":93,"../vdom/is-tag.js":124,"./is-vfocus.js":132}],132:[function(require,module,exports){
 "use strict";
 
 var VFocus = require("../../vfocus");
@@ -11985,7 +12213,7 @@ module.exports = function isVFocus(vFocus) {
   return vFocus instanceof VFocus;
 };
 
-},{"../../vfocus":130}],129:[function(require,module,exports){
+},{"../../vfocus":134}],133:[function(require,module,exports){
 "use strict";
 
 var isVText = require("vtree/is-vtext");
@@ -12002,7 +12230,7 @@ module.exports = function isVTextVFocus(vfocus) {
   return isVText(vfocus.vNode);
 };
 
-},{"../../vfocus":130,"../error-handle":92,"../vfocus/is-vfocus":128,"vtree/is-vtext":54}],130:[function(require,module,exports){
+},{"../../vfocus":134,"../error-handle":93,"../vfocus/is-vfocus":132,"vtree/is-vtext":54}],134:[function(require,module,exports){
 "use strict";
 
 /**
@@ -12321,6 +12549,13 @@ VFocus.prototype.indexOf = function (focus) {
 
 VFocus.prototype.spliceChildren = function () {
   return Array.prototype.splice.apply(this.children(), arguments);
+};
+
+VFocus.prototype.getChildAt = function (index) {
+  if (this.vNode.children[index]) {
+    return new VFocus(this.vNode.children[index], this);
+  }
+  return null;
 };
 // No can do. Should maybe raise an exception.
 // No can do. Should maybe raise an exception.
