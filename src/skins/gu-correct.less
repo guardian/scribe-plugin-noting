@@ -13,7 +13,7 @@ gu-correct.note {
 }
 
 gu-correct.note--start {
-  .decal-left(@correct-uri, @correct-border-colour);
+  .decal-left(@correct-decal-uri, @correct-border-colour);
   .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
   .note-edge(left);
 }
@@ -30,7 +30,7 @@ gu-correct.note--collapsed {
 
 gu-correct.note--start.note--end,
 gu-correct.note--start.note--collapsed {
-  .decal-left(@correct-uri, @correct-border-colour);
+  .decal-left(@correct-decal-uri, @correct-border-colour);
   .note-background(@correct-border-colour, @correct-background-colour);
   .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
   .note-edge(right);
