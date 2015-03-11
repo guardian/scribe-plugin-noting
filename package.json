@@ -46,7 +46,6 @@
     "build-js-prod": "npm run browserify-js-prod && uglifyjs ./build/scribe-plugin-noting.js > ./build/scribe-plugin-noting.min.js",
     "build-prod": "npm run pre-build && npm run build-js-prod && npm run build-less-prod",
     "watch": "nodemon --watch src --watch test --exec 'npm run test'",
-    "watch-less": "nodemon --watch src/skins -e less --exec 'npm run build-less'",
     "example": "./run-example.sh"
   },
   "repository": {
