@@ -7,7 +7,7 @@ gu-correct.note {
 }
 
 gu-correct.note--start {
-  .flag-correct-start(@flag-decal-uri, @correct-border-color, @correct-background-color, @correct-text-color);
+  .flag-correct-start(@correct-decal-uri, @correct-border-color, @correct-background-color, @correct-text-color);
 }
 
 gu-correct.note--end {
@@ -20,6 +20,6 @@ gu-correct.note--collapsed {
 
 gu-correct.note--start.note--end,
 gu-correct.note--start.note--collapsed {
-  .flag-correct-start(@flag-decal-uri, @correct-border-color, @correct-background-color, @correct-text-color);
+  .flag-correct-start(@correct-decal-uri, @correct-border-color, @correct-background-color, @correct-text-color);
   .flag-correct-end(@correct-border-color, @correct-background-color, @correct-text-color);
 }
