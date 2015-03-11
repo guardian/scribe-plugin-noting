@@ -6,11 +6,14 @@
 @flag-background-colour: rgba(223, 169, 99, 0.1);
 @flag-border-colour: rgba(250, 155, 33, 1);
 @flag-decal-colour: white;
-@flag-text-colour: black;
 @flag-decal-uri: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'><g fill='#fff'><path d='M31.564 0H13.907v128h17.657V77.715zM31.14 12.717S43.59 1.882 54.026 1.882c10.44 0 21.825 10.835 35.884 10.835 14.044 0 24.48-10.835 24.48-10.835V66.3s-10.035 11.24-20.07 11.24c-10.032 0-24.235-10.428-38.687-10.428-14.447 0-24.492 10.43-24.492 10.43V12.716z'/></g></svg>";
 
 @correct-background-colour: rgba(164, 202, 147, 0.1);
 @correct-border-colour: rgba(100, 156, 75, 1);
 @correct-decal-colour: white;
-@correct-text-colour: black;
 @correct-decal-uri: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'><path fill='#fff' d='M128 19.275l-7.5-6.225-85.24 68.36-25.043-24.87L0 62.95l33.397 51.158h3.13z'/></svg>";
+
+// Since the text is placed behind the background we compensate a bit to
+// make the text more legible.
+@flag-text-colour: black;
+@correct-text-colour: black;
