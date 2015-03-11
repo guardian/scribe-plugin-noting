@@ -9114,9 +9114,9 @@ function isThunk(t) {
 
 },{}],41:[function(require,module,exports){
 module.exports=require(10)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":10}],42:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":10}],42:[function(require,module,exports){
 module.exports=require(11)
-},{"./version":45,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":11}],43:[function(require,module,exports){
+},{"./version":45,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":11}],43:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -9127,13 +9127,13 @@ function isVirtualText(x) {
 
 },{"./version":45}],44:[function(require,module,exports){
 module.exports=require(12)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":12}],45:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":12}],45:[function(require,module,exports){
 module.exports=require(13)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":13}],46:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":13}],46:[function(require,module,exports){
 module.exports=require(14)
-},{"./is-vhook":41,"./is-vnode":42,"./is-widget":44,"./version":45,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":14}],47:[function(require,module,exports){
+},{"./is-vhook":41,"./is-vnode":42,"./is-widget":44,"./version":45,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":14}],47:[function(require,module,exports){
 module.exports=require(15)
-},{"./version":45,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":15}],48:[function(require,module,exports){
+},{"./version":45,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":15}],48:[function(require,module,exports){
 var classIdSplit = /([\.#]?[a-zA-Z0-9_:-]+)/
 var notClassId = /^\.|#/
 
@@ -9575,21 +9575,21 @@ function renderThunk(thunk, previous) {
 
 },{"./is-thunk":51,"./is-vnode":53,"./is-vtext":54,"./is-widget":55}],51:[function(require,module,exports){
 module.exports=require(40)
-},{"/web/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":40}],52:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":40}],52:[function(require,module,exports){
 module.exports=require(10)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":10}],53:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":10}],53:[function(require,module,exports){
 module.exports=require(11)
-},{"./version":58,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":11}],54:[function(require,module,exports){
+},{"./version":58,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":11}],54:[function(require,module,exports){
 module.exports=require(43)
-},{"./version":58,"/web/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":43}],55:[function(require,module,exports){
+},{"./version":58,"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":43}],55:[function(require,module,exports){
 module.exports=require(12)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":12}],56:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":12}],56:[function(require,module,exports){
 module.exports=require(17)
-},{"/web/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":17}],57:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":17}],57:[function(require,module,exports){
 module.exports=require(25)
-},{"/web/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":25}],58:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":25}],58:[function(require,module,exports){
 module.exports=require(13)
-},{"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":13}],59:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":13}],59:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -9615,7 +9615,7 @@ VirtualPatch.prototype.type = "VirtualPatch"
 
 },{"./version":58}],60:[function(require,module,exports){
 module.exports=require(15)
-},{"./version":58,"/web/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":15}],61:[function(require,module,exports){
+},{"./version":58,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":15}],61:[function(require,module,exports){
 "use strict";
 
 // Scribe noting plugin
@@ -10725,11 +10725,6 @@ module.exports = {
 },{"./../../bower_components/lodash/dist/lodash.compat.js":2}],86:[function(require,module,exports){
 "use strict";
 
-var _prototypeProperties = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
 var _ = require("./../bower_components/lodash/dist/lodash.compat.js");
 
 var config = require("./config");
@@ -10775,334 +10770,265 @@ emitter.on("command:toggle:all-notes", function (tag) {
 
 
 module.exports = function (scribe) {
-  var NoteController = (function () {
-    function NoteController() {
-      var _this = this;
+  var NoteController = function NoteController() {
+    var _this = this;
 
 
-      //browser events
-      scribe.el.addEventListener("keydown", function (e) {
-        return _this.onNoteKeyAction(e);
-      });
-      scribe.el.addEventListener("click", function (e) {
-        return _this.onElementClicked(e);
-      });
-      scribe.el.addEventListener("input", function (e) {
-        return _this.validateNotes(e);
-      });
-
-      //scribe command events
-      emitter.on("command:note", function (tag) {
-        return _this.note(tag);
-      });
-      emitter.on("command:toggle:single-note", function (tag) {
-        return _this.toggleSelectedNotesCollapseState(tag);
-      });
-      //Run ensureNoteIntegrity to place missing zero-width-spaces
-      this.ensureNoteIntegrity();
-    }
-
-    _prototypeProperties(NoteController, null, {
-      onNoteKeyAction: {
-
-
-        // noteKeyAction is triggered on key press and dynamically figures out what kind of note to create
-        // selectors should be passed through the config object the default selector looks like this:
-        // selectors: [ commandName: 'note', tagName: 'gu-note, {'keyCodes': [ 119 , 121 , {'altKey', 8} ]} ];
-        // if you need a special key (the default uses alt) specify an object within the keyCodes array
-        // where the key is the modifier (expected on the event object)
-        // and the val is the key code
-        value: function onNoteKeyAction(e) {
-          var _this2 = this;
-
-
-          //if we press backspace
-          if (e.keyCode === 8) {
-            mutateScribe(scribe, function (focus) {
-              config.get("selectors").forEach(function (selector) {
-                //and there is an adjacent note
-                if (isCaretNextToNote(focus, "prev", selector.tagName) && !isSelectionWithinNote(focus, selector.tagName)) {
-                  e.preventDefault();
-                  removeCharacterFromNote(focus, "prev", selector.tagName);
-                }
-              });
-            });
-          }
-
-          //when we press delete
-          if (e.keyCode === 46) {
-            mutateScribe(scribe, function (focus) {
-              config.get("selectors").forEach(function (selector) {
-                //and there is an adjacent note
-                if (isCaretNextToNote(focus, "next", selector.tagName) && !isSelectionWithinNote(focus, selector.tagName)) {
-                  e.preventDefault();
-                  removeCharacterFromNote(focus, "next", selector.tagName);
-                }
-              });
-            });
-          }
-
-          var selectors = config.get("selectors");
-          selectors.forEach(function (selector) {
-            //we need to store the tagName to be passed to this.note()
-            var tagName = selector.tagName;
-
-            selector.keyCodes.forEach(function (keyCode) {
-              //if we get just a number we check the keyCode
-              if (!_.isObject(keyCode) && e.keyCode === keyCode) {
-                e.preventDefault();
-                _this2.note(tagName);
-              } else if (_.isObject(keyCode)) {
-                //in the dynamic case we need to check for BOTH the modifier key AND keycode
-                var modifier = Object.keys(keyCode)[0];
-                if (e[modifier] && e.keyCode === keyCode[modifier]) {
-                  e.preventDefault();
-                  _this2.note(tagName);
-                }
-              }
-            });
-          });
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      onElementClicked: {
-
-        //onElementClicked when scribe is clicked we need to figure out what kind of interaction to perform
-        value: function onElementClicked(e) {
-          switch (e.target.getAttribute("data-click-action")) {
-            case "toggle-tag":
-              e.preventDefault();
-              this.toggleClickedNotesTagNames(e.target);
-              break;
-
-            default:
-              e.preventDefault();
-              this.toggleClickedNotesCollapseState(e.target);
-              break;
-          }
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      toggleClickedNotesTagNames: {
-
-        // ------------------------------
-        // TOGGLE TAG NAMES
-        // ------------------------------
-
-        //toggleSelectedNotesTagNames toggles the tag names of any notes within a given selection
-        value: function toggleClickedNotesTagNames(target) {
-          var _this3 = this;
-          config.get("selectors").forEach(function (selector) {
-            //if we have a valid note element
-            if (target.nodeName === selector.tagName.toUpperCase()) {
-              _this3.selectClickedElement(target);
-              _this3.toggleSelectedNotesTagNames(selector.tagName, selector.toggleTagTo);
-              _this3.clearSelection();
-            }
-          });
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      toggleSelectedNotesTagNames: {
-
-        //toggleAllNotesTagNames will toggle the tag names of clicked notes
-        value: function toggleSelectedNotesTagNames(tagName, replacementTagName) {
-          mutateScribe(scribe, function (focus) {
-            return toggleSelectedNotesTagName(focus, tagName, replacementTagName);
-          });
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      toggleClickedNotesCollapseState: {
-
-        // ------------------------------
-        // COLLAPSE / EXPAND NOTES
-        // ------------------------------
-
-        //toggleClickedNotesCollapseState when note is clicked we need to figure out if the target is a note
-        //and set the selection so we can act on it
-        value: function toggleClickedNotesCollapseState(target) {
-          var _this4 = this;
-          config.get("selectors").forEach(function (selector) {
-            //if we have a valid note element
-            if (target.nodeName === selector.tagName.toUpperCase()) {
-              _this4.selectClickedElement(target);
-              _this4.toggleSelectedNotesCollapseState(selector.tagName);
-            }
-          });
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      toggleSelectedNotesCollapseState: {
-
-        //toggleSelectedNotesCollapseState will collapse or expand all (or a selected) note
-        value: function toggleSelectedNotesCollapseState(tagName) {
-          mutateScribe(scribe, function (focus) {
-            return toggleSelectedNoteCollapseState(focus, tagName);
-          });
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      toggleAllNotesCollapseState: {
-
-        // This command is a bit special in the sense that it will operate on all
-        // Scribe instances on the page.
-        value: function toggleAllNotesCollapseState() {
-          var state = !!noteCollapseState.get();
-          var scribeInstances = document.querySelectorAll(config.get("scribeInstanceSelector"));
-          scribeInstances = _.toArray(scribeInstances);
-          scribeInstances.forEach(function (instance) {
-            mutate(instance, function (focus) {
-              return toggleAllNoteCollapseState(focus);
-            });
-          });
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      selectClickedElement: {
-
-
-        //selectClickedElement will create a selection around a clicked element
-        value: function selectClickedElement(target) {
-          var vSelection = new scribe.api.Selection();
-          var range = document.createRange();
-          range.selectNodeContents(target);
-          vSelection.selection.removeAllRanges();
-          vSelection.selection.addRange(range);
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      clearSelection: {
-        value: function clearSelection() {
-          var selection = new scribe.api.Selection();
-          selection.selection.removeAllRanges();
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      note: {
-
-
-        // ------------------------------
-        // NOTING
-        // ------------------------------
-
-        //Note function does all the heavy lifting when:
-        //- creating
-        //- deleting
-        //- merging
-        value: function note() {
-          var tagName = arguments[0] === undefined ? config.get("defaultTagName") : arguments[0];
-          return (function () {
-            //get scribe.el content (virtualized) and the current selection
-            mutateScribe(scribe, function (focus, selection) {
-              //figure out what kind of selection we have
-              var markers = findScribeMarkers(focus);
-              if (markers.length <= 0) {
-                return;
-              }
-              var selectionIsCollapsed = markers.length === 1;
-
-              /* Removed due to legitimate concern
-               * you should be able to note a paragraph containing notes
-               * should be removed if decided the above statement is correct jp 16/2/15
-              //we need to figure out if our caret or selection is within a conflicting note
-              var isWithinConflictingNote = false;
-              config.get('selectors').forEach((selector)=>{
-              if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
-              isWithinConflictingNote = true;
-              }
-              });
-               //if we ARE within a confilicting note type bail out.
-              if(isWithinConflictingNote){
-              return;
-              }
-              */
-
-              var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
-
-              //If the caret is within a note and nothing is selected
-              if (selectionIsCollapsed && isWithinNote) {
-                removeNote(focus, tagName);
-              }
-              //if we have a selection within a note
-              else if (isWithinNote) {
-                removePartOfNote(focus, tagName);
-              }
-              //if we have no selection outside of a note
-              else if (selectionIsCollapsed) {
-                createEmptyNoteAtCaret(focus, tagName);
-              }
-              //if we have a selection outside of a note
-              else {
-                createNoteFromSelection(focus, tagName);
-              }
-            });
-          })();
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      validateNotes: {
-
-        //validateNotes makes sure all note--start note--end and data attributes are in place
-        value: function validateNotes() {
-          var _this5 = this;
-          _.throttle(function () {
-            _this5.ensureNoteIntegrity();
-          }, 1000)();
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true
-      },
-      ensureNoteIntegrity: {
-        value: (function (_ensureNoteIntegrity) {
-          var _ensureNoteIntegrityWrapper = function ensureNoteIntegrity() {
-            return _ensureNoteIntegrity.apply(this, arguments);
-          };
-
-          _ensureNoteIntegrityWrapper.toString = function () {
-            return _ensureNoteIntegrity.toString();
-          };
-
-          return _ensureNoteIntegrityWrapper;
-        })(function () {
-          mutateScribe(scribe, function (focus) {
-            //strip the document of ALL zero width spaces
-            stripZeroWidthSpaces(focus);
-            config.get("selectors").forEach(function (selector) {
-              //run through EACH kind of note and re-add the zero width spaces
-              ensureNoteIntegrity(focus, selector.tagName);
-            });
-          });
-        }),
-        writable: true,
-        enumerable: true,
-        configurable: true
-      }
+    //browser events
+    scribe.el.addEventListener("keydown", function (e) {
+      return _this.onNoteKeyAction(e);
+    });
+    scribe.el.addEventListener("click", function (e) {
+      return _this.onElementClicked(e);
+    });
+    scribe.el.addEventListener("input", function (e) {
+      return _this.validateNotes(e);
     });
 
-    return NoteController;
-  })();
+    //scribe command events
+    emitter.on("command:note", function (tag) {
+      return _this.note(tag);
+    });
+    emitter.on("command:toggle:single-note", function (tag) {
+      return _this.toggleSelectedNotesCollapseState(tag);
+    });
+    //Run ensureNoteIntegrity to place missing zero-width-spaces
+    this.ensureNoteIntegrity();
+  };
+
+
+
+
+  // noteKeyAction is triggered on key press and dynamically figures out what kind of note to create
+  // selectors should be passed through the config object the default selector looks like this:
+  // selectors: [ commandName: 'note', tagName: 'gu-note, {'keyCodes': [ 119 , 121 , {'altKey', 8} ]} ];
+  // if you need a special key (the default uses alt) specify an object within the keyCodes array
+  // where the key is the modifier (expected on the event object)
+  // and the val is the key code
+  NoteController.prototype.onNoteKeyAction = function (e) {
+    var _this2 = this;
+
+
+    //if we press backspace
+    if (e.keyCode === 8) {
+      mutateScribe(scribe, function (focus) {
+        config.get("selectors").forEach(function (selector) {
+          //and there is an adjacent note
+          if (isCaretNextToNote(focus, "prev", selector.tagName) && !isSelectionWithinNote(focus, selector.tagName)) {
+            e.preventDefault();
+            removeCharacterFromNote(focus, "prev", selector.tagName);
+          }
+        });
+      });
+    }
+
+    //when we press delete
+    if (e.keyCode === 46) {
+      mutateScribe(scribe, function (focus) {
+        config.get("selectors").forEach(function (selector) {
+          //and there is an adjacent note
+          if (isCaretNextToNote(focus, "next", selector.tagName) && !isSelectionWithinNote(focus, selector.tagName)) {
+            e.preventDefault();
+            removeCharacterFromNote(focus, "next", selector.tagName);
+          }
+        });
+      });
+    }
+
+    var selectors = config.get("selectors");
+    selectors.forEach(function (selector) {
+      //we need to store the tagName to be passed to this.note()
+      var tagName = selector.tagName;
+
+      selector.keyCodes.forEach(function (keyCode) {
+        //if we get just a number we check the keyCode
+        if (!_.isObject(keyCode) && e.keyCode === keyCode) {
+          e.preventDefault();
+          _this2.note(tagName);
+        } else if (_.isObject(keyCode)) {
+          //in the dynamic case we need to check for BOTH the modifier key AND keycode
+          var modifier = Object.keys(keyCode)[0];
+          if (e[modifier] && e.keyCode === keyCode[modifier]) {
+            e.preventDefault();
+            _this2.note(tagName);
+          }
+        }
+      });
+    });
+  };
+
+  //onElementClicked when scribe is clicked we need to figure out what kind of interaction to perform
+  NoteController.prototype.onElementClicked = function (e) {
+    switch (e.target.getAttribute("data-click-action")) {
+      case "toggle-tag":
+        e.preventDefault();
+        this.toggleClickedNotesTagNames(e.target);
+        break;
+
+      default:
+        e.preventDefault();
+        this.toggleClickedNotesCollapseState(e.target);
+        break;
+    }
+  };
+
+  // ------------------------------
+  // TOGGLE TAG NAMES
+  // ------------------------------
+
+  //toggleSelectedNotesTagNames toggles the tag names of any notes within a given selection
+  NoteController.prototype.toggleClickedNotesTagNames = function (target) {
+    var _this3 = this;
+    config.get("selectors").forEach(function (selector) {
+      //if we have a valid note element
+      if (target.nodeName === selector.tagName.toUpperCase()) {
+        _this3.selectClickedElement(target);
+        _this3.toggleSelectedNotesTagNames(selector.tagName, selector.toggleTagTo);
+        _this3.clearSelection();
+      }
+    });
+  };
+
+  //toggleAllNotesTagNames will toggle the tag names of clicked notes
+  NoteController.prototype.toggleSelectedNotesTagNames = function (tagName, replacementTagName) {
+    mutateScribe(scribe, function (focus) {
+      return toggleSelectedNotesTagName(focus, tagName, replacementTagName);
+    });
+  };
+
+  // ------------------------------
+  // COLLAPSE / EXPAND NOTES
+  // ------------------------------
+
+  //toggleClickedNotesCollapseState when note is clicked we need to figure out if the target is a note
+  //and set the selection so we can act on it
+  NoteController.prototype.toggleClickedNotesCollapseState = function (target) {
+    var _this4 = this;
+    config.get("selectors").forEach(function (selector) {
+      //if we have a valid note element
+      if (target.nodeName === selector.tagName.toUpperCase()) {
+        _this4.selectClickedElement(target);
+        _this4.toggleSelectedNotesCollapseState(selector.tagName);
+      }
+    });
+  };
+
+  //toggleSelectedNotesCollapseState will collapse or expand all (or a selected) note
+  NoteController.prototype.toggleSelectedNotesCollapseState = function (tagName) {
+    mutateScribe(scribe, function (focus) {
+      return toggleSelectedNoteCollapseState(focus, tagName);
+    });
+  };
+
+  // This command is a bit special in the sense that it will operate on all
+  // Scribe instances on the page.
+  NoteController.prototype.toggleAllNotesCollapseState = function () {
+    var state = !!noteCollapseState.get();
+    var scribeInstances = document.querySelectorAll(config.get("scribeInstanceSelector"));
+    scribeInstances = _.toArray(scribeInstances);
+    scribeInstances.forEach(function (instance) {
+      mutate(instance, function (focus) {
+        return toggleAllNoteCollapseState(focus);
+      });
+    });
+  };
+
+
+
+
+  //selectClickedElement will create a selection around a clicked element
+  NoteController.prototype.selectClickedElement = function (target) {
+    var vSelection = new scribe.api.Selection();
+    var range = document.createRange();
+    range.selectNodeContents(target);
+    vSelection.selection.removeAllRanges();
+    vSelection.selection.addRange(range);
+  };
+
+  NoteController.prototype.clearSelection = function () {
+    var selection = new scribe.api.Selection();
+    selection.selection.removeAllRanges();
+  };
+
+
+
+
+  // ------------------------------
+  // NOTING
+  // ------------------------------
+
+  //Note function does all the heavy lifting when:
+  //- creating
+  //- deleting
+  //- merging
+  NoteController.prototype.note = function () {
+    var tagName = arguments[0] === undefined ? config.get("defaultTagName") : arguments[0];
+    return (function () {
+      //get scribe.el content (virtualized) and the current selection
+      mutateScribe(scribe, function (focus, selection) {
+        //figure out what kind of selection we have
+        var markers = findScribeMarkers(focus);
+        if (markers.length <= 0) {
+          return;
+        }
+        var selectionIsCollapsed = markers.length === 1;
+
+        /* Removed due to legitimate concern
+         * you should be able to note a paragraph containing notes
+         * should be removed if decided the above statement is correct jp 16/2/15
+        //we need to figure out if our caret or selection is within a conflicting note
+        var isWithinConflictingNote = false;
+        config.get('selectors').forEach((selector)=>{
+        if((selector.tagName !== tagName) && isSelectionWithinNote(markers, selector.tagName)){
+        isWithinConflictingNote = true;
+        }
+        });
+         //if we ARE within a confilicting note type bail out.
+        if(isWithinConflictingNote){
+        return;
+        }
+        */
+
+        var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
+
+        //If the caret is within a note and nothing is selected
+        if (selectionIsCollapsed && isWithinNote) {
+          removeNote(focus, tagName);
+        }
+        //if we have a selection within a note
+        else if (isWithinNote) {
+          removePartOfNote(focus, tagName);
+        }
+        //if we have no selection outside of a note
+        else if (selectionIsCollapsed) {
+          createEmptyNoteAtCaret(focus, tagName);
+        }
+        //if we have a selection outside of a note
+        else {
+          createNoteFromSelection(focus, tagName);
+        }
+      });
+    })();
+  };
+
+  //validateNotes makes sure all note--start note--end and data attributes are in place
+  NoteController.prototype.validateNotes = function () {
+    var _this5 = this;
+    _.throttle(function () {
+      _this5.ensureNoteIntegrity();
+    }, 1000)();
+  };
+
+  NoteController.prototype.ensureNoteIntegrity = function () {
+    mutateScribe(scribe, function (focus) {
+      //strip the document of ALL zero width spaces
+      stripZeroWidthSpaces(focus);
+      config.get("selectors").forEach(function (selector) {
+        //run through EACH kind of note and re-add the zero width spaces
+        ensureNoteIntegrity(focus, selector.tagName);
+      });
+    });
+  };
 
   return new NoteController();
 };
