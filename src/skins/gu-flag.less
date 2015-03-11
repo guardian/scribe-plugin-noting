@@ -1,44 +1,18 @@
 @import 'vars.less';
-@import 'mixins/dotted-border.less';
-@import 'mixins/note/note-decal-left.less';
-@import 'mixins/note/note-rectangle-right.less';
-@import 'mixins/note/note-background.less';
-@import 'mixins/note/note-body.less';
-@import 'mixins/note/note-edge.less';
+@import 'mixins/flag-correct-start.less';
+@import 'mixins/flag-correct-end.less';
 @import 'mixins/note/note-collapsed.less';
-
-
-/**
- * Mixins
- */
-
-.flag--start {
-  .note-body(@flag-border-color, @flag-background-color, @flag-text-color);
-  .decal-left(@flag-decal-uri, @flag-border-color);
-  .note-edge(left);
-}
-
-.flag--end {
-  .note-body(@flag-border-color, @flag-background-color, @flag-text-color);
-  .note-rectangle-right(@flag-border-color, bottom right, contain, no-repeat);
-  .note-edge(right);
-}
-
-
-/**
- * Classes
- */
 
 gu-flag.note {
   .note-body(@flag-border-color, @flag-background-color, @flag-text-color);
 }
 
 gu-flag.note--start {
-  .flag--start();
+  .flag-correct-start(@flag-decal-uri, @flag-border-color, @flag-background-color, @flag-text-color);
 }
 
 gu-flag.note--end {
-  .flag--end();
+  .flag-correct-end(@flag-border-color, @flag-background-color, @flag-text-color);
 }
 
 gu-flag.note--collapsed {
@@ -47,6 +21,6 @@ gu-flag.note--collapsed {
 
 gu-flag.note--start.note--end,
 gu-flag.note--start.note--collapsed {
-  .flag--start();
-  .flag--end();
+  .flag-correct-start(@flag-decal-uri, @flag-border-color, @flag-background-color, @flag-text-color);
+  .flag-correct-end(@flag-border-color, @flag-background-color, @flag-text-color);
 }

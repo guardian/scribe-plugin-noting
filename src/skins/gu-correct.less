@@ -1,44 +1,17 @@
 @import 'vars.less';
-@import 'mixins/dotted-border.less';
-@import 'mixins/note/note-decal-left.less';
-@import 'mixins/note/note-rectangle-right.less';
-@import 'mixins/note/note-background.less';
-@import 'mixins/note/note-body.less';
-@import 'mixins/note/note-edge.less';
-@import 'mixins/note/note-collapsed.less';
-
-
-/**
- * Mixins
- */
-
-.correct--start {
-  .note-body(@correct-border-color, @correct-background-color, @correct-text-color);
-  .decal-left(@correct-decal-uri, @correct-border-color);
-  .note-edge(left);
-}
-
-.correct--end {
-  .note-body(@correct-border-color, @correct-background-color, @correct-text-color);
-  .note-rectangle-right(@correct-border-color, bottom right, contain, no-repeat);
-  .note-edge(right);
-}
-
-
-/**
- * Classes
- */
+@import 'mixins/flag-correct-start.less';
+@import 'mixins/flag-correct-end.less';
 
 gu-correct.note {
   .note-body(@correct-border-color, @correct-background-color, @correct-text-color);
 }
 
 gu-correct.note--start {
-  .correct--start();
+  .flag-correct-start(@flag-decal-uri, @correct-border-color, @correct-background-color, @correct-text-color);
 }
 
 gu-correct.note--end {
-  .correct--end();
+  .flag-correct-end(@correct-border-color, @correct-background-color, @correct-text-color);
 }
 
 gu-correct.note--collapsed {
@@ -47,6 +20,6 @@ gu-correct.note--collapsed {
 
 gu-correct.note--start.note--end,
 gu-correct.note--start.note--collapsed {
-  .correct--start();
-  .correct--end();
+  .flag-correct-start(@flag-decal-uri, @correct-border-color, @correct-background-color, @correct-text-color);
+  .flag-correct-end(@correct-border-color, @correct-background-color, @correct-text-color);
 }
