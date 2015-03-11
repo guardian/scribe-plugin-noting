@@ -1,7 +1,7 @@
 @import 'vars.less';
 @import 'mixins/dotted-border.less';
 @import 'mixins/dotted-border.less';
-@import 'mixins/note/note-chevron-right.less';
+@import 'mixins/note/note-rectangle-right.less';
 @import 'mixins/note/note-background.less';
 @import 'mixins/note/note-body.less';
 @import 'mixins/note/note-edge.less';
@@ -20,7 +20,7 @@
 
 .correct--end {
   .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
-  .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
+  .note-rectangle-right(@correct-border-colour, bottom right, contain, no-repeat);
   .note-edge(right);
 }
 
