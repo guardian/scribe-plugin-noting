@@ -13,14 +13,14 @@
  */
 
 .correct--start {
-  .decal-left(@correct-decal-uri, @correct-border-colour);
   .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
+  .decal-left(@correct-decal-uri, @correct-border-colour);
   .note-edge(left);
 }
 
 .correct--end {
-  .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
   .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
+  .note-chevron-right(@correct-border-colour, bottom right, contain, no-repeat);
   .note-edge(right);
 }
 

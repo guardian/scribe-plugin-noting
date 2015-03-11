@@ -13,14 +13,14 @@
  */
 
 .flag--start {
-  .decal-left(@flag-decal-uri, @flag-border-colour);
   .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
+  .decal-left(@flag-decal-uri, @flag-border-colour);
   .note-edge(left);
 }
 
 .flag--end {
-  .note-chevron-right(@flag-border-colour, bottom right, contain, no-repeat);
   .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
+  .note-chevron-right(@flag-border-colour, bottom right, contain, no-repeat);
   .note-edge(right);
 }
 
