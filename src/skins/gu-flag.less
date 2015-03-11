@@ -13,14 +13,14 @@
  */
 
 .flag--start {
-  .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
-  .decal-left(@flag-decal-uri, @flag-border-colour);
+  .note-body(@flag-border-color, @flag-background-color, @flag-text-color);
+  .decal-left(@flag-decal-uri, @flag-border-color);
   .note-edge(left);
 }
 
 .flag--end {
-  .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
-  .note-rectangle-right(@flag-border-colour, bottom right, contain, no-repeat);
+  .note-body(@flag-border-color, @flag-background-color, @flag-text-color);
+  .note-rectangle-right(@flag-border-color, bottom right, contain, no-repeat);
   .note-edge(right);
 }
 
@@ -30,7 +30,7 @@
  */
 
 gu-flag.note {
-  .note-body(@flag-border-colour, @flag-background-colour, @flag-text-colour);
+  .note-body(@flag-border-color, @flag-background-color, @flag-text-color);
 }
 
 gu-flag.note--start {

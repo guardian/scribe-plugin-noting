@@ -13,14 +13,14 @@
  */
 
 .correct--start {
-  .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
-  .decal-left(@correct-decal-uri, @correct-border-colour);
+  .note-body(@correct-border-color, @correct-background-color, @correct-text-color);
+  .decal-left(@correct-decal-uri, @correct-border-color);
   .note-edge(left);
 }
 
 .correct--end {
-  .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
-  .note-rectangle-right(@correct-border-colour, bottom right, contain, no-repeat);
+  .note-body(@correct-border-color, @correct-background-color, @correct-text-color);
+  .note-rectangle-right(@correct-border-color, bottom right, contain, no-repeat);
   .note-edge(right);
 }
 
@@ -30,7 +30,7 @@
  */
 
 gu-correct.note {
-  .note-body(@correct-border-colour, @correct-background-colour, @correct-text-colour);
+  .note-body(@correct-border-color, @correct-background-color, @correct-text-color);
 }
 
 gu-correct.note--start {
