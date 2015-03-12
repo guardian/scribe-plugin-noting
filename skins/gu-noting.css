@@ -29,9 +29,9 @@ gu-note.note {
   vertical-align: bottom;
   pointer-events: none;
   display: inline;
+  margin: 0;
   color: #767676;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding: 2px 0;
   z-index: 20;
 }
 gu-note.note:hover {
@@ -44,9 +44,9 @@ gu-note.note--start {
   vertical-align: bottom;
   pointer-events: none;
   display: inline;
+  margin: 0;
   color: #767676;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding: 2px 0;
   margin-left: 1px;
   padding-left: 4px;
 }
@@ -60,9 +60,9 @@ gu-note.note--end {
   vertical-align: bottom;
   pointer-events: none;
   display: inline;
+  margin: 0;
   color: #767676;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding: 2px 0;
   margin-right: 1px;
   padding-right: 4px;
 }
@@ -108,67 +108,58 @@ gu-note gu-flag,
 gu-note gu-correct {
   z-index: -1;
 }
-/**
- * For notes that can't be collapsed, such as flags and corrects,
- *  a rectangle makes more sense than a chevron.
- */
 gu-flag.note {
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
-  background-color: rgba(223, 169, 99, 0.1);
+  background-color: rgba(223, 169, 99, 0.3);
   position: relative;
   vertical-align: bottom;
   pointer-events: none;
   display: inline;
-  color: #323232;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  margin: 0;
+  color: #767676;
+  padding: 2px 0;
 }
 gu-flag.note:hover {
   cursor: inherit;
 }
 gu-flag.note--start {
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
-  background-color: rgba(223, 169, 99, 0.1);
+  background-color: rgba(223, 169, 99, 0.3);
   position: relative;
   vertical-align: bottom;
   pointer-events: none;
   display: inline;
-  color: #323232;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  margin: 0;
+  color: #767676;
+  padding: 2px 0;
   margin-left: 1px;
   padding-left: 4px;
+}
+gu-flag.note--start:before {
+  content: '\2691';
+  position: inherit;
+  margin-left: -4px;
+  margin-right: 2px;
+  padding: 0.17em 0.3em;
+  background-color: #fa9b21;
+  border-bottom: 1px solid #fa9b21;
+  color: white;
+  font-size: 0.9em;
+  cursor: pointer;
 }
 gu-flag.note--start:hover {
   cursor: inherit;
 }
-gu-flag.note--start:before {
-  content: "";
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'><g fill='white'><path d='M31.564 0H13.907v128h17.657V77.715zM31.14 12.717S43.59 1.882 54.026 1.882c10.44 0 21.825 10.835 35.884 10.835 14.044 0 24.48-10.835 24.48-10.835V66.3s-10.035 11.24-20.07 11.24c-10.032 0-24.235-10.428-38.687-10.428-14.447 0-24.492 10.43-24.492 10.43V12.716z'/></g></svg>");
-  background-size: 9px;
-  background-position: 50%;
-  background-repeat: no-repeat;
-  position: inherit;
-  margin-left: -4px;
-  margin-right: 2px;
-  padding-top: 0.12em;
-  padding-bottom: 0.05em;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-  background-color: #fa9b21;
-  border-bottom: 1px solid #fa9b21;
-  cursor: pointer;
-}
 gu-flag.note--end {
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 20' version='1.1'><rect width='2' height='20' fill='%23fa9b21' /></svg>") bottom right / contain no-repeat;
-  background-color: rgba(223, 169, 99, 0.1);
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 8 20 L 2 20 L 8 14 L 8 20 L 6 20 L 6 0 L 8 0' fill='%23fa9b21' stroke='none'/></svg>") bottom right / contain no-repeat, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
+  background-color: rgba(223, 169, 99, 0.3);
   position: relative;
   vertical-align: bottom;
   pointer-events: none;
   display: inline;
-  color: #323232;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  margin: 0;
+  color: #767676;
+  padding: 2px 0;
   margin-right: 1px;
   padding-right: 4px;
 }
@@ -199,103 +190,77 @@ gu-flag.note--collapsed:hover {
 }
 gu-flag.note--start.note--end,
 gu-flag.note--start.note--collapsed {
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 20' version='1.1'><rect width='2' height='20' fill='%23fa9b21' /></svg>") bottom right / contain no-repeat;
-  margin-left: 1px;
-  padding-left: 4px;
-  background-color: rgba(223, 169, 99, 0.1);
-  position: relative;
-  vertical-align: bottom;
-  pointer-events: none;
-  display: inline;
-  color: #323232;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23fa9b21' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 8 20 L 2 20 L 8 14 L 8 20 L 6 20 L 6 0 L 8 0' fill='%23fa9b21' stroke='none'/></svg>") bottom right / contain no-repeat;
+  background-color: rgba(223, 169, 99, 0.3);
   margin-right: 1px;
   padding-right: 4px;
-}
-gu-flag.note--start.note--end:hover,
-gu-flag.note--start.note--collapsed:hover {
-  cursor: inherit;
+  margin-left: 1px;
+  padding-left: 4px;
 }
 gu-flag.note--start.note--end:before,
 gu-flag.note--start.note--collapsed:before {
-  content: "";
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'><g fill='white'><path d='M31.564 0H13.907v128h17.657V77.715zM31.14 12.717S43.59 1.882 54.026 1.882c10.44 0 21.825 10.835 35.884 10.835 14.044 0 24.48-10.835 24.48-10.835V66.3s-10.035 11.24-20.07 11.24c-10.032 0-24.235-10.428-38.687-10.428-14.447 0-24.492 10.43-24.492 10.43V12.716z'/></g></svg>");
-  background-size: 9px;
-  background-position: 50%;
-  background-repeat: no-repeat;
+  content: '\2691';
   position: inherit;
   margin-left: -4px;
   margin-right: 2px;
-  padding-top: 0.12em;
-  padding-bottom: 0.05em;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+  padding: 0.17em 0.3em;
   background-color: #fa9b21;
   border-bottom: 1px solid #fa9b21;
+  color: white;
+  font-size: 0.9em;
   cursor: pointer;
-}
-gu-flag.note--start.note--end:hover,
-gu-flag.note--start.note--collapsed:hover {
-  cursor: inherit;
 }
 gu-correct.note {
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
-  background-color: rgba(164, 202, 147, 0.1);
+  background-color: rgba(164, 202, 147, 0.3);
   position: relative;
   vertical-align: bottom;
   pointer-events: none;
   display: inline;
-  color: #323232;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  margin: 0;
+  color: #767676;
+  padding: 2px 0;
 }
 gu-correct.note:hover {
   cursor: inherit;
 }
 gu-correct.note--start {
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
-  background-color: rgba(164, 202, 147, 0.1);
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 0 0 L 6 0 L 0 6 L 0 0 L 2 0 L 2 20 L 0 20' fill='%23649c4b' stroke='none'/></svg>") top left / contain no-repeat, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
+  background-color: rgba(164, 202, 147, 0.3);
   position: relative;
   vertical-align: bottom;
   pointer-events: none;
   display: inline;
-  color: #323232;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  margin-left: 1px;
-  padding-left: 4px;
+  margin: 0;
+  color: #767676;
+  padding: 2px 0;
+  padding-left: 6px;
+}
+gu-correct.note--start:before {
+  content: '\2713';
+  position: inherit;
+  margin-left: -4px;
+  margin-right: 2px;
+  padding: 0.17em 0.3em;
+  background-color: #649c4b;
+  border-bottom: 1px solid #649c4b;
+  color: white;
+  font-size: 0.9em;
+  cursor: pointer;
 }
 gu-correct.note--start:hover {
   cursor: inherit;
 }
-gu-correct.note--start:before {
-  content: "";
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'><path fill='white' d='M128 19.275l-7.5-6.225-85.24 68.36-25.043-24.87L0 62.95l33.397 51.158h3.13z'/></svg>");
-  background-size: 9px;
-  background-position: 50%;
-  background-repeat: no-repeat;
-  position: inherit;
-  margin-left: -4px;
-  margin-right: 2px;
-  padding-top: 0.12em;
-  padding-bottom: 0.05em;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-  background-color: #649c4b;
-  border-bottom: 1px solid #649c4b;
-  cursor: pointer;
-}
 gu-correct.note--end {
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 20' version='1.1'><rect width='2' height='20' fill='%23649c4b' /></svg>") bottom right / contain no-repeat;
-  background-color: rgba(164, 202, 147, 0.1);
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 8 20 L 2 20 L 8 14 L 8 20 L 6 20 L 6 0 L 8 0' fill='%23649c4b' stroke='none'/></svg>") bottom right / contain no-repeat, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
+  background-color: rgba(164, 202, 147, 0.3);
   position: relative;
   vertical-align: bottom;
   pointer-events: none;
   display: inline;
-  color: #323232;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  margin: 0;
+  color: #767676;
+  padding: 2px 0;
   margin-right: 1px;
   padding-right: 4px;
 }
@@ -326,45 +291,25 @@ gu-correct.note--collapsed:hover {
 }
 gu-correct.note--start.note--end,
 gu-correct.note--start.note--collapsed {
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 20' version='1.1'><rect width='2' height='20' fill='%23649c4b' /></svg>") bottom right / contain no-repeat;
-  margin-left: 1px;
-  padding-left: 4px;
-  background-color: rgba(164, 202, 147, 0.1);
-  position: relative;
-  vertical-align: bottom;
-  pointer-events: none;
-  display: inline;
-  color: #323232;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%23649c4b' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 8 20 L 2 20 L 8 14 L 8 20 L 6 20 L 6 0 L 8 0' fill='%23649c4b' stroke='none'/></svg>") bottom right / contain no-repeat;
+  background-color: rgba(164, 202, 147, 0.3);
   margin-right: 1px;
   padding-right: 4px;
-}
-gu-correct.note--start.note--end:hover,
-gu-correct.note--start.note--collapsed:hover {
-  cursor: inherit;
+  margin-left: 1px;
+  padding-left: 4px;
 }
 gu-correct.note--start.note--end:before,
 gu-correct.note--start.note--collapsed:before {
-  content: "";
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'><path fill='white' d='M128 19.275l-7.5-6.225-85.24 68.36-25.043-24.87L0 62.95l33.397 51.158h3.13z'/></svg>");
-  background-size: 9px;
-  background-position: 50%;
-  background-repeat: no-repeat;
+  content: '\2713';
   position: inherit;
   margin-left: -4px;
   margin-right: 2px;
-  padding-top: 0.12em;
-  padding-bottom: 0.05em;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+  padding: 0.17em 0.3em;
   background-color: #649c4b;
   border-bottom: 1px solid #649c4b;
+  color: white;
+  font-size: 0.9em;
   cursor: pointer;
-}
-gu-correct.note--start.note--end:hover,
-gu-correct.note--start.note--collapsed:hover {
-  cursor: inherit;
 }
 /**
  * Hitzone pseudo-elements used for hitzones at start and end of notes for
