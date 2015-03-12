@@ -21,6 +21,7 @@ var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-
 var stripZeroWidthSpaces = require('./actions/noting/strip-zero-width-space');
 var isCaretNextToNote = require('./utils/noting/is-caret-next-to-note');
 var removeCharacterFromNote = require('./actions/noting/remove-character-from-adjacent-note');
+var selectNoteFromCaret = require('./actions/noting/select-note-from-caret');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -72,11 +73,11 @@ module.exports = function(scribe){
           config.get('selectors').forEach((selector)=>{
             //and there is an adjacent note
             if (isCaretNextToNote(focus, 'prev', selector.tagName)
-                  && !isSelectionWithinNote(focus, selector.tagName)) {
-              e.preventDefault();
-              removeCharacterFromNote(focus, 'prev', selector.tagName);
-            }
-          })
+                && !isSelectionWithinNote(focus, selector.tagName)) {
+                  e.preventDefault();
+                  removeCharacterFromNote(focus, 'prev', selector.tagName);
+                }
+          });
         });
       }
 
@@ -86,12 +87,17 @@ module.exports = function(scribe){
           config.get('selectors').forEach((selector)=>{
             //and there is an adjacent note
             if (isCaretNextToNote(focus, 'next', selector.tagName)
-                  && !isSelectionWithinNote(focus, selector.tagName)) {
-              e.preventDefault();
-              removeCharacterFromNote(focus, 'next', selector.tagName);
-            }
-          })
+                && !isSelectionWithinNote(focus, selector.tagName)) {
+                  e.preventDefault();
+                  removeCharacterFromNote(focus, 'next', selector.tagName);
+                }
+          });
         });
+      }
+
+      //selecting notes
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.keyCode === 65){
+        this.selectNote();
       }
 
       var selectors = config.get('selectors');
@@ -118,15 +124,21 @@ module.exports = function(scribe){
 
     //onElementClicked when scribe is clicked we need to figure out what kind of interaction to perform
     onElementClicked(e) {
+
+      //selecting whole notes
+      if (e.detail === 2) {
+        this.selectNote();
+      }
+
       switch(e.target.getAttribute('data-click-action')){
         case 'toggle-tag':
           e.preventDefault();
-          this.toggleClickedNotesTagNames(e.target);
+        this.toggleClickedNotesTagNames(e.target);
         break;
 
         default:
           e.preventDefault();
-          this.toggleClickedNotesCollapseState(e.target);
+        this.toggleClickedNotesCollapseState(e.target);
         break;
       }
     }
@@ -197,6 +209,28 @@ module.exports = function(scribe){
     clearSelection(){
       var selection = new scribe.api.Selection();
       selection.selection.removeAllRanges();
+    }
+
+
+    // ------------------------------
+    // SELECTING A WHOLE NOTE
+    // ------------------------------
+
+    selectNote() {
+      mutateScribe(scribe, (focus, selection) => {
+        //ensure we have a selection
+        var markers = findScribeMarkers(focus);
+        if(markers.length >= 0){
+          //check that the selection is within a note
+          config.get('selectors').forEach((selector)=>{
+            if(isSelectionEntirelyWithinNote(markers, selector.tagName)){
+              //if the selection is within a note select that note
+              window.getSelection().removeAllRanges();
+              selectNoteFromCaret(focus, selector.tagName);
+            }
+          });
+        }
+      });
     }
 
 
