@@ -1,27 +1,17 @@
 @import 'vars.less';
-@import 'mixins/dotted-border.less';
-@import 'mixins/decal-left.less';
-@import 'mixins/note/note-chevron-right.less';
-@import 'mixins/note/note-background.less';
-@import 'mixins/note/note.less';
-@import 'mixins/note/note-edge.less';
-@import 'mixins/note/note-collapsed.less';
-
+@import 'mixins/flag-correct-start.less';
+@import 'mixins/flag-correct-end.less';
 
 gu-flag.note {
-  .note-body(@flag-border-colour, @flag-background-colour);
+  .note-body(@flag-border-color, @flag-background-color, @flag-text-color);
 }
 
 gu-flag.note--start {
-  .decal-left('\2691', @flag-border-colour, @flag-decal-colour);
-  .note-body(@flag-border-colour, @flag-background-colour);
-  .note-edge(left);
+  .flag-correct-start(@flag-decal-uri, @flag-border-color, @flag-background-color, @flag-text-color);
 }
 
 gu-flag.note--end {
-  .note-chevron-right(@flag-border-colour, bottom right, contain, no-repeat);
-  .note-body(@flag-border-colour, @flag-background-colour);
-  .note-edge(right);
+  .flag-correct-end(@flag-border-color, @flag-background-color, @flag-text-color);
 }
 
 gu-flag.note--collapsed {
@@ -30,9 +20,6 @@ gu-flag.note--collapsed {
 
 gu-flag.note--start.note--end,
 gu-flag.note--start.note--collapsed {
-  .decal-left('\2691', @flag-border-colour, @flag-decal-colour);
-  .note-background(@flag-border-colour, @flag-background-colour);
-  .note-chevron-right(@flag-border-colour, bottom right, contain, no-repeat);
-  .note-edge(right);
-  .note-edge(left);
+  .flag-correct-start(@flag-decal-uri, @flag-border-color, @flag-background-color, @flag-text-color);
+  .flag-correct-end(@flag-border-color, @flag-background-color, @flag-text-color);
 }

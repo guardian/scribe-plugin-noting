@@ -3,5 +3,8 @@
 .note-background(@border-color, @background-color){
   .dotted-border(@border-color, top, 2px, repeat-x);
   .dotted-border(@border-color, bottom, 2px, repeat-x);
-  background-color+: @background-color;
+
+  // No + on this one since this one should be applied first.
+  // Works around issue with applying multiple background colors.
+  background-color: @background-color;
 }
