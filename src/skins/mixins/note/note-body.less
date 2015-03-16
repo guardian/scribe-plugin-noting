@@ -1,6 +1,6 @@
 @import './note-background.less';
 
-.note-body(@border-color, @background-color) {
+.note-body(@border-color, @background-color, @text-color) {
   .note-background(@border-color, @background-color);
 
   position: relative;
@@ -8,9 +8,10 @@
   pointer-events: none;
 
   display: inline;
-  margin: 0;
-  color: @note-text-colour;
-  padding: 2px 0;
+  color: @text-color;
+
+  padding-top: 2px;
+  padding-bottom: 2px;
 
   &:hover {
     cursor: inherit;

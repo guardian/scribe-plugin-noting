@@ -1,0 +1,10 @@
+@import '../vars.less';
+@import 'mixins/note/note-body.less';
+@import 'mixins/note/note-edge.less';
+@import 'mixins/note/note-rectangle-right.less';
+
+.flag-correct-end(@border-color, @background-color, @text-color) {
+  .note-body(@border-color, @background-color, @text-color);
+  .note-rectangle-right(@border-color, bottom right, contain, no-repeat);
+  .note-edge(right);
+}
