@@ -17,8 +17,8 @@ module.exports = function selectNoteFromCaret(focus, tagName = config.get('defau
     return focus;
   }
 
-  var parentNoteSegment = findParentNoteSegment(markers[0]);
-  var note = findEntireNote(parentNoteSegment);
+  var parentNoteSegment = findParentNoteSegment(markers[0], tagName);
+  var note = findEntireNote(parentNoteSegment, tagName);
   removeScribeMarkers(focus);
 
   note[0].prependChildren(createVirtualScribeMarker());

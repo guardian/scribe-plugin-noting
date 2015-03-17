@@ -8,7 +8,7 @@ var findScribeMarkers = require('./find-scribe-markers');
 var errorHandle = require('../error-handle');
 var config = require('../../config');
 
-module.exports = function isSelectionBetweenNotes(markers, tagName = config.get('defaultTagName')) {
+module.exports = function isSelectionEntirelyWithinNote(markers, tagName = config.get('defaultTagName')) {
 
   //if we pass a raw VFocus
   if (isVFocus(markers)) {

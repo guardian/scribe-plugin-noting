@@ -223,7 +223,7 @@ module.exports = function(scribe){
         if(markers.length >= 0){
           //check that the selection is within a note
           config.get('selectors').forEach((selector)=>{
-            if(isSelectionEntirelyWithinNote(markers, selector.tagName)){
+            if(isSelectionWithinNote(markers, selector.tagName)){
               //if the selection is within a note select that note
               window.getSelection().removeAllRanges();
               selectNoteFromCaret(focus, selector.tagName);
