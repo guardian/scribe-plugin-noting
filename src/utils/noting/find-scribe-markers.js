@@ -8,5 +8,5 @@ module.exports = function findScribeMarkers(focus) {
     errorHandle('Only a valid VFocus can be passed to findScribeMarkers, you passed: %s', focus);
   }
 
-  return focus.filter(isScribeMarker);
+  return focus.top().filter(isScribeMarker);
 };
