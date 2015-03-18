@@ -34,7 +34,7 @@ module.exports = function isSelectionEntirelyWithinNote(markers, tagName = confi
       // contains notes for example.
       .filter(isVText);
 
-      return !!selection.every((node)=> findParentNoteSegment(node, tagName));
+    return !!selection.every((node)=> findParentNoteSegment(node, tagName));
   }
   //if we only have on valid marker
   //we see if it has a parent note
