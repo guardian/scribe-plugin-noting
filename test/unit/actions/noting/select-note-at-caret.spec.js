@@ -7,9 +7,9 @@ var h = require('virtual-hyperscript');
 var VText = require('vtree/vtext');
 var VFocus = require(path.resolve(process.cwd(), 'src/vfocus'));
 
-var selectNoteFromCaret = require(path.resolve(process.cwd(), 'src/actions/noting/select-note-from-caret'));
+var selectNote = require(path.resolve(process.cwd(), 'src/actions/noting/select-note'));
 
-describe('selectNoteFromCaret()', function() {
+describe('selectNote()', function() {
 
   it('should select note contents', function() {
 
@@ -24,7 +24,9 @@ describe('selectNoteFromCaret()', function() {
     ]);
 
     tree = new VFocus(tree);
-    tree = selectNoteFromCaret(tree);
+    var noteSegment = tree.next().next();
+    selectNote(noteSegment);
+
     expect(tree.next().vNode.children[0].tagName).to.equal('em');
     expect(tree.next().vNode.children.slice(-1)[0].tagName).to.equal('em');
 

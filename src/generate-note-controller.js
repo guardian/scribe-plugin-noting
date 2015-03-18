@@ -21,7 +21,7 @@ var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-
 var stripZeroWidthSpaces = require('./actions/noting/strip-zero-width-space');
 var isCaretNextToNote = require('./utils/noting/is-caret-next-to-note');
 var removeCharacterFromNote = require('./actions/noting/remove-character-from-adjacent-note');
-var selectNoteFromCaret = require('./actions/noting/select-note-from-caret');
+var selectNote = require('./actions/noting/select-note');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -233,7 +233,9 @@ module.exports = function(scribe){
         //if the selection is within a note select that note
         if (selector) {
           window.getSelection().removeAllRanges();
-          selectNoteFromCaret(focus, selector.tagName);
+          // we rely on the fact that markers[0] is within a note.
+          var noteSegment = findParentNoteSegment(markers[0], selector.tagName);
+          selectNote(noteSegment, selector.tagName);
         }
       });
     }
