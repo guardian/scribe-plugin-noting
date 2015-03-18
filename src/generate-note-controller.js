@@ -21,7 +21,7 @@ var toggleSelectedNotesTagName = require('./actions/noting/toggle-selected-note-
 var stripZeroWidthSpaces = require('./actions/noting/strip-zero-width-space');
 var isCaretNextToNote = require('./utils/noting/is-caret-next-to-note');
 var removeCharacterFromNote = require('./actions/noting/remove-character-from-adjacent-note');
-var selectNoteFromCaret = require('./actions/noting/select-note-from-caret');
+var selectNote = require('./actions/noting/select-note');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -218,21 +218,27 @@ module.exports = function(scribe){
 
     selectNote() {
       mutateScribe(scribe, (focus, selection) => {
-        //ensure we have a selection
         var markers = findScribeMarkers(focus);
-        if(markers.length >= 0){
-          //check that the selection is within a note
-          config.get('selectors').forEach((selector)=>{
-            if(isSelectionEntirelyWithinNote(markers, selector.tagName)){
-              //if the selection is within a note select that note
-              window.getSelection().removeAllRanges();
-              selectNoteFromCaret(focus, selector.tagName);
-            }
-          });
+
+        //ensure we have a selection, return otherwise
+        if (markers.length === 0) {
+          return;
+        }
+
+        //check that the selection is within a note
+        var selector = _.find(config.get('selectors'), (selector) => {
+          return isSelectionEntirelyWithinNote(markers, selector.tagName);
+        });
+
+        //if the selection is within a note select that note
+        if (selector) {
+          window.getSelection().removeAllRanges();
+          // we rely on the fact that markers[0] is within a note.
+          var noteSegment = findParentNoteSegment(markers[0], selector.tagName);
+          selectNote(noteSegment, selector.tagName);
         }
       });
     }
-
 
     // ------------------------------
     // NOTING

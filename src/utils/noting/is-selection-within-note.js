@@ -8,7 +8,7 @@ var findScribeMarkers = require('./find-scribe-markers');
 var errorHandle = require('../error-handle');
 var config = require('../../config');
 
-module.exports = function isSelectionBetweenNotes(markers, tagName = config.get('defaultTagName')) {
+module.exports = function isSelectionWithinNote(markers, tagName = config.get('defaultTagName')) {
 
   //if we pass a raw VFocus
   if (isVFocus(markers)) {
@@ -33,6 +33,12 @@ module.exports = function isSelectionBetweenNotes(markers, tagName = config.get(
       // We need the focusOnTextNode filter so we don't include P tags that
       // contains notes for example.
       .filter(isVText);
+
+
+    if (selection.length <= 0) {
+      errorHandle('Error retrieving selection. Probably means the selection\n' +
+        'has been modified and the markers don\'t reflect the new selection.');
+    }
 
     return selection.reduce((last, node)=> {
       return (!!findParentNoteSegment(node, tagName) || last);
