@@ -4039,7 +4039,10 @@ module.exports = function (scribe) {
 
             //check that the selection is within a note
             var selector = _.find(config.get("selectors"), function (selector) {
-              return isSelectionEntirelyWithinNote(markers, selector.tagName);
+              // isSelectionWithinNote rather than isSelectionEntirelyWithinNote
+              // since we want to allow all clicks within a note, even if it
+              // selects the note and some text to the left or right of the note.
+              return isSelectionWithinNote(markers, selector.tagName);
             });
 
             //if the selection is within a note select that note
