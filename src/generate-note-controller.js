@@ -222,13 +222,16 @@ module.exports = function(scribe){
         var markers = findScribeMarkers(focus);
         if(markers.length >= 0){
           //check that the selection is within a note
-          config.get('selectors').forEach((selector)=>{
-            if(isSelectionWithinNote(markers, selector.tagName)){
-              //if the selection is within a note select that note
-              window.getSelection().removeAllRanges();
-              selectNoteFromCaret(focus, selector.tagName);
-            }
+          var selectors = config.get('selectors');
+          var selector = _.find(selectors, (selector) => {
+            return isSelectionEntirelyWithinNote(markers, selector.tagName);
           });
+
+          if (selector) {
+            //if the selection is within a note select that note
+            window.getSelection().removeAllRanges();
+            selectNoteFromCaret(focus, selector.tagName);
+          }
         }
       });
     }
