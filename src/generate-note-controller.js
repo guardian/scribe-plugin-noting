@@ -218,24 +218,25 @@ module.exports = function(scribe){
 
     selectNote() {
       mutateScribe(scribe, (focus, selection) => {
-        //ensure we have a selection
         var markers = findScribeMarkers(focus);
-        if(markers.length >= 0){
-          //check that the selection is within a note
-          var selectors = config.get('selectors');
-          var selector = _.find(selectors, (selector) => {
-            return isSelectionEntirelyWithinNote(markers, selector.tagName);
-          });
 
-          if (selector) {
-            //if the selection is within a note select that note
-            window.getSelection().removeAllRanges();
-            selectNoteFromCaret(focus, selector.tagName);
-          }
+        //ensure we have a selection, return otherwise
+        if (markers.length === 0) {
+          return;
+        }
+
+        //check that the selection is within a note
+        var selector = _.find(config.get('selectors'), (selector) => {
+          return isSelectionEntirelyWithinNote(markers, selector.tagName);
+        });
+
+        //if the selection is within a note select that note
+        if (selector) {
+          window.getSelection().removeAllRanges();
+          selectNoteFromCaret(focus, selector.tagName);
         }
       });
     }
-
 
     // ------------------------------
     // NOTING
