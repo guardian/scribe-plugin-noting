@@ -34,6 +34,12 @@ module.exports = function isSelectionWithinNote(markers, tagName = config.get('d
       // contains notes for example.
       .filter(isVText);
 
+
+    if (selection.length <= 0) {
+      errorHandle('Error retrieving selection. Probably means the selection\n' +
+        'has been modified and the markers don\'t reflect the new selection.');
+    }
+
     return selection.reduce((last, node)=> {
       return (!!findParentNoteSegment(node, tagName) || last);
     }, false);
