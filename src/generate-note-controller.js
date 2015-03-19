@@ -129,7 +129,7 @@ module.exports = function(scribe){
     onElementClicked(e) {
 
       //selecting whole notes
-      if (e.metaKey) {
+      if (e.metaKey || e.ctrlKey) {
         this.selectNote();
       }
 
