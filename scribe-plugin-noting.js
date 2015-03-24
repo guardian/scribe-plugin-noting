@@ -3865,8 +3865,11 @@ module.exports = function (scribe) {
             });
           }
 
-          //selecting notes
+          // selecting notes (CTRL/META + SHIFT + A)
           if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.keyCode === 65) {
+            // e.g. Firefox uses this keyboard combination to open the Add-ons Manager.
+            e.preventDefault();
+
             this.selectNote();
           }
 
@@ -3899,7 +3902,7 @@ module.exports = function (scribe) {
         value: function onElementClicked(e) {
 
           //selecting whole notes
-          if (e.detail === 2) {
+          if (e.metaKey || e.ctrlKey) {
             this.selectNote();
           }
 
