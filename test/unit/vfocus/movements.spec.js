@@ -94,6 +94,32 @@ describe('VFocus - Movements', function() {
 
   });
 
+  describe('rightmost()', function() {
+
+    var rightTreeFocus, firstSiblingFocus, lastSiblingFocus;
+    beforeEach(function() {
+      var firstSibling = h('p#first');
+      var lastSibling = h('p#last');
+
+      var rightTree = h('div', [
+        firstSibling,
+        h('p#middle'),
+        lastSibling
+      ]);
+
+      rightTreeFocus = new VFocus(rightTree);
+      firstSiblingFocus = rightTreeFocus.down();
+      lastSiblingFocus = firstSiblingFocus.right().right();
+    });
+
+
+    it('always focuses the rightmost node', function() {
+      expect(firstSiblingFocus.rightmost().vNode).to.equal(lastSiblingFocus.vNode);
+      expect(lastSiblingFocus.rightmost().vNode).to.equal(lastSiblingFocus.vNode);
+    });
+
+  });
+
 
   describe('left()', function() {
 
