@@ -94,28 +94,31 @@ describe('VFocus - Movements', function() {
 
   });
 
-  describe('rightmost()', function() {
+  describe.only('rightmost()', function() {
 
-    var rightTreeFocus, firstSiblingFocus, lastSiblingFocus;
+    var rightTreeFocus, leftmostSiblingFocus, rightmostSiblingFocus;
     beforeEach(function() {
-      var firstSibling = h('p#first');
-      var lastSibling = h('p#last');
+      var leftmostSibling = h('p#first');
+      var rightmostSibling = h('p#last');
 
       var rightTree = h('div', [
-        firstSibling,
+        leftmostSibling,
         h('p#middle'),
-        lastSibling
+        rightmostSibling
       ]);
 
       rightTreeFocus = new VFocus(rightTree);
-      firstSiblingFocus = rightTreeFocus.down();
-      lastSiblingFocus = firstSiblingFocus.right().right();
+      leftmostSiblingFocus = rightTreeFocus.down();
+      rightmostSiblingFocus = leftmostSiblingFocus.right().right();
     });
 
 
-    it('always focuses the rightmost node', function() {
-      expect(firstSiblingFocus.rightmost().vNode).to.equal(lastSiblingFocus.vNode);
-      expect(lastSiblingFocus.rightmost().vNode).to.equal(lastSiblingFocus.vNode);
+    it('focuses the rightmost node when focusing on a sibling', function() {
+      expect(leftmostSiblingFocus.rightmost().vNode).to.equal(rightmostSiblingFocus.vNode);
+    });
+
+    it('focuses the rightmost node when already focusing on the rightmost node', function() {
+      expect(rightmostSiblingFocus.rightmost().vNode).to.equal(rightmostSiblingFocus.vNode);
     });
 
   });
