@@ -94,7 +94,7 @@ describe('VFocus - Movements', function() {
 
   });
 
-  describe.only('rightmost()', function() {
+  describe('rightmost()', function() {
 
     var rightTreeFocus, leftmostSiblingFocus, rightmostSiblingFocus;
     beforeEach(function() {
