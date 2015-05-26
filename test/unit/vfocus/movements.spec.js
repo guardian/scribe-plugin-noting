@@ -94,6 +94,35 @@ describe('VFocus - Movements', function() {
 
   });
 
+  describe('rightmost()', function() {
+
+    var rightTreeFocus, leftmostSiblingFocus, rightmostSiblingFocus;
+    beforeEach(function() {
+      var leftmostSibling = h('p#first');
+      var rightmostSibling = h('p#last');
+
+      var rightTree = h('div', [
+        leftmostSibling,
+        h('p#middle'),
+        rightmostSibling
+      ]);
+
+      rightTreeFocus = new VFocus(rightTree);
+      leftmostSiblingFocus = rightTreeFocus.down();
+      rightmostSiblingFocus = leftmostSiblingFocus.right().right();
+    });
+
+
+    it('focuses the rightmost node when focusing on a sibling', function() {
+      expect(leftmostSiblingFocus.rightmost().vNode).to.equal(rightmostSiblingFocus.vNode);
+    });
+
+    it('focuses the rightmost node when already focusing on the rightmost node', function() {
+      expect(rightmostSiblingFocus.rightmost().vNode).to.equal(rightmostSiblingFocus.vNode);
+    });
+
+  });
+
 
   describe('left()', function() {
 
@@ -101,7 +130,7 @@ describe('VFocus - Movements', function() {
     beforeEach(function() {
       leftTree = h('div', [
         h('p#first'),
-        h('p#last') 
+        h('p#last')
       ]);
 
       firstParagraph = leftTree.children[0];
@@ -135,7 +164,7 @@ describe('VFocus - Movements', function() {
         ]),
         h('p#4')
     ]);
-    
+
     firstNode = nextTree.children[0];
     secondNode = firstNode.children[0];
     thirdNode = firstNode.children[1];
@@ -159,40 +188,40 @@ describe('VFocus - Movements', function() {
    });
  });
 
+
   describe('prev()', function() {
 
-    var prevTreeFocus, prevTree, firstNode, secondNode, thirdNode, fourthNode;
+    var prevTreeFocus;
     beforeEach(function() {
-      prevTree = h(
-        'div', [
-          h('p#4', [
-            h('b#3'),
-            h('i#2')
+      var prevTree = h(
+        'div#sixth', [
+          h('p#fifth', [
+            h('gu-note#fourth', [
+              new VText('third')
+            ]),
+            new VText('second')
           ]),
-          h('p#1')
+          h('p#first', [
+            h('gu-note#start', [
+              new VText('Some noted text')
+            ]),
+            new VText('Some more text here')
+          ])
       ]);
-          
-      firstNode = prevTree.children[1];
-      fourthNode = prevTree.children[0];
-      secondNode = fourthNode.children[1];
-      thirdNode = fourthNode.children[0];
 
       prevTreeFocus = new VFocus(prevTree);
     });
 
-    it('focuses prev nodes in the right order', function() {
-      // go to the last element of the three
-      var firstPrevFocus = prevTreeFocus.next().next().next().next();
-      expect(firstPrevFocus.vNode).to.equal(firstNode);
+    it('focuses previous nodes in the right order', function() {
+      var startFocus = prevTreeFocus.find(f => f.vNode.properties && f.vNode.properties.id === 'start');
+      var steps = startFocus.takeWhile(f => f, 'prev');
 
-      var secondPrevFocus = firstPrevFocus.prev();
-      expect(secondPrevFocus.vNode).to.equal(secondNode);
-
-      var thirdPrevFocus = secondPrevFocus.prev();
-      expect(thirdPrevFocus.vNode).to.equal(thirdNode);
-
-      var fourthPrevFocus = thirdPrevFocus.prev();
-      expect(fourthPrevFocus.vNode).to.equal(fourthNode);
+      expect(steps[1].vNode.properties.id).to.equal('first');
+      expect(steps[2].vNode.text).to.equal('second');
+      expect(steps[3].vNode.text).to.equal('third');
+      expect(steps[4].vNode.properties.id).to.equal('fourth');
+      expect(steps[5].vNode.properties.id).to.equal('fifth');
+      expect(steps[6].vNode.properties.id).to.equal('sixth');
     });
   });
 
