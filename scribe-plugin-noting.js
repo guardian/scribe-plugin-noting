@@ -5400,40 +5400,15 @@ VFocus.prototype.next = function () {
 
 // Focus previous (pre-order)
 VFocus.prototype.prev = function () {
-  function downFurthestRight(_x) {
-    var _again = true;
-
-    _function: while (_again) {
-      var furthestRight = function furthestRight(vFocus) {
-        var focus = vFocus;
-        while (focus.canRight()) {
-          focus = focus.right();
-        }
-        return focus;
-      };
-
-      _again = false;
-      var vFocus = _x;
-      if (vFocus.canDown()) {
-        _x = vFocus.down();
-        _again = true;
-        continue _function;
-      } else {
-        return furthestRight(vFocus);
-      }
+  function downRightmostLoop(focus) {
+    var f = focus;
+    while (f && f.canDown()) {
+      f = f.down().rightmost();
     }
+    return f;
   }
 
-  var focus;
-  if (this.left() && this.left().down()) {
-    focus = downFurthestRight(this.left());
-  } else if (this.left()) {
-    focus = this.left();
-  } else {
-    focus = this.up();
-  }
-
-  return focus;
+  return downRightmostLoop(this.left()) || this.left() || this.up();
 };
 
 // Focus first child
@@ -5455,6 +5430,13 @@ VFocus.prototype.right = function () {
   if (!this.canRight()) return null;
 
   return new VFocus(this.rightVNode(), this.parent);
+};
+
+VFocus.prototype.rightmost = function () {
+  var siblingVNodes = this.up().vNode.children;
+  var lastSiblingVNode = siblingVNodes[siblingVNodes.length - 1];
+
+  return new VFocus(lastSiblingVNode, this.parent);
 };
 
 // Focus node to the left (on the same level)
