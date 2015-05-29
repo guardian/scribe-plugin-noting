@@ -2,17 +2,17 @@ var _ = require('lodash');
 var toggleClass = require('../vdom/toggle-class');
 var addClass = require('../vdom/add-class');
 var removeClass = require('../vdom/remove-class');
-var collapseState = require('../../utils/collapse-state');
 var errorHandle = require('../../utils/error-handle');
+var hasClass = require('../../utils/vdom/has-class');
+var isVFocus = require('../../utils/vfocus/is-vfocus');
 
 module.exports = function toggleNoteClasses(notes, className) {
-
-  if (!notes || !className) {
-    errorHandle('Only a valid VFocus can be passed to toggleNoteClasses, you passed: %s', focus);
-  }
-
   notes = _.isArray(notes) ? notes : [notes];
   notes = _.flatten(notes);
+
+  if (notes.some(focus => !isVFocus(focus)) || !className) {
+    errorHandle('Only a valid VFocus(es) can be passed to toggleNoteClasses, you passed: %s', notes);
+  }
 
   var action;
   if (notes.length === 1) {
@@ -21,7 +21,7 @@ module.exports = function toggleNoteClasses(notes, className) {
     action = toggleClass;
   } else {
     //if we have more than one note then we want them all to share state
-    var state = collapseState.get();
+    var state = notes.every(noteSegment => hasClass(noteSegment.vNode, className));
     state ? action = removeClass : action = addClass;
   }
 
