@@ -186,6 +186,7 @@ module.exports = function(scribe){
     //toggleSelectedNotesCollapseState will collapse or expand all (or a selected) note
     toggleSelectedNotesCollapseState(tagName) {
       mutateScribe(scribe, (focus)=> toggleSelectedNoteCollapseState(focus, tagName));
+      this.clearSelection();
     }
 
     // This command is a bit special in the sense that it will operate on all

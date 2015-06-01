@@ -30,11 +30,7 @@ module.exports = function removeEmptyNotes(focus, tagName = config.get('defaultT
       return;
     }
 
-    //assume we have only empty child elements
-    //if one is not change the state of the check
-    var childrenAreEmpty = noteSequence.reduce((check, childFocus)=> {
-      return !isEmpty(childFocus) ? false : true;
-    }, true);
+    var childrenAreEmpty = noteSequence.every(isEmpty);
 
     //if a note is totally empty remove it
     if (childrenAreEmpty) noteParent.remove();

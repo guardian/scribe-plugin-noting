@@ -13,7 +13,7 @@ var flattenTree = require(path.resolve(process.cwd(), 'src/utils/vfocus/flatten-
 
 describe('removeEmptyNotes()', function() {
 
-  it('should do nothing is a tree contains no notes', function() {
+  it('should do nothing if a tree contains no notes', function() {
     var div = new VFocus(h('div'));
     removeEmptyNotes(div);
     expect(div).to.equal(div);
@@ -35,13 +35,13 @@ describe('removeEmptyNotes()', function() {
 
   });
 
-  it('should leave notes with children', function() {
+  it('should leave notes where some child is non-empty', function() {
     var tree = h('div', [
       h('gu-note'),
       h('gu-note', [
         new VText('This is some text'),
         new VText('This is some text'),
-        new VText('This is some text')
+        new VText('')
       ]),
       h('gu-note')
     ])
