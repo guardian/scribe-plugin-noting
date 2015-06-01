@@ -2982,11 +2982,7 @@ module.exports = function removeEmptyNotes(focus) {
       return;
     }
 
-    //assume we have only empty child elements
-    //if one is not change the state of the check
-    var childrenAreEmpty = noteSequence.reduce(function (check, childFocus) {
-      return !isEmpty(childFocus) ? false : true;
-    }, true);
+    var childrenAreEmpty = noteSequence.every(isEmpty);
 
     //if a note is totally empty remove it
     if (childrenAreEmpty) noteParent.remove();
@@ -3441,17 +3437,19 @@ var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
 var toggleClass = require("../vdom/toggle-class");
 var addClass = require("../vdom/add-class");
 var removeClass = require("../vdom/remove-class");
-var collapseState = require("../../utils/collapse-state");
 var errorHandle = require("../../utils/error-handle");
+var hasClass = require("../../utils/vdom/has-class");
+var isVFocus = require("../../utils/vfocus/is-vfocus");
 
 module.exports = function toggleNoteClasses(notes, className) {
-
-  if (!notes || !className) {
-    errorHandle("Only a valid VFocus can be passed to toggleNoteClasses, you passed: %s", focus);
-  }
-
   notes = _.isArray(notes) ? notes : [notes];
   notes = _.flatten(notes);
+
+  if (notes.some(function (focus) {
+    return !isVFocus(focus);
+  }) || !className) {
+    errorHandle("Only a valid VFocus(es) can be passed to toggleNoteClasses, you passed: %s", notes);
+  }
 
   var action;
   if (notes.length === 1) {
@@ -3460,7 +3458,9 @@ module.exports = function toggleNoteClasses(notes, className) {
     action = toggleClass;
   } else {
     //if we have more than one note then we want them all to share state
-    var state = collapseState.get();
+    var state = notes.every(function (noteSegment) {
+      return hasClass(noteSegment.vNode, className);
+    });
     state ? action = removeClass : action = addClass;
   }
 
@@ -3470,7 +3470,7 @@ module.exports = function toggleNoteClasses(notes, className) {
   });
 };
 
-},{"../../utils/collapse-state":91,"../../utils/error-handle":95,"../vdom/add-class":84,"../vdom/remove-class":85,"../vdom/toggle-class":86,"./../../../bower_components/lodash/dist/lodash.compat.js":3}],79:[function(require,module,exports){
+},{"../../utils/error-handle":95,"../../utils/vdom/has-class":124,"../../utils/vfocus/is-vfocus":134,"../vdom/add-class":84,"../vdom/remove-class":85,"../vdom/toggle-class":86,"./../../../bower_components/lodash/dist/lodash.compat.js":3}],79:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -3979,6 +3979,7 @@ module.exports = function (scribe) {
           mutateScribe(scribe, function (focus) {
             return toggleSelectedNoteCollapseState(focus, tagName);
           });
+          this.clearSelection();
         }
       },
       toggleAllNotesCollapseState: {
@@ -5098,23 +5099,22 @@ module.exports = function hasAttribute(vNode, attribute, value) {
 };
 
 },{"../error-handle":95,"../to-camel-case":122}],124:[function(require,module,exports){
+// Check if VNode has class
 "use strict";
 
-var _ = require("./../../../bower_components/lodash/dist/lodash.compat.js");
-// Check if VNode has class
-// TODO: Currently not working on nodes with multiple classes (not an
-// issue at the moment).
 module.exports = function hasClass(vNode, value) {
 
   if (!vNode || !vNode.properties || !vNode.properties.className) {
     return false;
   }
 
-  var regEx = new RegExp(value);
-  return regEx.test(vNode.properties.className);
+  var classes = vNode.properties.className.split(" ");
+  return classes.some(function (cl) {
+    return value === cl;
+  });
 };
 
-},{"./../../../bower_components/lodash/dist/lodash.compat.js":3}],125:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 // We incude regular spaces because if we have a note tag that only
 // includes a a regular space, then the browser will also insert a <BR>.
 // If we consider a string containing only a regular space as empty we
