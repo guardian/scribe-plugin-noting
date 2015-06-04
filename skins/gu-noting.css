@@ -9,8 +9,8 @@
     margin 0.15s ease;
   padding: 0;
   margin: 0 2px;
-  width: 14px;
-  height: 1em;
+  width: 8px;
+  height: 1.2em;
   display: inline-block;
   overflow: hidden;
   text-indent: 24px;
@@ -19,7 +19,7 @@
 }
 .note-collapsed:hover {
   margin: 0;
-  width: 18px;
+  width: 10px;
   cursor: pointer;
 }
 gu-note.note {
@@ -78,8 +78,8 @@ gu-note.note--collapsed.note--start {
     margin 0.15s ease;
   padding: 0;
   margin: 0 2px;
-  width: 14px;
-  height: 1em;
+  width: 8px;
+  height: 1.2em;
   display: inline-block;
   overflow: hidden;
   text-indent: 24px;
@@ -88,7 +88,7 @@ gu-note.note--collapsed.note--start {
 }
 gu-note.note--collapsed:hover {
   margin: 0;
-  width: 18px;
+  width: 10px;
   cursor: pointer;
 }
 gu-note.note--start.note--end,
@@ -184,8 +184,8 @@ gu-flag.note--collapsed.note--start {
     margin 0.15s ease;
   padding: 0;
   margin: 0 2px;
-  width: 14px;
-  height: 1em;
+  width: 8px;
+  height: 1.2em;
   display: inline-block;
   overflow: hidden;
   text-indent: 24px;
@@ -194,7 +194,7 @@ gu-flag.note--collapsed.note--start {
 }
 gu-flag.note--collapsed:hover {
   margin: 0;
-  width: 18px;
+  width: 10px;
   cursor: pointer;
 }
 gu-flag.note--start.note--end,
@@ -311,8 +311,8 @@ gu-correct.note--collapsed.note--start {
     margin 0.15s ease;
   padding: 0;
   margin: 0 2px;
-  width: 14px;
-  height: 1em;
+  width: 8px;
+  height: 1.2em;
   display: inline-block;
   overflow: hidden;
   text-indent: 24px;
@@ -321,7 +321,7 @@ gu-correct.note--collapsed.note--start {
 }
 gu-correct.note--collapsed:hover {
   margin: 0;
-  width: 18px;
+  width: 10px;
   cursor: pointer;
 }
 gu-correct.note--start.note--end,
