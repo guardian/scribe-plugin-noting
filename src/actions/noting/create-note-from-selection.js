@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var VText = require('vtree/vtext');
 var config = require('../../config');
 
@@ -37,13 +36,7 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   var wrappedTextNodes = toWrapAndReplace.map(focus => wrapInNote(focus.vNode, noteDataSet, tagName));
 
   // Replace the nodes in the tree with the wrapped versions.
-  toWrapAndReplace
-    .map((f, i) => [toWrapAndReplace[i], wrappedTextNodes[i]]) // zip
-    .forEach(focusAndReplacementVNode => {
-      var focus = focusAndReplacementVNode[0];
-      var replacementVNode = focusAndReplacementVNode[1];
-      focus.replace(replacementVNode);
-  });
+  toWrapAndReplace.forEach((focus, i) => focus.replace(wrappedTextNodes[i]));
 
   // If we end up with an empty note a <BR> tag would be created. We have to do
   // this before we remove the markers.
