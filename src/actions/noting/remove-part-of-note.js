@@ -67,7 +67,7 @@ module.exports = function removePartofNote(focus, tagName = config.get('defaultT
   var wrappedTextNodes = toWrapAndReplace.map(nodeFocus => wrapInNote(nodeFocus, noteData, tagName));
 
   // Replace the nodes in the tree with the wrapped versions.
-  _.zip(focusesToNote, wrappedTextNodes).forEach(node => node[0].replace(node[1]));
+  focusesToNote.forEach((focus, i) => focus.replace(wrappedTextNodes[i]));
 
   // Unwrap previously existing note.
   entireNote.forEach((node)=> unWrapNote(node, tagName));
