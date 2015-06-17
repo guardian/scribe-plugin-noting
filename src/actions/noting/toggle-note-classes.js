@@ -7,7 +7,7 @@ var hasClass = require('../../utils/vdom/has-class');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 
 module.exports = function toggleNoteClasses(notes, className) {
-  notes = _.isArray(notes) ? notes : [notes];
+  notes = Array.isArray(notes) ? notes : [notes];
   notes = _.flatten(notes);
 
   if (notes.some(focus => !isVFocus(focus)) || !className) {

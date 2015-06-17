@@ -9,7 +9,7 @@ var config = require('../../config');
 // toWrap can be a vNode, DOM node or a string. One or an array with several.
 module.exports = function wrapInNote(focus, data, tagName = config.get('defaultTagName')){
 
-  var notes = _.isArray(focus) ? focus : [focus];
+  var notes = Array.isArray(focus) ? focus : [focus];
 
   //data MUST be cloned as this can lead to multiple notes with the same note ID see:
   // https://github.com/guardian/scribe-plugin-noting/issues/45
