@@ -33,7 +33,7 @@ var mutateScribe = notingVDom.mutateScribe;
 emitter.on('command:toggle:all-notes', tag => {
   var state = !!noteCollapseState.get();
   var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
-  scribeInstances = _.toArray(scribeInstances);
+  scribeInstances = Array.toArray(scribeInstances);
   scribeInstances.forEach(instance => {
     mutate(instance, focus => toggleAllNoteCollapseState(focus));
   });
@@ -194,7 +194,7 @@ module.exports = function(scribe){
     toggleAllNotesCollapseState() {
       var state = !!noteCollapseState.get();
       var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
-      scribeInstances = _.toArray(scribeInstances);
+      scribeInstances = Array.toArray(scribeInstances);
       scribeInstances.forEach(instance => {
         mutate(instance, focus => toggleAllNoteCollapseState(focus));
       });
