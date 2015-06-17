@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var addClass = require('../../actions/vdom/add-class');
 var removeClass = require('../../actions/vdom/remove-class');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
@@ -16,7 +15,7 @@ module.exports = function updateStartAndEndClasses(noteSegments, tagName = confi
     return;
   }
 
-  noteSegments = _.isArray(noteSegments) ? noteSegments : [noteSegments];
+  noteSegments = Array.isArray(noteSegments) ? noteSegments : [noteSegments];
 
   var uuid = generateUUID();
 
