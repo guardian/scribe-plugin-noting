@@ -37,10 +37,12 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   var wrappedTextNodes = toWrapAndReplace.map(focus => wrapInNote(focus.vNode, noteDataSet, tagName));
 
   // Replace the nodes in the tree with the wrapped versions.
-  _.zip(toWrapAndReplace, wrappedTextNodes).forEach(focusAndReplacementVNode => {
-    var focus = focusAndReplacementVNode[0];
-    var replacementVNode = focusAndReplacementVNode[1];
-    focus.replace(replacementVNode);
+  toWrapAndReplace
+    .map((f, i) => [toWrapAndReplace[i], wrappedTextNodes[i]]) // zip
+    .forEach(focusAndReplacementVNode => {
+      var focus = focusAndReplacementVNode[0];
+      var replacementVNode = focusAndReplacementVNode[1];
+      focus.replace(replacementVNode);
   });
 
   // If we end up with an empty note a <BR> tag would be created. We have to do
