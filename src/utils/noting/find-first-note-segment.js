@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 var stillWithinNote = require('./still-within-note');
 var isNoteSegment = require('./is-note-segment');
@@ -11,9 +10,7 @@ module.exports = function findFirstNoteSegment(focus, tagName = config.get('defa
     errorHandle('Only a valid VFocus can be passed to findFirstNoteSegment, you passed: %s', focus);
   }
 
-  return _.last(
-    focus.takeWhile((node)=> stillWithinNote(node, tagName), 'prev').filter((node)=> isNoteSegment(node, tagName))
-  );
-
-
+  return focus.takeWhile((node) => stillWithinNote(node, tagName), 'prev')
+              .filter((node) => isNoteSegment(node, tagName))
+              .pop();
 };
