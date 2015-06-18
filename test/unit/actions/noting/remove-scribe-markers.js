@@ -1,5 +1,4 @@
 var path = require('path');
-var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 
@@ -33,8 +32,8 @@ describe('removeScribeMarkers()', function() {
     removeScribemarkers(tree);
     tree = flattenTree(tree);
 
-    expect(_.contains(tree, marker1)).to.be.false;
-    expect(_.contains(tree, marker2)).to.be.false;
+    expect(tree.indexOf, marker1)).to.be(-1);
+    expect(tree.indexOf, marker2)).to.not.be(-1);
 
   });
 

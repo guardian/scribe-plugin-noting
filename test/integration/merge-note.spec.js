@@ -1,7 +1,6 @@
 var chai = require('chai');
 var webdriver = require('selenium-webdriver');
 var helpers = require('scribe-test-harness/helpers');
-var _ = require('lodash');
 
 var expect = chai.expect;
 
@@ -61,7 +60,12 @@ describe('Merging Scribe Notes', function() {
           it('wraps the text in a note', function() {
             scribeNode.sendKeys(webdriver.Key.DELETE);
               scribeNode.getInnerHTML().then(function(innerHTML) {
-                var hasSameIds = _.uniq(innerHTML.match(/data-note-id="(.*?)"/g)).length === 1;
+                var noteIds = innerHTML.match(/data-note-id="(.*?)"/g);
+                var uniqueIds = noteIds.filter(function(noteId, i) {
+                    return noteIds.indexOf(noteId) === i;
+                  });
+
+                var hasSameIds = uniqueIds.length === 1;
                 expect(hasSameIds).to.be.true;
               });
           });
