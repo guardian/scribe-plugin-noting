@@ -1,4 +1,6 @@
-var _ = require('lodash');
+var difference = require('lodash.difference');
+var flatten = require('lodash.flatten');
+
 var VText = require('vtree/vtext');
 var config = require('../../config');
 
@@ -50,12 +52,11 @@ module.exports = function removePartofNote(focus, tagName = config.get('defaultT
   var focusesToUnnote = findTextBetweenScribeMarkers(focus);
   var entireNote = findEntireNote(focusesToUnnote[0], tagName);
 
-  var entireNoteTextNodeFocuses = _(entireNote).map(flattenTree)
-  .flatten().value().filter(isVText);
+  var entireNoteTextNodeFocuses = flatten(entireNote.map(flattenTree)).filter(isVText);
 
   var entireNoteTextNodes = entireNoteTextNodeFocuses.map(nodeFocus => nodeFocus.vNode);
   var textNodesToUnote = focusesToUnnote.map(nodeFocus => nodeFocus.vNode);
-  var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnote);
+  var toWrapAndReplace = difference(entireNoteTextNodes, textNodesToUnote);
 
   var focusesToNote = entireNoteTextNodeFocuses.filter(nodeFocus => {
     return (textNodesToUnote.indexOf(nodeFocus.vNode) === -1)

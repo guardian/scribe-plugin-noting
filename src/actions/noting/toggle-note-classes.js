@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var flatten = require('lodash.flatten');
 var toggleClass = require('../vdom/toggle-class');
 var addClass = require('../vdom/add-class');
 var removeClass = require('../vdom/remove-class');
@@ -8,7 +8,7 @@ var isVFocus = require('../../utils/vfocus/is-vfocus');
 
 module.exports = function toggleNoteClasses(notes, className) {
   notes = Array.isArray(notes) ? notes : [notes];
-  notes = _.flatten(notes);
+  notes = flatten(notes);
 
   if (notes.some(focus => !isVFocus(focus)) || !className) {
     errorHandle('Only a valid VFocus(es) can be passed to toggleNoteClasses, you passed: %s', notes);

@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var assign = require('lodash.assign');
 
 //defaults
 var config = {
@@ -38,7 +38,7 @@ module.exports = {
 
     //if you pass an object we override ALL THE THINGS
     if(_.isObject(key)){
-      config = _.extend({}, config, key);
+      config = assign({}, config, key);
     }
 
     //else set a specific key
