@@ -1,4 +1,5 @@
 var assign = require('lodash.assign');
+var isObject = require('lodash.isObject');
 
 //defaults
 var config = {
@@ -37,7 +38,7 @@ module.exports = {
   set: function(key, val){
 
     //if you pass an object we override ALL THE THINGS
-    if(_.isObject(key)){
+    if(isObject(key)){
       config = assign({}, config, key);
     }
 
