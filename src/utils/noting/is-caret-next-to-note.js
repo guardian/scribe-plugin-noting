@@ -3,7 +3,6 @@ var errorHandle = require('../error-handle');
 var config = require('../../config');
 var findScribeMarkers = require('./find-scribe-markers');
 var findPreviousNoteSegment = require('./find-previous-note-segment');
-var isNoteSegment = require('../noting/is-note-segment');
 var isScribeMarker = require('./is-scribe-marker.js');
 
 module.exports = function isCaretNextToNote(focus, direction = 'next', tagName = config.get('defaultTagName')){

@@ -1,5 +1,5 @@
 var VFocus = require('../../vfocus');
-var _ = require('lodash');
+var flatten = require('lodash.flatten');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var errorHandle = require('../../utils/error-handle');
 var config = require('../../config');
@@ -58,7 +58,7 @@ module.exports = function removeCharacterFromAdjacentNote(focus, direction = 'ne
     var textNodes = note.map((noteSegment)=>{
       return noteSegment.children().filter((node)=> isVText(new VFocus(node)));
     });
-    textNodes = _.flatten(textNodes);
+    textNodes = flatten(textNodes);
     textNode = textNodes[textNodes.length -1].text === '\u200B'
       ? textNodes[textNodes.length - 2]
       : textNodes[textNodes.length - 1];

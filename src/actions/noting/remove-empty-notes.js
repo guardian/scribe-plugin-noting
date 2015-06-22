@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var flatten = require('lodash.flatten');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isVText = require('../../utils/vfocus/is-vtext');
 var isEmpty = require('../../utils/vfocus/is-empty');
@@ -16,7 +16,7 @@ module.exports = function removeEmptyNotes(focus, tagName = config.get('defaultT
   }
 
   //return all notes from the given tree
-  var allNoteSegments = _.flatten(findAllNotes(focus, tagName));
+  var allNoteSegments = flatten(findAllNotes(focus, tagName));
 
   var noteSequences = allNoteSegments.map(flattenTree);
 

@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var flatten = require('lodash.flatten');
 var isVFocus = require('../vfocus/is-vfocus');
 var hasNoteId = require('./has-note-id');
 var findAllNotes = require('./find-all-notes');
@@ -19,7 +19,7 @@ module.exports = function findNoteById(focus, noteId, tagName = config.get('defa
   }
 
 
-  var allNoteSegments = _.flatten(findAllNotes(focus, tagName));
+  var allNoteSegments = flatten(findAllNotes(focus, tagName));
   return allNoteSegments.filter((segment)=> hasNoteId(segment.vNode, noteId));
 
 };

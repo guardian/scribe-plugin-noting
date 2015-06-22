@@ -1,5 +1,4 @@
 var path = require('path');
-var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 

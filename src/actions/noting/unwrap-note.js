@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var flatten = require('lodash.flatten');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var isNoteSegment = require('../../utils/noting/is-note-segment');
 var errorHandle = require('../../utils/error-handle');
@@ -21,7 +21,7 @@ module.exports = function unWrapNote(focus, tagName = config.get('defaultTagName
   //remove note and add children
   tree.splice(tree.indexOf(note), 1, note.children);
 
-  focus.parent.vNode.children = _.flatten(tree);
+  focus.parent.vNode.children = flatten(tree);
 
   // We want the note contents to now have their grandparent as parent.
   // The safest way we can ensure this is by changing the VFocus object

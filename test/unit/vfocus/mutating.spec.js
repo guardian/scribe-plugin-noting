@@ -1,5 +1,4 @@
 var path = require('path');
-var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 
@@ -13,7 +12,7 @@ describe('VFocus - Mutations', function() {
   describe('replace()', function() {
 
     var replaceTree, replaceTreeFocus, replaceRootNode, replaceNode;
-    
+
     beforeEach(function() {
       replaceTree = h('div', [
         h('p#1')
@@ -30,7 +29,7 @@ describe('VFocus - Mutations', function() {
 
     it('replaces and focuses the root node', function() {
       replaceTreeFocus.replace(replaceRootNode);
-    
+
       expect(replaceTreeFocus.vNode).to.equal(replaceRootNode);
     });
 

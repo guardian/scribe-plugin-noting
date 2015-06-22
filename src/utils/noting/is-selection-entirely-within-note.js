@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var isVFocus = require('../vfocus/is-vfocus');
 
 var findParentNoteSegment = require('./find-parent-note-segment');
@@ -16,7 +15,7 @@ module.exports = function isSelectionEntirelyWithinNote(markers, tagName = confi
   }
 
   //if we get passed the wrong argument
-  if (!_.isArray(markers)) {
+  if (!Array.isArray(markers)) {
     errorHandle('Only an array of markers or valid VFocus can be passed to isSelectionBetweenMarkers, you passed: %s', focus);
   }
 

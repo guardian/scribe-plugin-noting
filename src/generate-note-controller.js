@@ -1,4 +1,6 @@
-var _ = require('lodash');
+var toArray = require('lodash.toarray');
+var isObject = require('lodash.isobject');
+var throttle = require('lodash.throttle');
 
 var config = require('./config');
 var emitter = require('./utils/emitter');
@@ -33,7 +35,7 @@ var mutateScribe = notingVDom.mutateScribe;
 emitter.on('command:toggle:all-notes', tag => {
   var state = !!noteCollapseState.get();
   var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
-  scribeInstances = _.toArray(scribeInstances);
+  scribeInstances = toArray(scribeInstances);
   scribeInstances.forEach(instance => {
     mutate(instance, focus => toggleAllNoteCollapseState(focus));
   });
@@ -110,10 +112,10 @@ module.exports = function(scribe){
 
         selector.keyCodes.forEach(keyCode => {
           //if we get just a number we check the keyCode
-          if (!_.isObject(keyCode) && e.keyCode === keyCode){
+          if (!isObject(keyCode) && e.keyCode === keyCode){
             e.preventDefault();
             this.note(tagName);
-          } else if(_.isObject(keyCode)){
+          } else if(isObject(keyCode)){
             //in the dynamic case we need to check for BOTH the modifier key AND keycode
             var modifier = Object.keys(keyCode)[0];
             if(e[modifier] && e.keyCode === keyCode[modifier]){
@@ -194,7 +196,7 @@ module.exports = function(scribe){
     toggleAllNotesCollapseState() {
       var state = !!noteCollapseState.get();
       var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
-      scribeInstances = _.toArray(scribeInstances);
+      scribeInstances = toArray(scribeInstances);
       scribeInstances.forEach(instance => {
         mutate(instance, focus => toggleAllNoteCollapseState(focus));
       });
@@ -230,7 +232,7 @@ module.exports = function(scribe){
         }
 
         //check that the selection is within a note
-        var selector = _.find(config.get('selectors'), (selector) => {
+        var selector = config.get('selectors').find(selector => {
           // isSelectionWithinNote rather than isSelectionEntirelyWithinNote
           // since we want to allow all clicks within a note, even if it
           // selects the note and some text to the left or right of the note.
@@ -306,7 +308,7 @@ module.exports = function(scribe){
 
     //validateNotes makes sure all note--start note--end and data attributes are in place
     validateNotes() {
-      _.throttle(()=> {
+      throttle(()=> {
         this.ensureNoteIntegrity();
       }, 1000)();
     }
