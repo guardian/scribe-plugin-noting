@@ -5,6 +5,7 @@
   "dependencies": {
     "lodash.assign": "^3.2.0",
     "lodash.difference": "^3.2.1",
+    "lodash.find": "^3.2.1",
     "lodash.flatten": "^3.0.2",
     "lodash.isobject": "^3.0.2",
     "lodash.throttle": "^3.0.3",

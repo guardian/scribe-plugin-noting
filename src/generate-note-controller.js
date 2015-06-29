@@ -1,6 +1,7 @@
 var toArray = require('lodash.toarray');
 var isObject = require('lodash.isobject');
 var throttle = require('lodash.throttle');
+var find = require('lodash.find');
 
 var config = require('./config');
 var emitter = require('./utils/emitter');
@@ -232,12 +233,12 @@ module.exports = function(scribe){
         }
 
         //check that the selection is within a note
-        var selector = config.get('selectors').find(selector => {
+        var selector = find(config.get('selectors'), (selector => {
           // isSelectionWithinNote rather than isSelectionEntirelyWithinNote
           // since we want to allow all clicks within a note, even if it
           // selects the note and some text to the left or right of the note.
           return isSelectionWithinNote(markers, selector.tagName);
-        });
+        }));
 
         //if the selection is within a note select that note
         if (selector) {
