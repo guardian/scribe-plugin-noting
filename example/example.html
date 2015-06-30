@@ -31,12 +31,11 @@
         // We have to define a path to Scribe otherwise it will load the file
         // but will not pass along the 'scribe' AMD module.
         'lodash-amd': 'bower_components/lodash-amd',
-        'lodash': 'bower_components/lodash/dist/lodash',
-        'immutable': 'bower_components/immutable'
+        'immutable': 'bower_components/immutable/dist/immutable'
       }
     });
 
-    require(['lodash'], function() {
+    require([], function() {
       require(
         ['bower_components/scribe/src/scribe', 'scribe-plugin-toolbar', 'build/scribe-plugin-noting'],
         function(Scribe, scribePluginToolbar, scribePluginNoting) {
