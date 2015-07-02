@@ -1,5 +1,5 @@
 var assign = require('lodash.assign');
-var isObject = require('lodash.isObject');
+var isObject = require('lodash.isobject');
 
 //defaults
 var config = {
