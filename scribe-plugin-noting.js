@@ -1191,7 +1191,7 @@ module.exports = restParam;
 
 },{}],15:[function(require,module,exports){
 /**
- * lodash 3.1.1 (Custom Build) <https://lodash.com/>
+ * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -1215,7 +1215,7 @@ var hasOwnProperty = objectProto.hasOwnProperty;
 var nativeKeys = getNative(Object, 'keys');
 
 /**
- * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
+ * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
  * of an array-like value.
  */
 var MAX_SAFE_INTEGER = 9007199254740991;
@@ -1273,7 +1273,7 @@ function isIndex(value, length) {
 /**
  * Checks if `value` is a valid array-like length.
  *
- * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
+ * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
  *
  * @private
  * @param {*} value The value to check.
@@ -1342,7 +1342,7 @@ function isObject(value) {
  * Creates an array of the own enumerable property names of `object`.
  *
  * **Note:** Non-object values are coerced to objects. See the
- * [ES spec](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.keys)
+ * [ES spec](http://ecma-international.org/ecma-262/6.0/#sec-object.keys)
  * for more details.
  *
  * @static
@@ -1366,7 +1366,7 @@ function isObject(value) {
  * // => ['0', '1']
  */
 var keys = !nativeKeys ? shimKeys : function(object) {
-  var Ctor = object == null ? null : object.constructor;
+  var Ctor = object == null ? undefined : object.constructor;
   if ((typeof Ctor == 'function' && Ctor.prototype === object) ||
       (typeof object != 'function' && isArrayLike(object))) {
     return shimKeys(object);
@@ -1429,7 +1429,7 @@ module.exports = keys;
 
 },{"lodash._getnative":16,"lodash.isarguments":17,"lodash.isarray":18}],16:[function(require,module,exports){
 /**
- * lodash 3.9.0 (Custom Build) <https://lodash.com/>
+ * lodash 3.9.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -1440,31 +1440,8 @@ module.exports = keys;
 /** `Object#toString` result references. */
 var funcTag = '[object Function]';
 
-/**
- * Used to match `RegExp` [special characters](http://www.regular-expressions.info/characters.html#special).
- * In addition to special characters the forward slash is escaped to allow for
- * easier `eval` use and `Function` compilation.
- */
-var reRegExpChars = /[.*+?^${}()|[\]\/\\]/g,
-    reHasRegExpChars = RegExp(reRegExpChars.source);
-
 /** Used to detect host constructors (Safari > 5). */
 var reIsHostCtor = /^\[object .+?Constructor\]$/;
-
-/**
- * Converts `value` to a string if it's not one. An empty string is returned
- * for `null` or `undefined` values.
- *
- * @private
- * @param {*} value The value to process.
- * @returns {string} Returns the string.
- */
-function baseToString(value) {
-  if (typeof value == 'string') {
-    return value;
-  }
-  return value == null ? '' : (value + '');
-}
 
 /**
  * Checks if `value` is object-like.
@@ -1487,14 +1464,14 @@ var fnToString = Function.prototype.toString;
 var hasOwnProperty = objectProto.hasOwnProperty;
 
 /**
- * Used to resolve the [`toStringTag`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.prototype.tostring)
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
  * of values.
  */
 var objToString = objectProto.toString;
 
 /** Used to detect if a method is native. */
 var reIsNative = RegExp('^' +
-  escapeRegExp(fnToString.call(hasOwnProperty))
+  fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
   .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
 );
 
@@ -1509,6 +1486,56 @@ var reIsNative = RegExp('^' +
 function getNative(object, key) {
   var value = object == null ? undefined : object[key];
   return isNative(value) ? value : undefined;
+}
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in older versions of Chrome and Safari which return 'function' for regexes
+  // and Safari 8 equivalents which return 'object' for typed array constructors.
+  return isObject(value) && objToString.call(value) == funcTag;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(1);
+ * // => false
+ */
+function isObject(value) {
+  // Avoid a V8 JIT bug in Chrome 19-20.
+  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
 }
 
 /**
@@ -1531,47 +1558,23 @@ function isNative(value) {
   if (value == null) {
     return false;
   }
-  if (objToString.call(value) == funcTag) {
+  if (isFunction(value)) {
     return reIsNative.test(fnToString.call(value));
   }
   return isObjectLike(value) && reIsHostCtor.test(value);
-}
-
-/**
- * Escapes the `RegExp` special characters "\", "/", "^", "$", ".", "|", "?",
- * "*", "+", "(", ")", "[", "]", "{" and "}" in `string`.
- *
- * @static
- * @memberOf _
- * @category String
- * @param {string} [string=''] The string to escape.
- * @returns {string} Returns the escaped string.
- * @example
- *
- * _.escapeRegExp('[lodash](https://lodash.com/)');
- * // => '\[lodash\]\(https:\/\/lodash\.com\/\)'
- */
-function escapeRegExp(string) {
-  string = baseToString(string);
-  return (string && reHasRegExpChars.test(string))
-    ? string.replace(reRegExpChars, '\\$&')
-    : string;
 }
 
 module.exports = getNative;
 
 },{}],17:[function(require,module,exports){
 /**
- * lodash 3.0.3 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
  * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
  * Available under MIT license <https://lodash.com/license>
  */
-
-/** `Object#toString` result references. */
-var argsTag = '[object Arguments]';
 
 /**
  * Checks if `value` is object-like.
@@ -1587,14 +1590,14 @@ function isObjectLike(value) {
 /** Used for native method references. */
 var objectProto = Object.prototype;
 
-/**
- * Used to resolve the [`toStringTag`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.prototype.tostring)
- * of values.
- */
-var objToString = objectProto.toString;
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/** Native method references. */
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
 
 /**
- * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
+ * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
  * of an array-like value.
  */
 var MAX_SAFE_INTEGER = 9007199254740991;
@@ -1638,7 +1641,7 @@ function isArrayLike(value) {
 /**
  * Checks if `value` is a valid array-like length.
  *
- * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
+ * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
  *
  * @private
  * @param {*} value The value to check.
@@ -1665,14 +1668,15 @@ function isLength(value) {
  * // => false
  */
 function isArguments(value) {
-  return isObjectLike(value) && isArrayLike(value) && objToString.call(value) == argsTag;
+  return isObjectLike(value) && isArrayLike(value) &&
+    hasOwnProperty.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee');
 }
 
 module.exports = isArguments;
 
 },{}],18:[function(require,module,exports){
 /**
- * lodash 3.0.3 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -1684,31 +1688,8 @@ module.exports = isArguments;
 var arrayTag = '[object Array]',
     funcTag = '[object Function]';
 
-/**
- * Used to match `RegExp` [special characters](http://www.regular-expressions.info/characters.html#special).
- * In addition to special characters the forward slash is escaped to allow for
- * easier `eval` use and `Function` compilation.
- */
-var reRegExpChars = /[.*+?^${}()|[\]\/\\]/g,
-    reHasRegExpChars = RegExp(reRegExpChars.source);
-
 /** Used to detect host constructors (Safari > 5). */
 var reIsHostCtor = /^\[object .+?Constructor\]$/;
-
-/**
- * Converts `value` to a string if it's not one. An empty string is returned
- * for `null` or `undefined` values.
- *
- * @private
- * @param {*} value The value to process.
- * @returns {string} Returns the string.
- */
-function baseToString(value) {
-  if (typeof value == 'string') {
-    return value;
-  }
-  return value == null ? '' : (value + '');
-}
 
 /**
  * Checks if `value` is object-like.
@@ -1731,14 +1712,14 @@ var fnToString = Function.prototype.toString;
 var hasOwnProperty = objectProto.hasOwnProperty;
 
 /**
- * Used to resolve the [`toStringTag`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.prototype.tostring)
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
  * of values.
  */
 var objToString = objectProto.toString;
 
 /** Used to detect if a method is native. */
 var reIsNative = RegExp('^' +
-  escapeRegExp(fnToString.call(hasOwnProperty))
+  fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
   .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
 );
 
@@ -1746,7 +1727,7 @@ var reIsNative = RegExp('^' +
 var nativeIsArray = getNative(Array, 'isArray');
 
 /**
- * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
+ * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
  * of an array-like value.
  */
 var MAX_SAFE_INTEGER = 9007199254740991;
@@ -1767,7 +1748,7 @@ function getNative(object, key) {
 /**
  * Checks if `value` is a valid array-like length.
  *
- * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
+ * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
  *
  * @private
  * @param {*} value The value to check.
@@ -1798,6 +1779,56 @@ var isArray = nativeIsArray || function(value) {
 };
 
 /**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in older versions of Chrome and Safari which return 'function' for regexes
+  // and Safari 8 equivalents which return 'object' for typed array constructors.
+  return isObject(value) && objToString.call(value) == funcTag;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(1);
+ * // => false
+ */
+function isObject(value) {
+  // Avoid a V8 JIT bug in Chrome 19-20.
+  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
  * Checks if `value` is a native function.
  *
  * @static
@@ -1817,38 +1848,17 @@ function isNative(value) {
   if (value == null) {
     return false;
   }
-  if (objToString.call(value) == funcTag) {
+  if (isFunction(value)) {
     return reIsNative.test(fnToString.call(value));
   }
   return isObjectLike(value) && reIsHostCtor.test(value);
-}
-
-/**
- * Escapes the `RegExp` special characters "\", "/", "^", "$", ".", "|", "?",
- * "*", "+", "(", ")", "[", "]", "{" and "}" in `string`.
- *
- * @static
- * @memberOf _
- * @category String
- * @param {string} [string=''] The string to escape.
- * @returns {string} Returns the escaped string.
- * @example
- *
- * _.escapeRegExp('[lodash](https://lodash.com/)');
- * // => '\[lodash\]\(https:\/\/lodash\.com\/\)'
- */
-function escapeRegExp(string) {
-  string = baseToString(string);
-  return (string && reHasRegExpChars.test(string))
-    ? string.replace(reRegExpChars, '\\$&')
-    : string;
 }
 
 module.exports = isArray;
 
 },{}],19:[function(require,module,exports){
 /**
- * lodash 3.2.1 (Custom Build) <https://lodash.com/>
+ * lodash 3.2.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -1860,7 +1870,18 @@ var baseDifference = require('lodash._basedifference'),
     restParam = require('lodash.restparam');
 
 /**
- * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
+ * Checks if `value` is object-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
  * of an array-like value.
  */
 var MAX_SAFE_INTEGER = 9007199254740991;
@@ -1904,7 +1925,7 @@ function isArrayLike(value) {
 /**
  * Checks if `value` is a valid array-like length.
  *
- * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
+ * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
  *
  * @private
  * @param {*} value The value to check.
@@ -1915,8 +1936,8 @@ function isLength(value) {
 }
 
 /**
- * Creates an array excluding all values of the provided arrays using
- * [`SameValueZero`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero)
+ * Creates an array of unique `array` values not included in the other
+ * provided arrays using [`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero)
  * for equality comparisons.
  *
  * @static
@@ -1931,7 +1952,7 @@ function isLength(value) {
  * // => [1, 3]
  */
 var difference = restParam(function(array, values) {
-  return isArrayLike(array)
+  return (isObjectLike(array) && isArrayLike(array))
     ? baseDifference(array, baseFlatten(values, false, true))
     : [];
 });
@@ -1940,16 +1961,19 @@ module.exports = difference;
 
 },{"lodash._basedifference":20,"lodash._baseflatten":25,"lodash.restparam":28}],20:[function(require,module,exports){
 /**
- * lodash 3.0.2 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.3 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
- * Based on Underscore.js 1.8.2 <http://underscorejs.org/LICENSE>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
  * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
  * Available under MIT license <https://lodash.com/license>
  */
 var baseIndexOf = require('lodash._baseindexof'),
     cacheIndexOf = require('lodash._cacheindexof'),
     createCache = require('lodash._createcache');
+
+/** Used as the size to enable large array optimizations. */
+var LARGE_ARRAY_SIZE = 200;
 
 /**
  * The base implementation of `_.difference` which accepts a single array
@@ -1970,7 +1994,7 @@ function baseDifference(array, values) {
   var index = -1,
       indexOf = baseIndexOf,
       isCommon = true,
-      cache = (isCommon && values.length >= 200) ? createCache(values) : null,
+      cache = (isCommon && values.length >= LARGE_ARRAY_SIZE) ? createCache(values) : null,
       valuesLength = values.length;
 
   if (cache) {
@@ -2117,7 +2141,7 @@ module.exports = cacheIndexOf;
 },{}],23:[function(require,module,exports){
 (function (global){
 /**
- * lodash 3.1.1 (Custom Build) <https://lodash.com/>
+ * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -2172,9 +2196,9 @@ function cachePush(value) {
  * @param {Array} [values] The values to cache.
  * @returns {null|Object} Returns the new cache object if `Set` is supported, else `null`.
  */
-var createCache = !(nativeCreate && Set) ? constant(null) : function(values) {
-  return new SetCache(values);
-};
+function createCache(values) {
+  return (nativeCreate && Set) ? new SetCache(values) : null;
+}
 
 /**
  * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
@@ -2203,28 +2227,6 @@ function isObject(value) {
   return !!value && (type == 'object' || type == 'function');
 }
 
-/**
- * Creates a function that returns `value`.
- *
- * @static
- * @memberOf _
- * @category Utility
- * @param {*} value The value to return from the new function.
- * @returns {Function} Returns the new function.
- * @example
- *
- * var object = { 'user': 'fred' };
- * var getter = _.constant(object);
- *
- * getter() === object;
- * // => true
- */
-function constant(value) {
-  return function() {
-    return value;
-  };
-}
-
 // Add functions to the `Set` cache.
 SetCache.prototype.push = cachePush;
 
@@ -2235,7 +2237,7 @@ module.exports = createCache;
 module.exports=require(16)
 },{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],25:[function(require,module,exports){
 /**
- * lodash 3.1.3 (Custom Build) <https://lodash.com/>
+ * lodash 3.1.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -2257,10 +2259,29 @@ function isObjectLike(value) {
 }
 
 /**
- * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
+ * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
  * of an array-like value.
  */
 var MAX_SAFE_INTEGER = 9007199254740991;
+
+/**
+ * Appends the elements of `values` to `array`.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {Array} values The values to append.
+ * @returns {Array} Returns `array`.
+ */
+function arrayPush(array, values) {
+  var index = -1,
+      length = values.length,
+      offset = array.length;
+
+  while (++index < length) {
+    array[offset + index] = values[index];
+  }
+  return array;
+}
 
 /**
  * The base implementation of `_.flatten` with added support for restricting
@@ -2270,13 +2291,14 @@ var MAX_SAFE_INTEGER = 9007199254740991;
  * @param {Array} array The array to flatten.
  * @param {boolean} [isDeep] Specify a deep flatten.
  * @param {boolean} [isStrict] Restrict flattening to arrays-like objects.
+ * @param {Array} [result=[]] The initial result value.
  * @returns {Array} Returns the new flattened array.
  */
-function baseFlatten(array, isDeep, isStrict) {
+function baseFlatten(array, isDeep, isStrict, result) {
+  result || (result = []);
+
   var index = -1,
-      length = array.length,
-      resIndex = -1,
-      result = [];
+      length = array.length;
 
   while (++index < length) {
     var value = array[index];
@@ -2284,16 +2306,12 @@ function baseFlatten(array, isDeep, isStrict) {
         (isStrict || isArray(value) || isArguments(value))) {
       if (isDeep) {
         // Recursively flatten arrays (susceptible to call stack limits).
-        value = baseFlatten(value, isDeep, isStrict);
-      }
-      var valIndex = -1,
-          valLength = value.length;
-
-      while (++valIndex < valLength) {
-        result[++resIndex] = value[valIndex];
+        baseFlatten(value, isDeep, isStrict, result);
+      } else {
+        arrayPush(result, value);
       }
     } else if (!isStrict) {
-      result[++resIndex] = value;
+      result[result.length] = value;
     }
   }
   return result;
@@ -2338,7 +2356,7 @@ function isArrayLike(value) {
 /**
  * Checks if `value` is a valid array-like length.
  *
- * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
+ * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
  *
  * @private
  * @param {*} value The value to check.
@@ -2446,7 +2464,7 @@ module.exports = find;
 
 },{"lodash._basecallback":30,"lodash._baseeach":35,"lodash._basefind":36,"lodash._basefindindex":37,"lodash.isarray":38}],30:[function(require,module,exports){
 /**
- * lodash 3.3.0 (Custom Build) <https://lodash.com/>
+ * lodash 3.3.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -2475,9 +2493,6 @@ var reEscapeChar = /\\(\\)?/g;
  * @returns {string} Returns the string.
  */
 function baseToString(value) {
-  if (typeof value == 'string') {
-    return value;
-  }
   return value == null ? '' : (value + '');
 }
 
@@ -2609,8 +2624,7 @@ function baseMatches(source) {
 }
 
 /**
- * The base implementation of `_.matchesProperty` which does not which does
- * not clone `value`.
+ * The base implementation of `_.matchesProperty` which does not clone `srcValue`.
  *
  * @private
  * @param {string} path The path of the property to get.
@@ -2845,7 +2859,7 @@ function identity(value) {
 }
 
 /**
- * Creates a function which returns the property value at `path` on a
+ * Creates a function that returns the property value at `path` on a
  * given object.
  *
  * @static
@@ -3761,10 +3775,8 @@ function isObject(value) {
 module.exports = isObject;
 
 },{}],48:[function(require,module,exports){
-module.exports=require(47)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.isObject/index.js":47}],49:[function(require,module,exports){
 /**
- * lodash 3.0.3 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -3775,13 +3787,6 @@ var debounce = require('lodash.debounce');
 
 /** Used as the `TypeError` message for "Functions" methods. */
 var FUNC_ERROR_TEXT = 'Expected a function';
-
-/** Used as an internal `_.debounce` options object by `_.throttle`. */
-var debounceOptions = {
-  'leading': false,
-  'maxWait': 0,
-  'trailing': false
-};
 
 /**
  * Creates a throttled function that only invokes `func` at most once per
@@ -3835,10 +3840,7 @@ function throttle(func, wait, options) {
     leading = 'leading' in options ? !!options.leading : leading;
     trailing = 'trailing' in options ? !!options.trailing : trailing;
   }
-  debounceOptions.leading = leading;
-  debounceOptions.maxWait = +wait;
-  debounceOptions.trailing = trailing;
-  return debounce(func, wait, debounceOptions);
+  return debounce(func, wait, { 'leading': leading, 'maxWait': +wait, 'trailing': trailing });
 }
 
 /**
@@ -3870,9 +3872,9 @@ function isObject(value) {
 
 module.exports = throttle;
 
-},{"lodash.debounce":50}],50:[function(require,module,exports){
+},{"lodash.debounce":49}],49:[function(require,module,exports){
 /**
- * lodash 3.1.0 (Custom Build) <https://lodash.com/>
+ * lodash 3.1.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -3989,9 +3991,9 @@ function debounce(func, wait, options) {
     var leading = true;
     trailing = false;
   } else if (isObject(options)) {
-    leading = options.leading;
+    leading = !!options.leading;
     maxWait = 'maxWait' in options && nativeMax(+options.maxWait || 0, wait);
-    trailing = 'trailing' in options ? options.trailing : trailing;
+    trailing = 'trailing' in options ? !!options.trailing : trailing;
   }
 
   function cancel() {
@@ -4001,41 +4003,35 @@ function debounce(func, wait, options) {
     if (maxTimeoutId) {
       clearTimeout(maxTimeoutId);
     }
+    lastCalled = 0;
     maxTimeoutId = timeoutId = trailingCall = undefined;
+  }
+
+  function complete(isCalled, id) {
+    if (id) {
+      clearTimeout(id);
+    }
+    maxTimeoutId = timeoutId = trailingCall = undefined;
+    if (isCalled) {
+      lastCalled = now();
+      result = func.apply(thisArg, args);
+      if (!timeoutId && !maxTimeoutId) {
+        args = thisArg = undefined;
+      }
+    }
   }
 
   function delayed() {
     var remaining = wait - (now() - stamp);
     if (remaining <= 0 || remaining > wait) {
-      if (maxTimeoutId) {
-        clearTimeout(maxTimeoutId);
-      }
-      var isCalled = trailingCall;
-      maxTimeoutId = timeoutId = trailingCall = undefined;
-      if (isCalled) {
-        lastCalled = now();
-        result = func.apply(thisArg, args);
-        if (!timeoutId && !maxTimeoutId) {
-          args = thisArg = null;
-        }
-      }
+      complete(trailingCall, maxTimeoutId);
     } else {
       timeoutId = setTimeout(delayed, remaining);
     }
   }
 
   function maxDelayed() {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    maxTimeoutId = timeoutId = trailingCall = undefined;
-    if (trailing || (maxWait !== wait)) {
-      lastCalled = now();
-      result = func.apply(thisArg, args);
-      if (!timeoutId && !maxTimeoutId) {
-        args = thisArg = null;
-      }
-    }
+    complete(trailing, timeoutId);
   }
 
   function debounced() {
@@ -4075,7 +4071,7 @@ function debounce(func, wait, options) {
       result = func.apply(thisArg, args);
     }
     if (isCalled && !timeoutId && !maxTimeoutId) {
-      args = thisArg = null;
+      args = thisArg = undefined;
     }
     return result;
   }
@@ -4112,9 +4108,9 @@ function isObject(value) {
 
 module.exports = debounce;
 
-},{"lodash._getnative":51}],51:[function(require,module,exports){
+},{"lodash._getnative":50}],50:[function(require,module,exports){
 module.exports=require(16)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],52:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],51:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -4228,7 +4224,7 @@ function values(object) {
 
 module.exports = toArray;
 
-},{"lodash._arraycopy":53,"lodash._basevalues":54,"lodash.keys":55}],53:[function(require,module,exports){
+},{"lodash._arraycopy":52,"lodash._basevalues":53,"lodash.keys":54}],52:[function(require,module,exports){
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -4259,7 +4255,7 @@ function arrayCopy(source, array) {
 
 module.exports = arrayCopy;
 
-},{}],54:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -4292,15 +4288,15 @@ function baseValues(object, props) {
 
 module.exports = baseValues;
 
-},{}],55:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 module.exports=require(15)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/index.js":15,"lodash._getnative":56,"lodash.isarguments":57,"lodash.isarray":58}],56:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/index.js":15,"lodash._getnative":55,"lodash.isarguments":56,"lodash.isarray":57}],55:[function(require,module,exports){
 module.exports=require(16)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],57:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],56:[function(require,module,exports){
 module.exports=require(17)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":17}],58:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":17}],57:[function(require,module,exports){
 module.exports=require(18)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarray/index.js":18}],59:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarray/index.js":18}],58:[function(require,module,exports){
 /*!
 * vdom-virtualize
 * Copyright 2014 by Marcel Klehr <mklehr@gmx.net>
@@ -4560,7 +4556,7 @@ module.exports.attrs = [
 ,"y"
 ]
 
-},{"vtree/vnode":64,"vtree/vtext":65}],60:[function(require,module,exports){
+},{"vtree/vnode":63,"vtree/vtext":64}],59:[function(require,module,exports){
 module.exports = isHook
 
 function isHook(hook) {
@@ -4568,7 +4564,7 @@ function isHook(hook) {
         !hook.hasOwnProperty("hook")
 }
 
-},{}],61:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualNode
@@ -4577,17 +4573,17 @@ function isVirtualNode(x) {
     return x && x.type === "VirtualNode" && x.version === version
 }
 
-},{"./version":63}],62:[function(require,module,exports){
+},{"./version":62}],61:[function(require,module,exports){
 module.exports = isWidget
 
 function isWidget(w) {
     return w && w.type === "Widget"
 }
 
-},{}],63:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 module.exports = "1"
 
-},{}],64:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 var version = require("./version")
 var isVNode = require("./is-vnode")
 var isWidget = require("./is-widget")
@@ -4652,7 +4648,7 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 VirtualNode.prototype.version = version
 VirtualNode.prototype.type = "VirtualNode"
 
-},{"./is-vhook":60,"./is-vnode":61,"./is-widget":62,"./version":63}],65:[function(require,module,exports){
+},{"./is-vhook":59,"./is-vnode":60,"./is-widget":61,"./version":62}],64:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = VirtualText
@@ -4664,19 +4660,19 @@ function VirtualText(text) {
 VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
-},{"./version":63}],66:[function(require,module,exports){
+},{"./version":62}],65:[function(require,module,exports){
 var diff = require("vtree/diff")
 
 module.exports = diff
 
-},{"vtree/diff":99}],67:[function(require,module,exports){
+},{"vtree/diff":98}],66:[function(require,module,exports){
 module.exports = isObject
 
 function isObject(x) {
     return typeof x === "object" && x !== null
 }
 
-},{}],68:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("vtree/is-vhook")
 
@@ -4770,7 +4766,7 @@ function getPrototype(value) {
     }
 }
 
-},{"is-object":67,"vtree/is-vhook":102}],69:[function(require,module,exports){
+},{"is-object":66,"vtree/is-vhook":101}],68:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -4818,7 +4814,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"./apply-properties":68,"global/document":71,"vtree/handle-thunk":100,"vtree/is-vnode":103,"vtree/is-vtext":104,"vtree/is-widget":105}],70:[function(require,module,exports){
+},{"./apply-properties":67,"global/document":70,"vtree/handle-thunk":99,"vtree/is-vnode":102,"vtree/is-vtext":103,"vtree/is-widget":104}],69:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -4905,7 +4901,7 @@ function ascending(a, b) {
     return a > b ? 1 : -1
 }
 
-},{}],71:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -4924,7 +4920,7 @@ if (typeof document !== 'undefined') {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"min-document":3}],72:[function(require,module,exports){
+},{"min-document":3}],71:[function(require,module,exports){
 var applyProperties = require("./apply-properties")
 
 var isWidget = require("vtree/is-widget")
@@ -5094,7 +5090,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"./apply-properties":68,"./create-element":69,"./update-widget":74,"vtree/is-widget":105,"vtree/vpatch":109}],73:[function(require,module,exports){
+},{"./apply-properties":67,"./create-element":68,"./update-widget":73,"vtree/is-widget":104,"vtree/vpatch":108}],72:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -5172,7 +5168,7 @@ function patchIndices(patches) {
     return indices
 }
 
-},{"./dom-index":70,"./patch-op":72,"global/document":71,"x-is-array":75}],74:[function(require,module,exports){
+},{"./dom-index":69,"./patch-op":71,"global/document":70,"x-is-array":74}],73:[function(require,module,exports){
 var isWidget = require("vtree/is-widget")
 
 module.exports = updateWidget
@@ -5189,7 +5185,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"vtree/is-widget":105}],75:[function(require,module,exports){
+},{"vtree/is-widget":104}],74:[function(require,module,exports){
 var nativeIsArray = Array.isArray
 var toString = Object.prototype.toString
 
@@ -5199,12 +5195,12 @@ function isArray(obj) {
     return toString.call(obj) === "[object Array]"
 }
 
-},{}],76:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 var patch = require("vdom/patch")
 
 module.exports = patch
 
-},{"vdom/patch":73}],77:[function(require,module,exports){
+},{"vdom/patch":72}],76:[function(require,module,exports){
 var DataSet = require("data-set")
 
 module.exports = DataSetHook;
@@ -5224,7 +5220,7 @@ DataSetHook.prototype.hook = function (node, propertyName) {
     ds[propName] = this.value;
 };
 
-},{"data-set":82}],78:[function(require,module,exports){
+},{"data-set":81}],77:[function(require,module,exports){
 var DataSet = require("data-set")
 
 module.exports = DataSetHook;
@@ -5244,7 +5240,7 @@ DataSetHook.prototype.hook = function (node, propertyName) {
     ds[propName] = this.value;
 };
 
-},{"data-set":82}],79:[function(require,module,exports){
+},{"data-set":81}],78:[function(require,module,exports){
 module.exports = SoftSetHook;
 
 function SoftSetHook(value) {
@@ -5261,7 +5257,7 @@ SoftSetHook.prototype.hook = function (node, propertyName) {
     }
 };
 
-},{}],80:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 var VNode = require("vtree/vnode.js")
 var VText = require("vtree/vtext.js")
 var isVNode = require("vtree/is-vnode")
@@ -5389,7 +5385,7 @@ function isChildren(x) {
     return typeof x === "string" || Array.isArray(x) || isChild(x)
 }
 
-},{"./hooks/data-set-hook.js":77,"./hooks/ev-hook.js":78,"./hooks/soft-set-hook.js":79,"./parse-tag.js":98,"error/typed":89,"vtree/is-thunk":90,"vtree/is-vhook":91,"vtree/is-vnode":92,"vtree/is-vtext":93,"vtree/is-widget":94,"vtree/vnode.js":96,"vtree/vtext.js":97}],81:[function(require,module,exports){
+},{"./hooks/data-set-hook.js":76,"./hooks/ev-hook.js":77,"./hooks/soft-set-hook.js":78,"./parse-tag.js":97,"error/typed":88,"vtree/is-thunk":89,"vtree/is-vhook":90,"vtree/is-vnode":91,"vtree/is-vtext":92,"vtree/is-widget":93,"vtree/vnode.js":95,"vtree/vtext.js":96}],80:[function(require,module,exports){
 module.exports = createHash
 
 function createHash(elem) {
@@ -5413,7 +5409,7 @@ function createHash(elem) {
     return hash
 }
 
-},{}],82:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 var createStore = require("weakmap-shim/create-store")
 var Individual = require("individual")
 
@@ -5433,7 +5429,7 @@ function DataSet(elem) {
     return store.hash
 }
 
-},{"./create-hash.js":81,"individual":83,"weakmap-shim/create-store":84}],83:[function(require,module,exports){
+},{"./create-hash.js":80,"individual":82,"weakmap-shim/create-store":83}],82:[function(require,module,exports){
 (function (global){
 var root = typeof window !== 'undefined' ?
     window : typeof global !== 'undefined' ?
@@ -5455,7 +5451,7 @@ function Individual(key, value) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],84:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 var hiddenStore = require('./hidden-store.js');
 
 module.exports = createStore;
@@ -5474,7 +5470,7 @@ function createStore() {
     };
 }
 
-},{"./hidden-store.js":85}],85:[function(require,module,exports){
+},{"./hidden-store.js":84}],84:[function(require,module,exports){
 module.exports = hiddenStore;
 
 function hiddenStore(obj, key) {
@@ -5492,7 +5488,7 @@ function hiddenStore(obj, key) {
     return store;
 }
 
-},{}],86:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 module.exports = function(obj) {
     if (typeof obj === 'string') return camelCase(obj);
     return walk(obj);
@@ -5553,7 +5549,7 @@ function reduce (xs, f, acc) {
     return acc;
 }
 
-},{}],87:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 var nargs = /\{([0-9a-zA-Z]+)\}/g
 var slice = Array.prototype.slice
 
@@ -5589,7 +5585,7 @@ function template(string) {
     })
 }
 
-},{}],88:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 module.exports = extend
 
 function extend(target) {
@@ -5606,7 +5602,7 @@ function extend(target) {
     return target
 }
 
-},{}],89:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 var camelize = require("camelize")
 var template = require("string-template")
 var extend = require("xtend/mutable")
@@ -5656,18 +5652,18 @@ function TypedError(args) {
 }
 
 
-},{"camelize":86,"string-template":87,"xtend/mutable":88}],90:[function(require,module,exports){
+},{"camelize":85,"string-template":86,"xtend/mutable":87}],89:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],91:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
+module.exports=require(59)
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":59}],91:[function(require,module,exports){
 module.exports=require(60)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":60}],92:[function(require,module,exports){
-module.exports=require(61)
-},{"./version":95,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":61}],93:[function(require,module,exports){
+},{"./version":94,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":60}],92:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -5676,15 +5672,15 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":95}],94:[function(require,module,exports){
+},{"./version":94}],93:[function(require,module,exports){
+module.exports=require(61)
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":61}],94:[function(require,module,exports){
 module.exports=require(62)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":62}],95:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":62}],95:[function(require,module,exports){
 module.exports=require(63)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":63}],96:[function(require,module,exports){
+},{"./is-vhook":90,"./is-vnode":91,"./is-widget":93,"./version":94,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":63}],96:[function(require,module,exports){
 module.exports=require(64)
-},{"./is-vhook":91,"./is-vnode":92,"./is-widget":94,"./version":95,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":64}],97:[function(require,module,exports){
-module.exports=require(65)
-},{"./version":95,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":65}],98:[function(require,module,exports){
+},{"./version":94,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":64}],97:[function(require,module,exports){
 var classIdSplit = /([\.#]?[a-zA-Z0-9_:-]+)/
 var notClassId = /^\.|#/
 
@@ -5735,7 +5731,7 @@ function parseTag(tag, props) {
     return tagName ? tagName.toLowerCase() : "div"
 }
 
-},{}],99:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 var isArray = require("x-is-array")
 var isObject = require("is-object")
 
@@ -6082,7 +6078,7 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"./handle-thunk":100,"./is-thunk":101,"./is-vnode":103,"./is-vtext":104,"./is-widget":105,"./vpatch":109,"is-object":106,"x-is-array":107}],100:[function(require,module,exports){
+},{"./handle-thunk":99,"./is-thunk":100,"./is-vnode":102,"./is-vtext":103,"./is-widget":104,"./vpatch":108,"is-object":105,"x-is-array":106}],99:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -6124,23 +6120,23 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":101,"./is-vnode":103,"./is-vtext":104,"./is-widget":105}],101:[function(require,module,exports){
-module.exports=require(90)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":90}],102:[function(require,module,exports){
+},{"./is-thunk":100,"./is-vnode":102,"./is-vtext":103,"./is-widget":104}],100:[function(require,module,exports){
+module.exports=require(89)
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":89}],101:[function(require,module,exports){
+module.exports=require(59)
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":59}],102:[function(require,module,exports){
 module.exports=require(60)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":60}],103:[function(require,module,exports){
+},{"./version":107,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":60}],103:[function(require,module,exports){
+module.exports=require(92)
+},{"./version":107,"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":92}],104:[function(require,module,exports){
 module.exports=require(61)
-},{"./version":108,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":61}],104:[function(require,module,exports){
-module.exports=require(93)
-},{"./version":108,"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":93}],105:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":61}],105:[function(require,module,exports){
+module.exports=require(66)
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":66}],106:[function(require,module,exports){
+module.exports=require(74)
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":74}],107:[function(require,module,exports){
 module.exports=require(62)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":62}],106:[function(require,module,exports){
-module.exports=require(67)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":67}],107:[function(require,module,exports){
-module.exports=require(75)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":75}],108:[function(require,module,exports){
-module.exports=require(63)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":63}],109:[function(require,module,exports){
+},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":62}],108:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -6164,9 +6160,9 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":108}],110:[function(require,module,exports){
-module.exports=require(65)
-},{"./version":108,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":65}],111:[function(require,module,exports){
+},{"./version":107}],109:[function(require,module,exports){
+module.exports=require(64)
+},{"./version":107,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":64}],110:[function(require,module,exports){
 // Scribe noting plugin
 "use strict";
 
@@ -6189,7 +6185,7 @@ module.exports = function (attrs) {
   };
 };
 
-},{"./src/config":136,"./src/generate-note-controller":137,"./src/note-command-factory":138}],112:[function(require,module,exports){
+},{"./src/config":135,"./src/generate-note-controller":136,"./src/note-command-factory":137}],111:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -6233,7 +6229,7 @@ module.exports = function createNoteAtCaret(focus) {
   return focus;
 };
 
-},{"../../config":136,"../../utils/create-virtual-scribe-marker":142,"../../utils/error-handle":144,"../../utils/get-note-data-attrs":146,"../../utils/noting/find-entire-note":151,"../../utils/noting/find-scribe-markers":158,"../../utils/vfocus/is-vfocus":183,"./reset-note-segment-classes":123,"./wrap-in-note":131}],113:[function(require,module,exports){
+},{"../../config":135,"../../utils/create-virtual-scribe-marker":141,"../../utils/error-handle":143,"../../utils/get-note-data-attrs":145,"../../utils/noting/find-entire-note":150,"../../utils/noting/find-scribe-markers":157,"../../utils/vfocus/is-vfocus":182,"./reset-note-segment-classes":122,"./wrap-in-note":130}],112:[function(require,module,exports){
 "use strict";
 
 var VText = require("vtree/vtext");
@@ -6330,7 +6326,7 @@ module.exports = function createNoteFromSelection(focus) {
   return focus;
 };
 
-},{"../../actions/noting/remove-empty-notes":117,"../../config":136,"../../utils/create-virtual-scribe-marker":142,"../../utils/error-handle":144,"../../utils/get-note-data-attrs":146,"../../utils/noting/find-entire-note":151,"../../utils/noting/find-last-note-segment":153,"../../utils/noting/find-scribe-markers":158,"../../utils/noting/find-text-between-scribe-markers":160,"../../utils/noting/is-not-within-note":164,"../../utils/noting/note-cache":169,"../../utils/vdom/has-class":173,"../../utils/vfocus/is-not-empty":181,"../../utils/vfocus/is-paragraph":182,"../../utils/vfocus/is-vfocus":183,"./remove-erroneous-br-tags":118,"./remove-scribe-markers":121,"./reset-note-segment-classes":123,"./wrap-in-note":131,"vtree/vtext":110}],114:[function(require,module,exports){
+},{"../../actions/noting/remove-empty-notes":116,"../../config":135,"../../utils/create-virtual-scribe-marker":141,"../../utils/error-handle":143,"../../utils/get-note-data-attrs":145,"../../utils/noting/find-entire-note":150,"../../utils/noting/find-last-note-segment":152,"../../utils/noting/find-scribe-markers":157,"../../utils/noting/find-text-between-scribe-markers":159,"../../utils/noting/is-not-within-note":163,"../../utils/noting/note-cache":168,"../../utils/vdom/has-class":172,"../../utils/vfocus/is-not-empty":180,"../../utils/vfocus/is-paragraph":181,"../../utils/vfocus/is-vfocus":182,"./remove-erroneous-br-tags":117,"./remove-scribe-markers":120,"./reset-note-segment-classes":122,"./wrap-in-note":130,"vtree/vtext":109}],113:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -6354,7 +6350,7 @@ module.exports = function ensureNoteIntegrity(focus) {
   removeErroneousBrTags(focus, tagName);
 };
 
-},{"../../config":136,"../../utils/error-handle":144,"../../utils/noting/note-cache":169,"../../utils/vfocus/is-vfocus":183,"./merge-if-necessary":115,"./remove-erroneous-br-tags":118,"./reset-note-barriers":122}],115:[function(require,module,exports){
+},{"../../config":135,"../../utils/error-handle":143,"../../utils/noting/note-cache":168,"../../utils/vfocus/is-vfocus":182,"./merge-if-necessary":114,"./remove-erroneous-br-tags":117,"./reset-note-barriers":121}],114:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -6420,7 +6416,7 @@ module.exports = function mergeIfNecessary(focus) {
   });
 };
 
-},{"../../config":136,"../../utils/error-handle":144,"../../utils/noting/find-all-notes":149,"../../utils/vfocus/is-vfocus":183,"./reset-note-segment-classes":123}],116:[function(require,module,exports){
+},{"../../config":135,"../../utils/error-handle":143,"../../utils/noting/find-all-notes":148,"../../utils/vfocus/is-vfocus":182,"./reset-note-segment-classes":122}],115:[function(require,module,exports){
 "use strict";
 
 var VFocus = require("../../vfocus");
@@ -6500,7 +6496,7 @@ module.exports = function removeCharacterFromAdjacentNote(focus) {
   }
 };
 
-},{"../../config":136,"../../utils/create-virtual-scribe-marker":142,"../../utils/error-handle":144,"../../utils/noting/find-entire-note":151,"../../utils/noting/find-first-note-segment":152,"../../utils/noting/find-next-note-segment":154,"../../utils/noting/find-previous-note-segment":157,"../../utils/noting/find-scribe-markers":158,"../../utils/vfocus/is-vfocus":183,"../../utils/vfocus/is-vtext":184,"../../vfocus":185,"./remove-scribe-markers":121,"lodash.flatten":42}],117:[function(require,module,exports){
+},{"../../config":135,"../../utils/create-virtual-scribe-marker":141,"../../utils/error-handle":143,"../../utils/noting/find-entire-note":150,"../../utils/noting/find-first-note-segment":151,"../../utils/noting/find-next-note-segment":153,"../../utils/noting/find-previous-note-segment":156,"../../utils/noting/find-scribe-markers":157,"../../utils/vfocus/is-vfocus":182,"../../utils/vfocus/is-vtext":183,"../../vfocus":184,"./remove-scribe-markers":120,"lodash.flatten":42}],116:[function(require,module,exports){
 "use strict";
 
 var flatten = require("lodash.flatten");
@@ -6543,7 +6539,7 @@ module.exports = function removeEmptyNotes(focus) {
   });
 };
 
-},{"../../config":136,"../../utils/error-handle":144,"../../utils/noting/find-all-notes":149,"../../utils/vfocus/flatten-tree":177,"../../utils/vfocus/is-empty":180,"../../utils/vfocus/is-vfocus":183,"../../utils/vfocus/is-vtext":184,"lodash.flatten":42}],118:[function(require,module,exports){
+},{"../../config":135,"../../utils/error-handle":143,"../../utils/noting/find-all-notes":148,"../../utils/vfocus/flatten-tree":176,"../../utils/vfocus/is-empty":179,"../../utils/vfocus/is-vfocus":182,"../../utils/vfocus/is-vtext":183,"lodash.flatten":42}],117:[function(require,module,exports){
 "use strict";
 
 var VText = require("vtree/vtext");
@@ -6630,7 +6626,7 @@ module.exports = function preventBrTags(focus) {
   });
 };
 
-},{"../../config":136,"../../utils/error-handle":144,"../../utils/noting/find-scribe-markers":158,"../../utils/noting/is-note-segment":165,"../../utils/vfocus/has-no-text-children":178,"../../utils/vfocus/has-only-empty-text-children":179,"../../utils/vfocus/is-vfocus":183,"../../utils/vfocus/is-vtext":184,"../../vfocus":185,"vtree/vtext":110}],119:[function(require,module,exports){
+},{"../../config":135,"../../utils/error-handle":143,"../../utils/noting/find-scribe-markers":157,"../../utils/noting/is-note-segment":164,"../../utils/vfocus/has-no-text-children":177,"../../utils/vfocus/has-only-empty-text-children":178,"../../utils/vfocus/is-vfocus":182,"../../utils/vfocus/is-vtext":183,"../../vfocus":184,"vtree/vtext":109}],118:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -6678,7 +6674,7 @@ module.exports = function removeNote(focus) {
   return focus;
 };
 
-},{"../../config":136,"../../utils/error-handle":144,"../../utils/noting/find-note-by-id":155,"../../utils/noting/find-parent-note-segment":156,"../../utils/noting/find-scribe-markers":158,"../../utils/noting/note-cache":169,"../../utils/vfocus/is-vfocus":183,"./ensure-note-integrity":114,"./strip-zero-width-space":125,"./unwrap-note":130}],120:[function(require,module,exports){
+},{"../../config":135,"../../utils/error-handle":143,"../../utils/noting/find-note-by-id":154,"../../utils/noting/find-parent-note-segment":155,"../../utils/noting/find-scribe-markers":157,"../../utils/noting/note-cache":168,"../../utils/vfocus/is-vfocus":182,"./ensure-note-integrity":113,"./strip-zero-width-space":124,"./unwrap-note":129}],119:[function(require,module,exports){
 "use strict";
 
 var difference = require("lodash.difference");
@@ -6789,7 +6785,7 @@ module.exports = function removePartofNote(focus) {
   return focus;
 };
 
-},{"../../config":136,"../../utils/error-handle":144,"../../utils/get-note-data-attrs":146,"../../utils/noting/find-entire-note":151,"../../utils/noting/find-scribe-markers":158,"../../utils/noting/find-text-between-scribe-markers":160,"../../utils/vfocus/flatten-tree":177,"../../utils/vfocus/is-vfocus":183,"../../utils/vfocus/is-vtext":184,"./ensure-note-integrity":114,"./remove-empty-notes":117,"./strip-zero-width-space":125,"./unwrap-note":130,"./wrap-in-note":131,"lodash.difference":19,"lodash.flatten":42,"vtree/vtext":110}],121:[function(require,module,exports){
+},{"../../config":135,"../../utils/error-handle":143,"../../utils/get-note-data-attrs":145,"../../utils/noting/find-entire-note":150,"../../utils/noting/find-scribe-markers":157,"../../utils/noting/find-text-between-scribe-markers":159,"../../utils/vfocus/flatten-tree":176,"../../utils/vfocus/is-vfocus":182,"../../utils/vfocus/is-vtext":183,"./ensure-note-integrity":113,"./remove-empty-notes":116,"./strip-zero-width-space":124,"./unwrap-note":129,"./wrap-in-note":130,"lodash.difference":19,"lodash.flatten":42,"vtree/vtext":109}],120:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -6811,7 +6807,7 @@ module.exports = function removeScribeMarkers(focus) {
   });
 };
 
-},{"../../utils/error-handle":144,"../../utils/noting/is-scribe-marker":166,"../../utils/vfocus/is-vfocus":183}],122:[function(require,module,exports){
+},{"../../utils/error-handle":143,"../../utils/noting/is-scribe-marker":165,"../../utils/vfocus/is-vfocus":182}],121:[function(require,module,exports){
 "use strict";
 
 var VText = require("vtree/vtext");
@@ -6868,7 +6864,7 @@ module.exports = function resetNoteBarriers(focus) {
   });
 };
 
-},{"../../config":136,"../../utils/create-note-barrier":141,"../../utils/error-handle":144,"../../utils/noting/find-all-notes":149,"../../utils/noting/is-not-within-note":164,"../../utils/vfocus/is-not-empty":181,"../../utils/vfocus/is-vfocus":183,"../../utils/vfocus/is-vtext":184,"vtree/vtext":110}],123:[function(require,module,exports){
+},{"../../config":135,"../../utils/create-note-barrier":140,"../../utils/error-handle":143,"../../utils/noting/find-all-notes":148,"../../utils/noting/is-not-within-note":163,"../../utils/vfocus/is-not-empty":180,"../../utils/vfocus/is-vfocus":182,"../../utils/vfocus/is-vtext":183,"vtree/vtext":109}],122:[function(require,module,exports){
 "use strict";
 
 var addClass = require("../../actions/vdom/add-class");
@@ -6913,7 +6909,7 @@ module.exports = function updateStartAndEndClasses(noteSegments) {
   return noteSegments;
 };
 
-},{"../../actions/vdom/add-class":133,"../../actions/vdom/remove-class":134,"../../config":136,"../../utils/generate-uuid":145,"../../utils/get-uk-date":147,"../../utils/vfocus/is-vfocus":183,"../vdom/add-attribute":132}],124:[function(require,module,exports){
+},{"../../actions/vdom/add-class":132,"../../actions/vdom/remove-class":133,"../../config":135,"../../utils/generate-uuid":144,"../../utils/get-uk-date":146,"../../utils/vfocus/is-vfocus":182,"../vdom/add-attribute":131}],123:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -6946,7 +6942,7 @@ module.exports = function selectNote(noteSegment) {
   noteSegments.splice(-1)[0].addChild(createVirtualScribeMarker());
 };
 
-},{"../../config":136,"../../utils/create-virtual-scribe-marker":142,"../../utils/error-handle":144,"../../utils/noting/find-entire-note":151,"../../utils/vfocus/is-vfocus":183,"./remove-scribe-markers":121}],125:[function(require,module,exports){
+},{"../../config":135,"../../utils/create-virtual-scribe-marker":141,"../../utils/error-handle":143,"../../utils/noting/find-entire-note":150,"../../utils/vfocus/is-vfocus":182,"./remove-scribe-markers":120}],124:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -6966,7 +6962,7 @@ module.exports = function stripZeroWidthSpaces(focus) {
   return focus;
 };
 
-},{"../../utils/error-handle":144,"../../utils/vfocus/is-vfocus":183,"../../utils/vfocus/is-vtext":184}],126:[function(require,module,exports){
+},{"../../utils/error-handle":143,"../../utils/vfocus/is-vfocus":182,"../../utils/vfocus/is-vtext":183}],125:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -6985,7 +6981,7 @@ module.exports = function toggleAllNoteCollapseState(focus) {
   return toggleNoteClasses(notes, config.get("noteCollapsedClass"));
 };
 
-},{"../../config":136,"../../utils/error-handle":144,"../../utils/noting/find-all-notes":149,"../../utils/vfocus/is-vfocus":183,"./toggle-note-classes":127}],127:[function(require,module,exports){
+},{"../../config":135,"../../utils/error-handle":143,"../../utils/noting/find-all-notes":148,"../../utils/vfocus/is-vfocus":182,"./toggle-note-classes":126}],126:[function(require,module,exports){
 "use strict";
 
 var flatten = require("lodash.flatten");
@@ -7025,7 +7021,7 @@ module.exports = function toggleNoteClasses(notes, className) {
   });
 };
 
-},{"../../utils/error-handle":144,"../../utils/vdom/has-class":173,"../../utils/vfocus/is-vfocus":183,"../vdom/add-class":133,"../vdom/remove-class":134,"../vdom/toggle-class":135,"lodash.flatten":42}],128:[function(require,module,exports){
+},{"../../utils/error-handle":143,"../../utils/vdom/has-class":172,"../../utils/vfocus/is-vfocus":182,"../vdom/add-class":132,"../vdom/remove-class":133,"../vdom/toggle-class":134,"lodash.flatten":42}],127:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -7051,7 +7047,7 @@ module.exports = function toggleSelectedNoteCollapseState(focus) {
   return toggleNoteClasses(note, config.get("noteCollapsedClass"));
 };
 
-},{"../../config":136,"../../utils/error-handle":144,"../../utils/noting/find-selected-note":159,"../../utils/vfocus/is-vfocus":183,"./toggle-note-classes":127}],129:[function(require,module,exports){
+},{"../../config":135,"../../utils/error-handle":143,"../../utils/noting/find-selected-note":158,"../../utils/vfocus/is-vfocus":182,"./toggle-note-classes":126}],128:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -7096,7 +7092,7 @@ module.exports = function toggleSelectedNoteTagNames(focus, tagName, replacement
   });
 };
 
-},{"../../utils/error-handle":144,"../../utils/noting/find-selected-note":159,"../../utils/noting/is-note-segment":165,"../../utils/vfocus/flatten-tree":177,"../../utils/vfocus/is-vfocus":183,"../../vfocus":185,"./unwrap-note":130}],130:[function(require,module,exports){
+},{"../../utils/error-handle":143,"../../utils/noting/find-selected-note":158,"../../utils/noting/is-note-segment":164,"../../utils/vfocus/flatten-tree":176,"../../utils/vfocus/is-vfocus":182,"../../vfocus":184,"./unwrap-note":129}],129:[function(require,module,exports){
 "use strict";
 
 var flatten = require("lodash.flatten");
@@ -7133,7 +7129,7 @@ module.exports = function unWrapNote(focus) {
   return focus;
 };
 
-},{"../../config":136,"../../utils/error-handle":144,"../../utils/noting/is-note-segment":165,"../../utils/vfocus/is-vfocus":183,"lodash.flatten":42}],131:[function(require,module,exports){
+},{"../../config":135,"../../utils/error-handle":143,"../../utils/noting/is-note-segment":164,"../../utils/vfocus/is-vfocus":182,"lodash.flatten":42}],130:[function(require,module,exports){
 "use strict";
 
 var assign = require("lodash.assign");
@@ -7159,7 +7155,7 @@ module.exports = function wrapInNote(focus, data) {
   return h(tagName, { title: getUKDate(data), dataset: data }, notes);
 };
 
-},{"../../config":136,"../../utils/get-uk-date":147,"lodash.assign":8,"virtual-hyperscript":80}],132:[function(require,module,exports){
+},{"../../config":135,"../../utils/get-uk-date":146,"lodash.assign":8,"virtual-hyperscript":79}],131:[function(require,module,exports){
 "use strict";
 
 var toCamelCase = require("../../utils/to-camel-case");
@@ -7178,7 +7174,7 @@ module.exports = function addAttribute(node, key, val) {
   }
 };
 
-},{"../../utils/to-camel-case":171}],133:[function(require,module,exports){
+},{"../../utils/to-camel-case":170}],132:[function(require,module,exports){
 "use strict";
 
 var hasClass = require("../../utils/vdom/has-class");
@@ -7203,7 +7199,7 @@ module.exports = function addClass(vNode, className) {
   return vNode;
 };
 
-},{"../../utils/error-handle":144,"../../utils/vdom/has-class":173}],134:[function(require,module,exports){
+},{"../../utils/error-handle":143,"../../utils/vdom/has-class":172}],133:[function(require,module,exports){
 "use strict";
 
 var hasClass = require("../../utils/vdom/has-class");
@@ -7231,7 +7227,7 @@ module.exports = function removeClass(vNode, className) {
   return vNode;
 };
 
-},{"../../utils/error-handle":144,"../../utils/vdom/has-class":173}],135:[function(require,module,exports){
+},{"../../utils/error-handle":143,"../../utils/vdom/has-class":172}],134:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../../utils/vfocus/is-vfocus");
@@ -7253,11 +7249,11 @@ module.exports = function toggleClass(vNode, className) {
   return hasClass(vNode, className) ? removeClass(vNode, className) : addClass(vNode, className);
 };
 
-},{"../../utils/error-handle":144,"../../utils/vdom/has-class":173,"../../utils/vfocus/is-vfocus":183,"./add-class":133,"./remove-class":134}],136:[function(require,module,exports){
+},{"../../utils/error-handle":143,"../../utils/vdom/has-class":172,"../../utils/vfocus/is-vfocus":182,"./add-class":132,"./remove-class":133}],135:[function(require,module,exports){
 "use strict";
 
 var assign = require("lodash.assign");
-var isObject = require("lodash.isObject");
+var isObject = require("lodash.isobject");
 
 //defaults
 var config = {
@@ -7302,7 +7298,7 @@ module.exports = {
 
 };
 
-},{"lodash.assign":8,"lodash.isObject":47}],137:[function(require,module,exports){
+},{"lodash.assign":8,"lodash.isobject":47}],136:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -7720,7 +7716,7 @@ module.exports = function (scribe) {
   return new NoteController();
 };
 
-},{"./actions/noting/create-note-at-caret":112,"./actions/noting/create-note-from-selection":113,"./actions/noting/ensure-note-integrity":114,"./actions/noting/remove-character-from-adjacent-note":116,"./actions/noting/remove-note":119,"./actions/noting/remove-part-of-note":120,"./actions/noting/select-note":124,"./actions/noting/strip-zero-width-space":125,"./actions/noting/toggle-all-note-collapse-state":126,"./actions/noting/toggle-selected-note-collapse-state":128,"./actions/noting/toggle-selected-note-tag-names":129,"./config":136,"./note-command-factory":138,"./noting-vdom":139,"./utils/collapse-state":140,"./utils/emitter":143,"./utils/noting/find-parent-note-segment":156,"./utils/noting/find-scribe-markers":158,"./utils/noting/is-caret-next-to-note":162,"./utils/noting/is-selection-entirely-within-note":167,"./utils/noting/is-selection-within-note":168,"lodash.find":29,"lodash.isobject":48,"lodash.throttle":49,"lodash.toarray":52}],138:[function(require,module,exports){
+},{"./actions/noting/create-note-at-caret":111,"./actions/noting/create-note-from-selection":112,"./actions/noting/ensure-note-integrity":113,"./actions/noting/remove-character-from-adjacent-note":115,"./actions/noting/remove-note":118,"./actions/noting/remove-part-of-note":119,"./actions/noting/select-note":123,"./actions/noting/strip-zero-width-space":124,"./actions/noting/toggle-all-note-collapse-state":125,"./actions/noting/toggle-selected-note-collapse-state":127,"./actions/noting/toggle-selected-note-tag-names":128,"./config":135,"./note-command-factory":137,"./noting-vdom":138,"./utils/collapse-state":139,"./utils/emitter":142,"./utils/noting/find-parent-note-segment":155,"./utils/noting/find-scribe-markers":157,"./utils/noting/is-caret-next-to-note":161,"./utils/noting/is-selection-entirely-within-note":166,"./utils/noting/is-selection-within-note":167,"lodash.find":29,"lodash.isobject":47,"lodash.throttle":48,"lodash.toarray":51}],137:[function(require,module,exports){
 "use strict";
 
 var emitter = require("./utils/emitter");
@@ -7795,7 +7791,7 @@ module.exports = function NoteCommandFactory(scribe) {
   scribe.commands[toggleAllNotesCommandName] = generateToggleAllNotesCommand(scribe, tagName);
 };
 
-},{"./config":136,"./utils/collapse-state":140,"./utils/emitter":143,"./utils/is-dom-selection-within-a-note":148}],139:[function(require,module,exports){
+},{"./config":135,"./utils/collapse-state":139,"./utils/emitter":142,"./utils/is-dom-selection-within-a-note":147}],138:[function(require,module,exports){
 /**
  * Virtual DOM parser / serializer for Noting plugin.
  */
@@ -7860,7 +7856,7 @@ exports.mutateScribe = function (scribe, callback) {
   });
 };
 
-},{"./vfocus":185,"vdom-virtualize":59,"virtual-dom/diff":66,"virtual-dom/patch":76,"vtree/is-vtext":104}],140:[function(require,module,exports){
+},{"./vfocus":184,"vdom-virtualize":58,"virtual-dom/diff":65,"virtual-dom/patch":75,"vtree/is-vtext":103}],139:[function(require,module,exports){
 "use strict";
 
 var state = false;
@@ -7874,7 +7870,7 @@ module.exports = {
   }
 };
 
-},{}],141:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 "use strict";
 
 var VText = require("vtree/vtext");
@@ -7885,7 +7881,7 @@ module.exports = function createNoteBarrier() {
   return new VText("​");
 };
 
-},{"vtree/vtext":110}],142:[function(require,module,exports){
+},{"vtree/vtext":109}],141:[function(require,module,exports){
 "use strict";
 
 var h = require("virtual-hyperscript");
@@ -7894,13 +7890,13 @@ module.exports = function createVirtualScribeMarker() {
   return h("em.scribe-marker");
 };
 
-},{"virtual-hyperscript":80}],143:[function(require,module,exports){
+},{"virtual-hyperscript":79}],142:[function(require,module,exports){
 "use strict";
 
 var EventEmitter = require("./../../bower_components/scribe/src/event-emitter");
 module.exports = new EventEmitter();
 
-},{"./../../bower_components/scribe/src/event-emitter":2}],144:[function(require,module,exports){
+},{"./../../bower_components/scribe/src/event-emitter":2}],143:[function(require,module,exports){
 "use strict";
 
 var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
@@ -7918,7 +7914,7 @@ module.exports = function handleSystemError(message) {
   throw new Error(errorMsg);
 };
 
-},{"util":7}],145:[function(require,module,exports){
+},{"util":7}],144:[function(require,module,exports){
 "use strict";
 
 module.exports = function generateUUID() {
@@ -7932,7 +7928,7 @@ module.exports = function generateUUID() {
   return uuid;
 };
 
-},{}],146:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 "use strict";
 
 var config = require("../config");
@@ -7947,7 +7943,7 @@ module.exports = function userAndTimeAsDatasetAttrs() {
   };
 };
 
-},{"../config":136}],147:[function(require,module,exports){
+},{"../config":135}],146:[function(require,module,exports){
 "use strict";
 
 var DATA_NAME_CAMEL = "noteEditedBy";
@@ -7970,7 +7966,7 @@ module.exports = function getUKDate(data) {
   return name + " " + formattedDate;
 };
 
-},{"../config":136}],148:[function(require,module,exports){
+},{"../config":135}],147:[function(require,module,exports){
 "use strict";
 
 var config = require("../config");
@@ -8011,7 +8007,7 @@ module.exports = function isSelectionInANote(selectionRange, parentContainer) {
   return domFindAncestorNote(selectionRange.startContainer) && domFindAncestorNote(selectionRange.endContainer) && true;
 };
 
-},{"../config":136}],149:[function(require,module,exports){
+},{"../config":135}],148:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8042,7 +8038,7 @@ module.exports = function findAllNotes(focus) {
   }, []);
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"./find-entire-note":151,"./is-note-segment":165}],150:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"./find-entire-note":150,"./is-note-segment":164}],149:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8068,7 +8064,7 @@ module.exports = function findBetweenScribeMarkers(focus) {
   return startFocus.next().takeWhile(isNotScribeMarker);
 };
 
-},{"../error-handle":144,"../vfocus/is-vfocus":183,"./is-not-scribe-marker":163,"./is-scribe-marker":166}],151:[function(require,module,exports){
+},{"../error-handle":143,"../vfocus/is-vfocus":182,"./is-not-scribe-marker":162,"./is-scribe-marker":165}],150:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8112,7 +8108,7 @@ module.exports = function findEntireNote(focus) {
   });
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"./find-first-note-segment":152,"./is-note-segment":165,"./still-within-note":170}],152:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"./find-first-note-segment":151,"./is-note-segment":164,"./still-within-note":169}],151:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8135,7 +8131,7 @@ module.exports = function findFirstNoteSegment(focus) {
   }).pop();
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"./is-note-segment":165,"./still-within-note":170}],153:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"./is-note-segment":164,"./still-within-note":169}],152:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8158,7 +8154,7 @@ module.exports = function findLastNoteSegment(focus) {
   }).splice(-1)[0];
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"./is-note-segment":165,"./still-within-note":170}],154:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"./is-note-segment":164,"./still-within-note":169}],153:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8178,7 +8174,7 @@ module.exports = function findFirstNoteSegmentBelow(focus) {
   });
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"./is-note-segment":165}],155:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"./is-note-segment":164}],154:[function(require,module,exports){
 "use strict";
 
 var flatten = require("lodash.flatten");
@@ -8208,7 +8204,7 @@ module.exports = function findNoteById(focus, noteId) {
   });
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"./find-all-notes":149,"./has-note-id":161,"lodash.flatten":42}],156:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"./find-all-notes":148,"./has-note-id":160,"lodash.flatten":42}],155:[function(require,module,exports){
 "use strict";
 
 var isNoteSegment = require("../noting/is-note-segment");
@@ -8228,7 +8224,7 @@ module.exports = function findParentNoteSegment(focus) {
   }, "up");
 };
 
-},{"../../config":136,"../error-handle":144,"../noting/is-note-segment":165,"../vfocus/is-vfocus":183}],157:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../noting/is-note-segment":164,"../vfocus/is-vfocus":182}],156:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8248,7 +8244,7 @@ module.exports = function findFirstNoteSegmentAbove(focus) {
   }, "prev");
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"./is-note-segment":165}],158:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"./is-note-segment":164}],157:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8264,7 +8260,7 @@ module.exports = function findScribeMarkers(focus) {
   return focus.top().filter(isScribeMarker);
 };
 
-},{"../error-handle":144,"../vfocus/is-vfocus":183,"./is-scribe-marker":166}],159:[function(require,module,exports){
+},{"../error-handle":143,"../vfocus/is-vfocus":182,"./is-scribe-marker":165}],158:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8297,7 +8293,7 @@ module.exports = function findSelectedNote(focus) {
   return note && findEntireNote(note, tagName) || undefined;
 };
 
-},{"../../config":136,"../../vfocus":185,"../error-handle":144,"../vfocus/is-vfocus":183,"./find-entire-note":151,"./find-parent-note-segment":156,"./find-scribe-markers":158}],160:[function(require,module,exports){
+},{"../../config":135,"../../vfocus":184,"../error-handle":143,"../vfocus/is-vfocus":182,"./find-entire-note":150,"./find-parent-note-segment":155,"./find-scribe-markers":157}],159:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8314,7 +8310,7 @@ module.exports = function findTextBetweenScribeMarkers(focus) {
   return findTextNodes(findBetweenScribeMarkers(focus));
 };
 
-},{"../error-handle":144,"../vfocus/find-text-nodes":176,"../vfocus/is-vfocus":183,"./find-between-scribe-markers":150}],161:[function(require,module,exports){
+},{"../error-handle":143,"../vfocus/find-text-nodes":175,"../vfocus/is-vfocus":182,"./find-between-scribe-markers":149}],160:[function(require,module,exports){
 "use strict";
 
 var hasAttribute = require("../vdom/has-attribute");
@@ -8324,7 +8320,7 @@ module.exports = function hasNoteId(vNode, value) {
   return hasAttribute(vNode, "data-note-id", value);
 };
 
-},{"../vdom/has-attribute":172,"../vfocus/is-vfocus":183}],162:[function(require,module,exports){
+},{"../vdom/has-attribute":171,"../vfocus/is-vfocus":182}],161:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8370,7 +8366,7 @@ module.exports = function isCaretNextToNote(focus) {
   }
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"./find-previous-note-segment":157,"./find-scribe-markers":158,"./is-scribe-marker.js":166}],163:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"./find-previous-note-segment":156,"./find-scribe-markers":157,"./is-scribe-marker.js":165}],162:[function(require,module,exports){
 "use strict";
 
 var isScribeMarker = require("./is-scribe-marker");
@@ -8379,7 +8375,7 @@ module.exports = function isNotScribeMarker(focus) {
   return !isScribeMarker(focus);
 };
 
-},{"./is-scribe-marker":166}],164:[function(require,module,exports){
+},{"./is-scribe-marker":165}],163:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8397,7 +8393,7 @@ module.exports = function isNotWithinNote(focus) {
   return !findParentNoteSegment(focus, tagName);
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"./find-parent-note-segment":156}],165:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"./find-parent-note-segment":155}],164:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8423,7 +8419,7 @@ module.exports = function isNoteSegment(focus, tagName) {
   return isTag(focus.vNode, tagName);
 };
 
-},{"../../config":136,"../error-handle":144,"../vdom/is-tag":175,"../vfocus/is-vfocus":183}],166:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vdom/is-tag":174,"../vfocus/is-vfocus":182}],165:[function(require,module,exports){
 // is our selection not a note?
 "use strict";
 
@@ -8440,7 +8436,7 @@ module.exports = function isScribeMarker(vfocus) {
   return hasClass(vfocus.vNode, "scribe-marker");
 };
 
-},{"../error-handle":144,"../vdom/has-class":173,"../vfocus/is-vfocus":183}],167:[function(require,module,exports){
+},{"../error-handle":143,"../vdom/has-class":172,"../vfocus/is-vfocus":182}],166:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8492,7 +8488,7 @@ module.exports = function isSelectionEntirelyWithinNote(markers) {
   }
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"../vfocus/is-vtext":184,"./find-parent-note-segment":156,"./find-scribe-markers":158,"./is-not-scribe-marker":163}],168:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"../vfocus/is-vtext":183,"./find-parent-note-segment":155,"./find-scribe-markers":157,"./is-not-scribe-marker":162}],167:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8544,7 +8540,7 @@ module.exports = function isSelectionWithinNote(markers) {
   }
 };
 
-},{"../../config":136,"../error-handle":144,"../vfocus/is-vfocus":183,"../vfocus/is-vtext":184,"./find-parent-note-segment":156,"./find-scribe-markers":158,"./is-not-scribe-marker":163}],169:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../vfocus/is-vfocus":182,"../vfocus/is-vtext":183,"./find-parent-note-segment":155,"./find-scribe-markers":157,"./is-not-scribe-marker":162}],168:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8580,7 +8576,7 @@ function setNotesCache(focus) {
 
 module.exports = { get: getNotesCache, set: setNotesCache };
 
-},{"../error-handle":144,"../vfocus/is-vfocus":183,"./find-all-notes":149}],170:[function(require,module,exports){
+},{"../error-handle":143,"../vfocus/is-vfocus":182,"./find-all-notes":148}],169:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8600,7 +8596,7 @@ module.exports = function isWithinNote(focus) {
   return !isVText(focus) || isEmpty(focus) || !!findParentNoteSegment(focus, tagName);
 };
 
-},{"../../config":136,"../error-handle":144,"../noting/find-parent-note-segment":156,"../vfocus/is-empty":180,"../vfocus/is-vfocus":183,"../vfocus/is-vtext":184}],171:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../noting/find-parent-note-segment":155,"../vfocus/is-empty":179,"../vfocus/is-vfocus":182,"../vfocus/is-vtext":183}],170:[function(require,module,exports){
 "use strict";
 
 module.exports = function toCamelCase(string) {
@@ -8609,7 +8605,7 @@ module.exports = function toCamelCase(string) {
   });
 };
 
-},{}],172:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 "use strict";
 
 var toCamelCase = require("../to-camel-case");
@@ -8649,7 +8645,7 @@ module.exports = function hasAttribute(vNode, attribute, value) {
   }
 };
 
-},{"../error-handle":144,"../to-camel-case":171}],173:[function(require,module,exports){
+},{"../error-handle":143,"../to-camel-case":170}],172:[function(require,module,exports){
 // Check if VNode has class
 "use strict";
 
@@ -8665,7 +8661,7 @@ module.exports = function hasClass(vNode, value) {
   });
 };
 
-},{}],174:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 // We incude regular spaces because if we have a note tag that only
 // includes a a regular space, then the browser will also insert a <BR>.
 // If we consider a string containing only a regular space as empty we
@@ -8688,14 +8684,14 @@ module.exports = function (node) {
   }
 };
 
-},{"vtree/is-vtext":104}],175:[function(require,module,exports){
+},{"vtree/is-vtext":103}],174:[function(require,module,exports){
 "use strict";
 
 module.exports = function isTag(node, tag) {
   return node.tagName && node.tagName.toLowerCase() === tag;
 };
 
-},{}],176:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("../vfocus/is-vfocus");
@@ -8715,7 +8711,7 @@ module.exports = function findTextNodes(focuses) {
   return focuses.filter(isVText);
 };
 
-},{"../error-handle":144,"../vfocus/is-vfocus":183,"../vfocus/is-vtext":184}],177:[function(require,module,exports){
+},{"../error-handle":143,"../vfocus/is-vfocus":182,"../vfocus/is-vtext":183}],176:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus");
@@ -8734,7 +8730,7 @@ module.exports = function flattenTree(focus) {
   });
 };
 
-},{"../error-handle":144,"./is-vfocus":183}],178:[function(require,module,exports){
+},{"../error-handle":143,"./is-vfocus":182}],177:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus");
@@ -8751,7 +8747,7 @@ module.exports = function hasNoTextChildren(focus) {
   return flatten(focus).filter(isVText).length === 0;
 };
 
-},{"../error-handle":144,"./flatten-tree":177,"./is-vfocus":183,"./is-vtext":184}],179:[function(require,module,exports){
+},{"../error-handle":143,"./flatten-tree":176,"./is-vfocus":182,"./is-vtext":183}],178:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus");
@@ -8769,7 +8765,7 @@ module.exports = function hasNoTextChildren(focus) {
   return flatten(focus).filter(isVText).every(isEmpty);
 };
 
-},{"../error-handle":144,"./flatten-tree":177,"./is-empty":180,"./is-vfocus":183,"./is-vtext":184}],180:[function(require,module,exports){
+},{"../error-handle":143,"./flatten-tree":176,"./is-empty":179,"./is-vfocus":182,"./is-vtext":183}],179:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus");
@@ -8785,7 +8781,7 @@ module.exports = function isEmptyVFocus(vfocus) {
   return isEmpty(vfocus.vNode);
 };
 
-},{"../error-handle":144,"../vdom/is-empty":174,"./is-vfocus":183}],181:[function(require,module,exports){
+},{"../error-handle":143,"../vdom/is-empty":173,"./is-vfocus":182}],180:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus");
@@ -8805,7 +8801,7 @@ module.exports = function isNotEmpty(focus) {
   return isVText(focus) && !isEmpty(focus);
 };
 
-},{"../error-handle":144,"./is-empty.js":180,"./is-vfocus":183,"./is-vtext":184}],182:[function(require,module,exports){
+},{"../error-handle":143,"./is-empty.js":179,"./is-vfocus":182,"./is-vtext":183}],181:[function(require,module,exports){
 "use strict";
 
 var isVFocus = require("./is-vfocus.js");
@@ -8821,7 +8817,7 @@ module.exports = function isParagraphVFocus(focus) {
   return isTag(focus.vNode, "p");
 };
 
-},{"../error-handle":144,"../vdom/is-tag.js":175,"./is-vfocus.js":183}],183:[function(require,module,exports){
+},{"../error-handle":143,"../vdom/is-tag.js":174,"./is-vfocus.js":182}],182:[function(require,module,exports){
 "use strict";
 
 var VFocus = require("../../vfocus");
@@ -8830,7 +8826,7 @@ module.exports = function isVFocus(vFocus) {
   return vFocus instanceof VFocus;
 };
 
-},{"../../vfocus":185}],184:[function(require,module,exports){
+},{"../../vfocus":184}],183:[function(require,module,exports){
 "use strict";
 
 var isVText = require("vtree/is-vtext");
@@ -8848,7 +8844,7 @@ module.exports = function isVTextVFocus(vfocus) {
   return isVText(vfocus.vNode);
 };
 
-},{"../../vfocus":185,"../error-handle":144,"../vfocus/is-vfocus":183,"vtree/is-vtext":104}],185:[function(require,module,exports){
+},{"../../vfocus":184,"../error-handle":143,"../vfocus/is-vfocus":182,"vtree/is-vtext":103}],184:[function(require,module,exports){
 /**
 * VFocus: Wrap virtual node in a Focus node.
 *
@@ -9199,5 +9195,5 @@ VFocus.prototype.prependChildren = function (children) {
 
 // No can do. Should maybe raise an exception.
 
-},{}]},{},[111])(111)
+},{}]},{},[110])(110)
 });
