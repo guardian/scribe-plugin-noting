@@ -2,16 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <style type="text/css">
-      .note {
-        background-color: cyan;
-        border: 1px solid black;
-      }
-      .note-barrier {
-        /* Keeps note barriers inline. */
-        display: inline-block;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="../../build/skins/gu-noting.css"/>
   </head>
   <body>
     <div class="scribe"></div>
@@ -22,14 +13,12 @@
         paths: {
           // We have to define a path to Scribe otherwise it will load the file
           // but will not pass along the 'scribe' AMD module.
-          'scribe-common': 'bower_components/scribe-common',
           'lodash-amd': 'bower_components/lodash-amd',
-          'lodash': 'bower_components/lodash/dist/lodash',
-          'immutable': 'bower_components/immutable'
+          'immutable': 'bower_components/immutable/dist/immutable'
         }
       });
 
-      require(['lodash'], function() {
+      require([], function() {
         require(
           ['bower_components/scribe/src/scribe', 'scribe-plugin-toolbar', 'build/scribe-plugin-noting'],
           function(Scribe, scribePluginToolbar, scribePluginNoting) {
