@@ -1,5 +1,9 @@
 # Scribe Plugin Noting
 
+## Environment
+
+Build and integration test verified to work with **Node 4.2.4**.
+
 ## Setup
 To install dependecies:
 
