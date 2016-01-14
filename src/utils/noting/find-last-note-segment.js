@@ -1,7 +1,6 @@
 var isVFocus = require('../vfocus/is-vfocus');
 var stillWithinNote = require('./still-within-note');
 var isNoteSegment = require('./is-note-segment');
-var isEmpty = require('../vfocus/is-empty');
 var errorHandle = require('../error-handle');
 var config = require('../../config');
 
