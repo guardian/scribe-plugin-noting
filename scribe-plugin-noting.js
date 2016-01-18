@@ -2235,7 +2235,7 @@ module.exports = createCache;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"lodash._getnative":24}],24:[function(require,module,exports){
 module.exports=require(16)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],25:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],25:[function(require,module,exports){
 /**
  * lodash 3.1.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -2370,11 +2370,11 @@ module.exports = baseFlatten;
 
 },{"lodash.isarguments":26,"lodash.isarray":27}],26:[function(require,module,exports){
 module.exports=require(17)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":17}],27:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":17}],27:[function(require,module,exports){
 module.exports=require(18)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarray/index.js":18}],28:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarray/index.js":18}],28:[function(require,module,exports){
 module.exports=require(14)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash._createassigner/node_modules/lodash.restparam/index.js":14}],29:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash._createassigner/node_modules/lodash.restparam/index.js":14}],29:[function(require,module,exports){
 /**
  * lodash 3.2.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -3344,7 +3344,7 @@ module.exports = isTypedArray;
 
 },{}],33:[function(require,module,exports){
 module.exports=require(12)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash._createassigner/node_modules/lodash._bindcallback/index.js":12}],34:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash._createassigner/node_modules/lodash._bindcallback/index.js":12}],34:[function(require,module,exports){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -3679,13 +3679,13 @@ module.exports = baseFindIndex;
 
 },{}],38:[function(require,module,exports){
 module.exports=require(18)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarray/index.js":18}],39:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarray/index.js":18}],39:[function(require,module,exports){
 module.exports=require(15)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/index.js":15,"lodash._getnative":40,"lodash.isarguments":41,"lodash.isarray":38}],40:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/index.js":15,"lodash._getnative":40,"lodash.isarguments":41,"lodash.isarray":38}],40:[function(require,module,exports){
 module.exports=require(16)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],41:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],41:[function(require,module,exports){
 module.exports=require(17)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":17}],42:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":17}],42:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -3729,13 +3729,13 @@ module.exports = flatten;
 
 },{"lodash._baseflatten":43,"lodash._isiterateecall":46}],43:[function(require,module,exports){
 module.exports=require(25)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.difference/node_modules/lodash._baseflatten/index.js":25,"lodash.isarguments":44,"lodash.isarray":45}],44:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.difference/node_modules/lodash._baseflatten/index.js":25,"lodash.isarguments":44,"lodash.isarray":45}],44:[function(require,module,exports){
 module.exports=require(17)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":17}],45:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":17}],45:[function(require,module,exports){
 module.exports=require(18)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarray/index.js":18}],46:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarray/index.js":18}],46:[function(require,module,exports){
 module.exports=require(13)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash._createassigner/node_modules/lodash._isiterateecall/index.js":13}],47:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash._createassigner/node_modules/lodash._isiterateecall/index.js":13}],47:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -4110,7 +4110,7 @@ module.exports = debounce;
 
 },{"lodash._getnative":50}],50:[function(require,module,exports){
 module.exports=require(16)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],51:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],51:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -4290,13 +4290,13 @@ module.exports = baseValues;
 
 },{}],54:[function(require,module,exports){
 module.exports=require(15)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/index.js":15,"lodash._getnative":55,"lodash.isarguments":56,"lodash.isarray":57}],55:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/index.js":15,"lodash._getnative":55,"lodash.isarguments":56,"lodash.isarray":57}],55:[function(require,module,exports){
 module.exports=require(16)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],56:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":16}],56:[function(require,module,exports){
 module.exports=require(17)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":17}],57:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":17}],57:[function(require,module,exports){
 module.exports=require(18)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarray/index.js":18}],58:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/lodash.assign/node_modules/lodash.keys/node_modules/lodash.isarray/index.js":18}],58:[function(require,module,exports){
 /*!
 * vdom-virtualize
 * Copyright 2014 by Marcel Klehr <mklehr@gmx.net>
@@ -5588,12 +5588,14 @@ function template(string) {
 },{}],87:[function(require,module,exports){
 module.exports = extend
 
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
 function extend(target) {
     for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i]
 
         for (var key in source) {
-            if (source.hasOwnProperty(key)) {
+            if (hasOwnProperty.call(source, key)) {
                 target[key] = source[key]
             }
         }
@@ -5661,9 +5663,9 @@ function isThunk(t) {
 
 },{}],90:[function(require,module,exports){
 module.exports=require(59)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":59}],91:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":59}],91:[function(require,module,exports){
 module.exports=require(60)
-},{"./version":94,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":60}],92:[function(require,module,exports){
+},{"./version":94,"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":60}],92:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -5674,13 +5676,13 @@ function isVirtualText(x) {
 
 },{"./version":94}],93:[function(require,module,exports){
 module.exports=require(61)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":61}],94:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":61}],94:[function(require,module,exports){
 module.exports=require(62)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":62}],95:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":62}],95:[function(require,module,exports){
 module.exports=require(63)
-},{"./is-vhook":90,"./is-vnode":91,"./is-widget":93,"./version":94,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":63}],96:[function(require,module,exports){
+},{"./is-vhook":90,"./is-vnode":91,"./is-widget":93,"./version":94,"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vnode.js":63}],96:[function(require,module,exports){
 module.exports=require(64)
-},{"./version":94,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":64}],97:[function(require,module,exports){
+},{"./version":94,"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":64}],97:[function(require,module,exports){
 var classIdSplit = /([\.#]?[a-zA-Z0-9_:-]+)/
 var notClassId = /^\.|#/
 
@@ -6122,21 +6124,21 @@ function renderThunk(thunk, previous) {
 
 },{"./is-thunk":100,"./is-vnode":102,"./is-vtext":103,"./is-widget":104}],100:[function(require,module,exports){
 module.exports=require(89)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":89}],101:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-thunk.js":89}],101:[function(require,module,exports){
 module.exports=require(59)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":59}],102:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vhook.js":59}],102:[function(require,module,exports){
 module.exports=require(60)
-},{"./version":107,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":60}],103:[function(require,module,exports){
+},{"./version":107,"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-vnode.js":60}],103:[function(require,module,exports){
 module.exports=require(92)
-},{"./version":107,"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":92}],104:[function(require,module,exports){
+},{"./version":107,"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/virtual-hyperscript/node_modules/vtree/is-vtext.js":92}],104:[function(require,module,exports){
 module.exports=require(61)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":61}],105:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/is-widget.js":61}],105:[function(require,module,exports){
 module.exports=require(66)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":66}],106:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/virtual-dom/node_modules/is-object/index.js":66}],106:[function(require,module,exports){
 module.exports=require(74)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":74}],107:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/virtual-dom/node_modules/x-is-array/index.js":74}],107:[function(require,module,exports){
 module.exports=require(62)
-},{"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":62}],108:[function(require,module,exports){
+},{"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/version.js":62}],108:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -6162,7 +6164,7 @@ VirtualPatch.prototype.type = "VirtualPatch"
 
 },{"./version":107}],109:[function(require,module,exports){
 module.exports=require(64)
-},{"./version":107,"/Users/REdman/projects/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":64}],110:[function(require,module,exports){
+},{"./version":107,"/Users/charles_szilagyi/code/scribe-plugin-noting/node_modules/vdom-virtualize/node_modules/vtree/vtext.js":64}],110:[function(require,module,exports){
 // Scribe noting plugin
 "use strict";
 
@@ -6258,6 +6260,9 @@ var hasClass = require("../../utils/vdom/has-class");
 // Note that we will mutate the tree.
 module.exports = function createNoteFromSelection(focus) {
   var tagName = arguments[1] === undefined ? config.get("defaultTagName") : arguments[1];
+  var isAtLeastPartiallyWithinAnotherNote = arguments[2] === undefined ? false : arguments[2];
+
+  var isStandaloneNote = !isAtLeastPartiallyWithinAnotherNote;
 
   if (!isVFocus(focus)) {
     errorHandle("Only a valid VFocus element can be passed to createNoteFromSelection, you passed: %s", focus);
@@ -6284,8 +6289,16 @@ module.exports = function createNoteFromSelection(focus) {
   removeErroneousBrTags(focus, tagName);
 
   // Update note properties (merges if necessary).
-  var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0], tagName);
-  var noteSegments = findEntireNote(lastNoteSegment, tagName);
+  var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0], tagName, isStandaloneNote);
+
+  // Note segments are the ones selected by the user, except if the selection overlaps
+  // with an existing note. NB if the selection was completely inside another note,
+  // removeNote or removePartOfNote would be called.
+  var noteSegments = toWrapAndReplace;
+  if (!isStandaloneNote) {
+    noteSegments = findEntireNote(lastNoteSegment, tagName, isStandaloneNote);
+  }
+
   resetNoteSegmentClasses(noteSegments, tagName);
 
   // We need to clear the cache, and this has to be done before we place
@@ -7654,6 +7667,7 @@ module.exports = function (scribe) {
             */
 
             var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
+            var isPartiallyWithinNote = isSelectionWithinNote(markers, tagName);
 
             //If the caret is within a note and nothing is selected
             if (selectionIsCollapsed && isWithinNote) {
@@ -7669,7 +7683,7 @@ module.exports = function (scribe) {
             }
             //if we have a selection outside of a note
             else {
-              createNoteFromSelection(focus, tagName);
+              createNoteFromSelection(focus, tagName, isPartiallyWithinNote);
             }
           });
         }
@@ -8090,6 +8104,7 @@ var config = require("../../config");
 
 module.exports = function findEntireNote(focus) {
   var tagName = arguments[1] === undefined ? config.get("defaultTagName") : arguments[1];
+  var isStandaloneNote = arguments[2] === undefined ? false : arguments[2];
 
   if (!isVFocus(focus)) {
     errorHandle("Only a valid VFocus can be passed to findEntireNote, you passed: %s", focus);
@@ -8102,7 +8117,7 @@ module.exports = function findEntireNote(focus) {
   }
 
   return firstNoteSegment.takeWhile(function (node) {
-    return stillWithinNote(node, tagName);
+    return stillWithinNote(node, tagName, isStandaloneNote);
   }).filter(function (node) {
     return isNoteSegment(node, tagName);
   });
@@ -8142,13 +8157,14 @@ var config = require("../../config");
 
 module.exports = function findLastNoteSegment(focus) {
   var tagName = arguments[1] === undefined ? config.get("defaultTagName") : arguments[1];
+  var isStandaloneNote = arguments[2] === undefined ? false : arguments[2];
 
   if (!isVFocus(focus)) {
     errorHandle("only a valid VFocus can be passed to findFirstNoteSegment, you passed: %s", focus);
   }
 
   return focus.takeWhile(function (node) {
-    return stillWithinNote(node, tagName);
+    return stillWithinNote(node, tagName, isStandaloneNote);
   }).filter(function (node) {
     return isNoteSegment(node, tagName);
   }).splice(-1)[0];
@@ -8582,21 +8598,28 @@ module.exports = { get: getNotesCache, set: setNotesCache };
 var isVFocus = require("../vfocus/is-vfocus");
 var isVText = require("../vfocus/is-vtext");
 var isEmpty = require("../vfocus/is-empty");
+var isScribeMarker = require("./is-scribe-marker");
 var findParentNoteSegment = require("../noting/find-parent-note-segment");
 var errorHandle = require("../error-handle");
 var config = require("../../config");
 
 module.exports = function isWithinNote(focus) {
   var tagName = arguments[1] === undefined ? config.get("defaultTagName") : arguments[1];
+  var isStandaloneNote = arguments[2] === undefined ? false : arguments[2];
 
   if (!isVFocus(focus)) {
     errorHandle("Only a valid VFocus can be passed to isWithinNote, you passed: %s", focus);
   }
 
+  // We consider selection marker as the end of note when the note is not overlaping other note(s)
+  if (isStandaloneNote && isScribeMarker(focus)) {
+    return false;
+  }
+
   return !isVText(focus) || isEmpty(focus) || !!findParentNoteSegment(focus, tagName);
 };
 
-},{"../../config":135,"../error-handle":143,"../noting/find-parent-note-segment":155,"../vfocus/is-empty":179,"../vfocus/is-vfocus":182,"../vfocus/is-vtext":183}],170:[function(require,module,exports){
+},{"../../config":135,"../error-handle":143,"../noting/find-parent-note-segment":155,"../vfocus/is-empty":179,"../vfocus/is-vfocus":182,"../vfocus/is-vtext":183,"./is-scribe-marker":165}],170:[function(require,module,exports){
 "use strict";
 
 module.exports = function toCamelCase(string) {
