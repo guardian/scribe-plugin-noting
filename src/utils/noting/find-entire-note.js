@@ -19,7 +19,7 @@ var config = require('../../config');
 // note rather than the second.
 //
 
-module.exports = function findEntireNote(focus, tagName = config.get('defaultTagName')) {
+module.exports = function findEntireNote(focus, tagName = config.get('defaultTagName'), isStandaloneNote = false) {
 
   if (!isVFocus(focus)) {
     errorHandle('Only a valid VFocus can be passed to findEntireNote, you passed: %s', focus);
@@ -32,7 +32,7 @@ module.exports = function findEntireNote(focus, tagName = config.get('defaultTag
   }
 
   return firstNoteSegment
-    .takeWhile((node)=>stillWithinNote(node, tagName))
+    .takeWhile((node)=>stillWithinNote(node, tagName, isStandaloneNote))
     .filter((node)=>isNoteSegment(node, tagName));
 
 };

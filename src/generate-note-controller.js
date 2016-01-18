@@ -286,6 +286,7 @@ module.exports = function(scribe){
         */
 
         var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
+        var isPartiallyWithinNote = isSelectionWithinNote(markers, tagName)
 
         //If the caret is within a note and nothing is selected
         if (selectionIsCollapsed && isWithinNote){
@@ -301,7 +302,7 @@ module.exports = function(scribe){
         }
         //if we have a selection outside of a note
         else {
-          createNoteFromSelection(focus, tagName);
+          createNoteFromSelection(focus, tagName, isPartiallyWithinNote);
         }
 
       });
