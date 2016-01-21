@@ -1,0 +1,23 @@
+/**
+ * Hitzone pseudo-elements used for hitzones at start and end of notes for
+ * toggling note collapse.
+ */
+.note-hitzone() {
+  content: '|';
+  position: relative;
+  width: 8px;
+  height: 100%;
+  cursor: pointer;
+  pointer-events: all;
+  opacity: 0;
+}
+
+.note--start::before {
+  .note-hitzone;
+  margin: 0 0 0 -3px;
+}
+
+.note--end::after {
+  .note-hitzone;
+  margin: 0 -5px 0 2px;
+}
