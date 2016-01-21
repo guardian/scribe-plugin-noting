@@ -1,4 +1,28 @@
 /* original note background without opacity in hex: #e6f2f7; */
+/**
+ * Hitzone pseudo-elements used for hitzones at start and end of notes for
+ * toggling note collapse.
+ */
+.note--start::before {
+  content: '|';
+  position: relative;
+  width: 8px;
+  height: 100%;
+  cursor: pointer;
+  pointer-events: all;
+  opacity: 0;
+  margin: 0 0 0 -3px;
+}
+.note--end::after {
+  content: '|';
+  position: relative;
+  width: 8px;
+  height: 100%;
+  cursor: pointer;
+  pointer-events: all;
+  opacity: 0;
+  margin: 0 -5px 0 2px;
+}
 /* SVG Borders for note */
 .note-collapsed {
   display: none;
@@ -365,27 +389,6 @@ gu-correct.note--start.note--collapsed:before {
 gu-correct.note--start.note--end:hover,
 gu-correct.note--start.note--collapsed:hover {
   cursor: inherit;
-}
-/**
- * Hitzone pseudo-elements used for hitzones at start and end of notes for
- * toggling note collapse.
- */
-.note--start::before {
-  content: ' ';
-  position: absolute;
-  width: 8px;
-  height: 100%;
-  cursor: pointer;
-  pointer-events: all;
-  margin-left: -5px;
-}
-.note--end::after {
-  content: ' ';
-  position: absolute;
-  width: 8px;
-  height: 100%;
-  cursor: pointer;
-  pointer-events: all;
 }
 .note-barrier {
   /* Keeps note barriers inline. */
