@@ -23,6 +23,10 @@
   opacity: 0;
   margin: 0 -5px 0 2px;
 }
+gu-correct.note--start::before,
+gu-flag.note--start::before {
+  opacity: 1;
+}
 /* SVG Borders for note */
 .note-collapsed {
   display: none;
@@ -48,7 +52,7 @@
 }
 gu-note.note {
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%232983b6' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%232983b6' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
-  background-color: rgba(230, 242, 247, 0.7);
+  background-color: rgba(230, 242, 247, 0.3);
   position: relative;
   vertical-align: bottom;
   pointer-events: none;
@@ -63,7 +67,7 @@ gu-note.note:hover {
 }
 gu-note.note--start {
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 0 0 L 6 0 L 0 6 L 0 0 L 2 0 L 2 20 L 0 20' fill='%232983b6' stroke='none'/></svg>") top left / contain no-repeat, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%232983b6' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%232983b6' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
-  background-color: rgba(230, 242, 247, 0.7);
+  background-color: rgba(230, 242, 247, 0.3);
   position: relative;
   vertical-align: bottom;
   pointer-events: none;
@@ -79,7 +83,7 @@ gu-note.note--start:hover {
 }
 gu-note.note--end {
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 8 20 L 2 20 L 8 14 L 8 20 L 6 20 L 6 0 L 8 0' fill='%232983b6' stroke='none'/></svg>") bottom right / contain no-repeat, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%232983b6' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%232983b6' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x;
-  background-color: rgba(230, 242, 247, 0.7);
+  background-color: rgba(230, 242, 247, 0.3);
   position: relative;
   vertical-align: bottom;
   pointer-events: none;
@@ -118,7 +122,7 @@ gu-note.note--collapsed:hover {
 gu-note.note--start.note--end,
 gu-note.note--start.note--collapsed {
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 0 0 L 6 0 L 0 6 L 0 0 L 2 0 L 2 20 L 0 20' fill='%232983b6' stroke='none'/></svg>") top left / contain no-repeat, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%232983b6' stroke-dasharray='1'/></svg>") top / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 2 1' version='1.1'><line x1='0' y1='0' x2='2' y2='0' stroke='%232983b6' stroke-dasharray='1'/></svg>") bottom / 2px repeat-x, url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 8 20' version='1.1'><path d='M 8 20 L 2 20 L 8 14 L 8 20 L 6 20 L 6 0 L 8 0' fill='%232983b6' stroke='none'/></svg>") bottom right / contain no-repeat;
-  background-color: rgba(230, 242, 247, 0.7);
+  background-color: rgba(230, 242, 247, 0.3);
   margin-right: 1px;
   padding-right: 4px;
   margin-left: 1px;
