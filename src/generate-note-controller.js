@@ -7,8 +7,6 @@ var config = require('./config');
 var emitter = require('./utils/emitter');
 var noteCollapseState = require('./utils/collapse-state');
 
-var NoteCommandFactory = require('./note-command-factory');
-
 var findScribeMarkers = require('./utils/noting/find-scribe-markers');
 var isSelectionEntirelyWithinNote = require('./utils/noting/is-selection-entirely-within-note');
 var isSelectionWithinNote = require('./utils/noting/is-selection-within-note');
@@ -25,6 +23,7 @@ var stripZeroWidthSpaces = require('./actions/noting/strip-zero-width-space');
 var isCaretNextToNote = require('./utils/noting/is-caret-next-to-note');
 var removeCharacterFromNote = require('./actions/noting/remove-character-from-adjacent-note');
 var selectNote = require('./actions/noting/select-note');
+var wrapInNoteAroundPaste = require('./actions/noting/wrap-in-note-around-paste');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -43,16 +42,14 @@ emitter.on('command:toggle:all-notes', tag => {
   noteCollapseState.set(!state);
 });
 
-
 module.exports = function(scribe){
-
   class NoteController {
     constructor() {
-
-      //browser events
+      // Browser event listeners
       scribe.el.addEventListener('keydown', e => this.onNoteKeyAction(e));
       scribe.el.addEventListener('click', e => this.onElementClicked(e));
       scribe.el.addEventListener('input', e => this.validateNotes(e));
+      scribe.el.addEventListener('paste', e => this.onPaste());
 
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
@@ -60,7 +57,6 @@ module.exports = function(scribe){
       //Run ensureNoteIntegrity to place missing zero-width-spaces
       this.ensureNoteIntegrity();
     }
-
 
     // noteKeyAction is triggered on key press and dynamically figures out what kind of note to create
     // selectors should be passed through the config object the default selector looks like this:
@@ -146,6 +142,39 @@ module.exports = function(scribe){
           e.preventDefault();
         this.toggleClickedNotesCollapseState(e.target);
         break;
+      }
+    }
+
+    onPaste() {
+      if (this.isPasteInsideNote()) {
+        wrapInNoteAroundPaste()
+      }
+    }
+
+    // We assume user pasted inside a note if the number of notes changed.
+    isPasteInsideNote() {
+      var pos = scribe.undoManager.position
+      var item = scribe.undoManager.item(pos)[0]
+
+      var notesBeforePaste = countNotes(item.previousItem.content)
+      var notesAfterPaste = countNotes(item.content)
+
+      return notesAfterPaste != notesBeforePaste
+
+      // The number of notes in an HTML is the sum of number of note tags and start/end classes.
+      function countNotes(html) {
+        var hints = [
+          config.get('defaultTagName'),
+          config.get('noteStartClassName'),
+          config.get('noteEndClassName')
+        ]
+
+        // split is the fastest way
+        // http://jsperf.com/find-number-of-occurrences-using-split-and-match
+        return hints.reduce((p, c) => {
+          return p + html.split(c).length
+        }, 0)
+
       }
     }
 
