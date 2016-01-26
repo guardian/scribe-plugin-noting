@@ -7293,21 +7293,17 @@ var mutateScribe = notingVDom.mutateScribe;
 // we would end up with the pasted content surrounded by two separate notes.
 // It finds the marker (current cursor position), the previous and next notes
 // (the ones we need to sew together) and wraps them into a new note.
-module.exports = function wrapInNoteAroundPaste() {
-  mutateScribe(scribe, function (focus) {
-    var marker = focus.find(isScribeMarker);
-    var prevNote = findPreviousNoteSegment(marker);
-    var nextNote = findNextNoteSegment(marker);
+module.exports = function wrapInNoteAroundPaste(focus) {
+  var marker = focus.find(isScribeMarker);
+  var prevNote = findPreviousNoteSegment(marker);
+  var nextNote = findNextNoteSegment(marker);
 
-    removeScribeMarkers(focus);
+  removeScribeMarkers(focus);
 
-    prevNote.prependChildren(createVirtualScribeMarker());
-    nextNote.addChild(createVirtualScribeMarker());
+  prevNote.prependChildren(createVirtualScribeMarker());
+  nextNote.addChild(createVirtualScribeMarker());
 
-    var selection = new scribe.api.Selection();
-
-    createNoteFromSelection(focus, undefined, true);
-  });
+  createNoteFromSelection(focus, undefined, true);
 };
 
 },{"../../noting-vdom":119,"../../utils/create-virtual-scribe-marker":122,"../../utils/noting/find-next-note-segment":134,"../../utils/noting/find-previous-note-segment":137,"../../utils/noting/is-scribe-marker":146,"./create-note-from-selection":92,"./remove-scribe-markers":100}],111:[function(require,module,exports){
@@ -7662,7 +7658,9 @@ module.exports = function (scribe) {
       onPaste: {
         value: function onPaste() {
           if (this.isPasteInsideNote()) {
-            wrapInNoteAroundPaste();
+            mutateScribe(scribe, function (focus) {
+              return wrapInNoteAroundPaste(focus);
+            });
           }
         }
       },
