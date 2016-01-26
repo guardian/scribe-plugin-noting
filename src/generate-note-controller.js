@@ -147,7 +147,7 @@ module.exports = function(scribe){
 
     onPaste() {
       if (this.isPasteInsideNote()) {
-        wrapInNoteAroundPaste()
+        mutateScribe(scribe, (focus) => wrapInNoteAroundPaste(focus))
       }
     }
 

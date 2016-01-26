@@ -13,19 +13,15 @@ var mutateScribe = notingVDom.mutateScribe;
 // we would end up with the pasted content surrounded by two separate notes.
 // It finds the marker (current cursor position), the previous and next notes
 // (the ones we need to sew together) and wraps them into a new note.
-module.exports = function wrapInNoteAroundPaste() {
-  mutateScribe(scribe, focus => {
-    var marker = focus.find(isScribeMarker)
-    var prevNote = findPreviousNoteSegment(marker)
-    var nextNote = findNextNoteSegment(marker)
+module.exports = function wrapInNoteAroundPaste(focus) {
+  var marker = focus.find(isScribeMarker)
+  var prevNote = findPreviousNoteSegment(marker)
+  var nextNote = findNextNoteSegment(marker)
 
-    removeScribeMarkers(focus)
+  removeScribeMarkers(focus)
 
-    prevNote.prependChildren(createVirtualScribeMarker())
-    nextNote.addChild(createVirtualScribeMarker())
+  prevNote.prependChildren(createVirtualScribeMarker())
+  nextNote.addChild(createVirtualScribeMarker())
 
-    var selection = new scribe.api.Selection();
-
-    createNoteFromSelection(focus, undefined, true)
-  })
+  createNoteFromSelection(focus, undefined, true)
 }
