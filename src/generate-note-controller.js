@@ -45,14 +45,6 @@ emitter.on('command:toggle:all-notes', tag => {
 module.exports = function(scribe){
   class NoteController {
     constructor() {
-      // Holds the snapshot of the editable HTML at the start and on each change
-      // so we can tell in `isPasteInsideNote` if a paste operation broke a note into two.
-      this.HTMLHistory = []
-      this.saveHTMLHistory(scribe.el.innerHTML)
-
-      // Will keep updating the HTML history
-      scribe.registerHTMLFormatter('sanitize', this.sanitizeHTMLFormatterHandler.bind(this));
-
       // Browser event listeners
       scribe.el.addEventListener('keydown', e => this.onNoteKeyAction(e));
       scribe.el.addEventListener('click', e => this.onElementClicked(e));
@@ -64,17 +56,6 @@ module.exports = function(scribe){
       emitter.on('command:toggle:single-note', tag => this.toggleSelectedNotesCollapseState(tag));
       //Run ensureNoteIntegrity to place missing zero-width-spaces
       this.ensureNoteIntegrity();
-    }
-
-    sanitizeHTMLFormatterHandler(html) {
-      this.saveHTMLHistory(html)
-
-      return html
-    }
-
-    saveHTMLHistory(html) {
-      this.HTMLHistory.unshift(html)
-      this.HTMLHistory = this.HTMLHistory.slice(0, 3)
     }
 
     // noteKeyAction is triggered on key press and dynamically figures out what kind of note to create
@@ -167,16 +148,19 @@ module.exports = function(scribe){
     onPaste() {
       if (this.isPasteInsideNote()) {
         wrapInNoteAroundPaste()
-        this.saveHTMLHistory(scribe.el.innerHTML)
       }
     }
 
     isPasteInsideNote() {
+      var pos = scribe.undoManager.position
+      var item = scribe.undoManager.item(pos)[0]
+
       var tagName = config.get('defaultTagName')
+
       // split is the fastest way
       // http://jsperf.com/find-number-of-occurrences-using-split-and-match
-      var notesBeforePaste = this.HTMLHistory[2].split(tagName).length
-      var notesAfterPaste = this.HTMLHistory[0].split(tagName).length
+      var notesBeforePaste = item.previousItem.content.split(tagName).length
+      var notesAfterPaste = item.content.split(tagName).length
 
       return notesAfterPaste > notesBeforePaste
     }
