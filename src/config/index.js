@@ -9,6 +9,8 @@ var config = {
   defaultTagName: 'gu-note',
   className: 'note',
   defaultClassName: 'note',
+  noteStartClassName: 'note--start',
+  noteEndClassName: 'note--end',
   dataName: 'data-note-edited-by',
   dataNameCamel: 'dataNoteEditedBy',
   dataDate: 'data-note-edited-date',

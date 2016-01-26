@@ -151,18 +151,31 @@ module.exports = function(scribe){
       }
     }
 
+    // We assume user pasted inside a note if the number of notes changed.
     isPasteInsideNote() {
       var pos = scribe.undoManager.position
       var item = scribe.undoManager.item(pos)[0]
 
-      var tagName = config.get('defaultTagName')
+      var notesBeforePaste = countNotes(item.previousItem.content)
+      var notesAfterPaste = countNotes(item.content)
 
-      // split is the fastest way
-      // http://jsperf.com/find-number-of-occurrences-using-split-and-match
-      var notesBeforePaste = item.previousItem.content.split(tagName).length
-      var notesAfterPaste = item.content.split(tagName).length
+      return notesAfterPaste != notesBeforePaste
 
-      return notesAfterPaste > notesBeforePaste
+      // The number of notes in an HTML is the sum of number of note tags and start/end classes.
+      function countNotes(html) {
+        var hints = [
+          config.get('defaultTagName'),
+          config.get('noteStartClassName'),
+          config.get('noteEndClassName')
+        ]
+
+        // split is the fastest way
+        // http://jsperf.com/find-number-of-occurrences-using-split-and-match
+        return hints.reduce((p, c) => {
+          return p + html.split(c).length
+        }, 0)
+
+      }
     }
 
     // ------------------------------
