@@ -15,13 +15,23 @@ var mutateScribe = notingVDom.mutateScribe;
 // (the ones we need to sew together) and wraps them into a new note.
 module.exports = function wrapInNoteAroundPaste(focus) {
   var marker = focus.find(isScribeMarker)
-  var prevNote = findPreviousNoteSegment(marker)
-  var nextNote = findNextNoteSegment(marker)
+  try {
+    var tagName = marker.left().left().vNode.tagName.toLowerCase()
+  } catch(e) {
+    return
+  }
+
+  var prevNote = findPreviousNoteSegment(marker, tagName)
+  var nextNote = findNextNoteSegment(marker, tagName)
+
+  if (!prevNote || !nextNote) {
+    return
+  }
 
   removeScribeMarkers(focus)
 
   prevNote.prependChildren(createVirtualScribeMarker())
   nextNote.addChild(createVirtualScribeMarker())
 
-  createNoteFromSelection(focus, undefined, true)
+  createNoteFromSelection(focus, tagName, true)
 }
