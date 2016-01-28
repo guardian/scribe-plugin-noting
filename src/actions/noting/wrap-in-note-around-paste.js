@@ -15,11 +15,21 @@ var mutateScribe = notingVDom.mutateScribe;
 // (the ones we need to sew together) and wraps them into a new note.
 module.exports = function wrapInNoteAroundPaste(focus) {
   var marker = focus.find(isScribeMarker)
-  try {
-    var tagName = marker.left().left().vNode.tagName.toLowerCase()
-  } catch(e) {
+
+  var node = marker.find(focus => {
+    if(!focus.vNode.tagName) {
+      return false
+    }
+
+    let tagName = focus.vNode.tagName.toLowerCase()
+    return (tagName == "gu-note" || tagName == "gu-correct" || tagName == "gu-flag")
+  }, 'left')
+
+  if (!node) {
     return
   }
+
+  var tagName = node.vNode.tagName.toLowerCase()
 
   var prevNote = findPreviousNoteSegment(marker, tagName)
   var nextNote = findNextNoteSegment(marker, tagName)
