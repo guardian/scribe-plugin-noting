@@ -1,3 +1,4 @@
+var config = require('../../config');
 var isScribeMarker = require('../../utils/noting/is-scribe-marker');
 var findPreviousNoteSegment = require('../../utils/noting/find-previous-note-segment');
 var findNextNoteSegment = require('../../utils/noting/find-next-note-segment');
@@ -15,23 +16,22 @@ var mutateScribe = notingVDom.mutateScribe;
 // (the ones we need to sew together) and wraps them into a new note.
 module.exports = function wrapInNoteAroundPaste(focus) {
   var marker = focus.find(isScribeMarker)
+  var tagNames = config.get('selectors').map(s => s.tagName)
 
-  var node = marker.find(focus => {
+  var prevNote = marker.find(focus => {
     if(!focus.vNode.tagName) {
       return false
     }
 
     let tagName = focus.vNode.tagName.toLowerCase()
-    return (tagName == "gu-note" || tagName == "gu-correct" || tagName == "gu-flag")
+    return tagNames.indexOf(tagName) > -1
   }, 'left')
 
-  if (!node) {
+  if (!prevNote) {
     return
   }
 
-  var tagName = node.vNode.tagName.toLowerCase()
-
-  var prevNote = findPreviousNoteSegment(marker, tagName)
+  var tagName = prevNote.vNode.tagName.toLowerCase()
   var nextNote = findNextNoteSegment(marker, tagName)
 
   if (!prevNote || !nextNote) {
