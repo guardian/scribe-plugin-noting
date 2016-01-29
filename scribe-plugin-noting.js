@@ -7278,6 +7278,7 @@ module.exports = function unWrapNote(focus) {
 },{"../../config":116,"../../utils/error-handle":124,"../../utils/noting/is-note-segment":145,"../../utils/vfocus/is-vfocus":163,"lodash.flatten":35}],110:[function(require,module,exports){
 "use strict";
 
+var config = require("../../config");
 var isScribeMarker = require("../../utils/noting/is-scribe-marker");
 var findPreviousNoteSegment = require("../../utils/noting/find-previous-note-segment");
 var findNextNoteSegment = require("../../utils/noting/find-next-note-segment");
@@ -7295,18 +7296,39 @@ var mutateScribe = notingVDom.mutateScribe;
 // (the ones we need to sew together) and wraps them into a new note.
 module.exports = function wrapInNoteAroundPaste(focus) {
   var marker = focus.find(isScribeMarker);
-  var prevNote = findPreviousNoteSegment(marker);
-  var nextNote = findNextNoteSegment(marker);
+  var tagNames = config.get("selectors").map(function (s) {
+    return s.tagName;
+  });
+
+  var prevNote = marker.find(function (focus) {
+    if (!focus.vNode.tagName) {
+      return false;
+    }
+
+    var tagName = focus.vNode.tagName.toLowerCase();
+    return tagNames.indexOf(tagName) > -1;
+  }, "left");
+
+  if (!prevNote) {
+    return;
+  }
+
+  var tagName = prevNote.vNode.tagName.toLowerCase();
+  var nextNote = findNextNoteSegment(marker, tagName);
+
+  if (!nextNote) {
+    return;
+  }
 
   removeScribeMarkers(focus);
 
   prevNote.prependChildren(createVirtualScribeMarker());
   nextNote.addChild(createVirtualScribeMarker());
 
-  createNoteFromSelection(focus, undefined, true);
+  createNoteFromSelection(focus, tagName, true);
 };
 
-},{"../../noting-vdom":119,"../../utils/create-virtual-scribe-marker":122,"../../utils/noting/find-next-note-segment":134,"../../utils/noting/find-previous-note-segment":137,"../../utils/noting/is-scribe-marker":146,"./create-note-from-selection":92,"./remove-scribe-markers":100}],111:[function(require,module,exports){
+},{"../../config":116,"../../noting-vdom":119,"../../utils/create-virtual-scribe-marker":122,"../../utils/noting/find-next-note-segment":134,"../../utils/noting/find-previous-note-segment":137,"../../utils/noting/is-scribe-marker":146,"./create-note-from-selection":92,"./remove-scribe-markers":100}],111:[function(require,module,exports){
 "use strict";
 
 var assign = require("lodash.assign");
