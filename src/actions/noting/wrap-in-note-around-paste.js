@@ -34,7 +34,7 @@ module.exports = function wrapInNoteAroundPaste(focus) {
   var tagName = prevNote.vNode.tagName.toLowerCase()
   var nextNote = findNextNoteSegment(marker, tagName)
 
-  if (!prevNote || !nextNote) {
+  if (!nextNote) {
     return
   }
 
