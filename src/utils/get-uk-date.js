@@ -17,9 +17,11 @@ module.exports = function getUKDate(data){
   // forced UK formatted time in local timezone:  dd/MM/YYYY at hh:mm
   var formattedDate = [
     date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(),
-    'at',
-    date.getHours() + ':' + (date.getMinutes() < 9 ? '0' : '') + date.getMinutes()
-  ].join(' ');
+    ' at ',
+    (date.getHours() < 10 ? '0' : '') + date.getHours(),
+    ':',
+    (date.getMinutes() < 10 ? '0' : '') + date.getMinutes()
+  ].join('');
 
   return name + ' ' + formattedDate;
 
