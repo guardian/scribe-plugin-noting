@@ -29,9 +29,12 @@ module.exports = function resetNoteBarriers(focus, tagName = config.get('default
       });
     });
 
-
     //add zero width space to first note segment first note
-    noteSegments[0].next().insertBefore(createNoteBarrier());
+    var nextNoteSegment = noteSegments[0].next()
+
+    if(nextNoteSegment) {
+      nextNoteSegment.insertBefore(createNoteBarrier());
+    }
 
     //insert a note barrier after the current note
     var endingNoteSegment = noteSegments.slice(-1)[0];
