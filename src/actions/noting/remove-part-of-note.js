@@ -55,7 +55,17 @@ module.exports = function removePartofNote(focus, tagName = config.get('defaultT
   var entireNoteTextNodeFocuses = flatten(entireNote.map(flattenTree)).filter(isVText);
 
   var entireNoteTextNodes = entireNoteTextNodeFocuses.map(nodeFocus => nodeFocus.vNode);
-  var textNodesToUnote = focusesToUnnote.map(nodeFocus => nodeFocus.vNode);
+  var textNodesToUnote = focusesToUnnote.map(nodeFocus => {
+    // If the unnoted nodeFocus happens to be a space, we replace it with a
+    // placeholder, otherwise the note boundaries would not be detected.
+    if(nodeFocus.vNode.text === " ") {
+      var placeholder = new VText('\u200B \u200B')
+      nodeFocus.replace(placeholder)
+    }
+
+    return nodeFocus.vNode
+  });
+
   var toWrapAndReplace = difference(entireNoteTextNodes, textNodesToUnote);
 
   var focusesToNote = entireNoteTextNodeFocuses.filter(nodeFocus => {
