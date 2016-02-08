@@ -6884,8 +6884,16 @@ module.exports = function removePartofNote(focus) {
     return nodeFocus.vNode;
   });
   var textNodesToUnote = focusesToUnnote.map(function (nodeFocus) {
+    // If the unnoted nodeFocus happens to be a space, we replace it with a
+    // placeholder, otherwise the note boundaries would not be detected.
+    if (nodeFocus.vNode.text === " ") {
+      var placeholder = new VText("​ ​");
+      nodeFocus.replace(placeholder);
+    }
+
     return nodeFocus.vNode;
   });
+
   var toWrapAndReplace = difference(entireNoteTextNodes, textNodesToUnote);
 
   var focusesToNote = entireNoteTextNodeFocuses.filter(function (nodeFocus) {
