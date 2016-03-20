@@ -1,5 +1,4 @@
 var path = require('path');
-var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
 
@@ -21,7 +20,7 @@ describe('VFocus - Iterations', function() {
           ]),
           h('p#4')
       ]);
-    
+
       forEachTreeFocus = new VFocus(forEachTree);
     });
 
@@ -134,7 +133,7 @@ describe('VFocus - Iterations', function() {
           h('p')
       ]);
 
-      rootVFocus = new VFocus(findTree);      
+      rootVFocus = new VFocus(findTree);
     });
 
     it('finds the node with the expected id', function(){

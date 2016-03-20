@@ -4,8 +4,6 @@
 
 var TAG = 'gu-note';
 
-var _ = require('lodash');
-
 var diff = require('virtual-dom/diff');
 var patch = require('virtual-dom/patch');
 

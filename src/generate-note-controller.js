@@ -1,10 +1,11 @@
-var _ = require('lodash');
+var toArray = require('lodash.toarray');
+var isObject = require('lodash.isobject');
+var throttle = require('lodash.throttle');
+var find = require('lodash.find');
 
 var config = require('./config');
 var emitter = require('./utils/emitter');
 var noteCollapseState = require('./utils/collapse-state');
-
-var NoteCommandFactory = require('./note-command-factory');
 
 var findScribeMarkers = require('./utils/noting/find-scribe-markers');
 var isSelectionEntirelyWithinNote = require('./utils/noting/is-selection-entirely-within-note');
@@ -22,6 +23,7 @@ var stripZeroWidthSpaces = require('./actions/noting/strip-zero-width-space');
 var isCaretNextToNote = require('./utils/noting/is-caret-next-to-note');
 var removeCharacterFromNote = require('./actions/noting/remove-character-from-adjacent-note');
 var selectNote = require('./actions/noting/select-note');
+var wrapInNoteAroundPaste = require('./actions/noting/wrap-in-note-around-paste');
 
 var notingVDom = require('./noting-vdom');
 var mutate = notingVDom.mutate;
@@ -33,23 +35,21 @@ var mutateScribe = notingVDom.mutateScribe;
 emitter.on('command:toggle:all-notes', tag => {
   var state = !!noteCollapseState.get();
   var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
-  scribeInstances = _.toArray(scribeInstances);
+  scribeInstances = toArray(scribeInstances);
   scribeInstances.forEach(instance => {
     mutate(instance, focus => toggleAllNoteCollapseState(focus));
   });
   noteCollapseState.set(!state);
 });
 
-
 module.exports = function(scribe){
-
   class NoteController {
     constructor() {
-
-      //browser events
+      // Browser event listeners
       scribe.el.addEventListener('keydown', e => this.onNoteKeyAction(e));
       scribe.el.addEventListener('click', e => this.onElementClicked(e));
       scribe.el.addEventListener('input', e => this.validateNotes(e));
+      scribe.el.addEventListener('paste', e => this.onPaste());
 
       //scribe command events
       emitter.on('command:note', tag => this.note(tag));
@@ -57,7 +57,6 @@ module.exports = function(scribe){
       //Run ensureNoteIntegrity to place missing zero-width-spaces
       this.ensureNoteIntegrity();
     }
-
 
     // noteKeyAction is triggered on key press and dynamically figures out what kind of note to create
     // selectors should be passed through the config object the default selector looks like this:
@@ -110,10 +109,10 @@ module.exports = function(scribe){
 
         selector.keyCodes.forEach(keyCode => {
           //if we get just a number we check the keyCode
-          if (!_.isObject(keyCode) && e.keyCode === keyCode){
+          if (!isObject(keyCode) && e.keyCode === keyCode){
             e.preventDefault();
             this.note(tagName);
-          } else if(_.isObject(keyCode)){
+          } else if(isObject(keyCode)){
             //in the dynamic case we need to check for BOTH the modifier key AND keycode
             var modifier = Object.keys(keyCode)[0];
             if(e[modifier] && e.keyCode === keyCode[modifier]){
@@ -143,6 +142,39 @@ module.exports = function(scribe){
           e.preventDefault();
         this.toggleClickedNotesCollapseState(e.target);
         break;
+      }
+    }
+
+    onPaste() {
+      if (this.isPasteInsideNote()) {
+        mutateScribe(scribe, (focus) => wrapInNoteAroundPaste(focus))
+      }
+    }
+
+    // We assume user pasted inside a note if the number of notes changed.
+    isPasteInsideNote() {
+      var pos = scribe.undoManager.position
+      var item = scribe.undoManager.item(pos)[0]
+
+      var notesBeforePaste = countNotes(item.previousItem.content)
+      var notesAfterPaste = countNotes(item.content)
+
+      return notesAfterPaste != notesBeforePaste
+
+      // The number of notes in an HTML is the sum of number of note tags and start/end classes.
+      function countNotes(html) {
+        var hints = [
+          config.get('defaultTagName'),
+          config.get('noteStartClassName'),
+          config.get('noteEndClassName')
+        ]
+
+        // split is the fastest way
+        // http://jsperf.com/find-number-of-occurrences-using-split-and-match
+        return hints.reduce((p, c) => {
+          return p + html.split(c).length
+        }, 0)
+
       }
     }
 
@@ -194,7 +226,7 @@ module.exports = function(scribe){
     toggleAllNotesCollapseState() {
       var state = !!noteCollapseState.get();
       var scribeInstances = document.querySelectorAll(config.get('scribeInstanceSelector'));
-      scribeInstances = _.toArray(scribeInstances);
+      scribeInstances = toArray(scribeInstances);
       scribeInstances.forEach(instance => {
         mutate(instance, focus => toggleAllNoteCollapseState(focus));
       });
@@ -230,12 +262,12 @@ module.exports = function(scribe){
         }
 
         //check that the selection is within a note
-        var selector = _.find(config.get('selectors'), (selector) => {
+        var selector = find(config.get('selectors'), (selector => {
           // isSelectionWithinNote rather than isSelectionEntirelyWithinNote
           // since we want to allow all clicks within a note, even if it
           // selects the note and some text to the left or right of the note.
           return isSelectionWithinNote(markers, selector.tagName);
-        });
+        }));
 
         //if the selection is within a note select that note
         if (selector) {
@@ -283,6 +315,7 @@ module.exports = function(scribe){
         */
 
         var isWithinNote = isSelectionEntirelyWithinNote(markers, tagName);
+        var isPartiallyWithinNote = isSelectionWithinNote(markers, tagName)
 
         //If the caret is within a note and nothing is selected
         if (selectionIsCollapsed && isWithinNote){
@@ -298,7 +331,7 @@ module.exports = function(scribe){
         }
         //if we have a selection outside of a note
         else {
-          createNoteFromSelection(focus, tagName);
+          createNoteFromSelection(focus, tagName, isPartiallyWithinNote);
         }
 
       });
@@ -306,7 +339,7 @@ module.exports = function(scribe){
 
     //validateNotes makes sure all note--start note--end and data attributes are in place
     validateNotes() {
-      _.throttle(()=> {
+      throttle(()=> {
         this.ensureNoteIntegrity();
       }, 1000)();
     }
@@ -315,11 +348,15 @@ module.exports = function(scribe){
       mutateScribe(scribe, (focus)=> {
         //strip the document of ALL zero width spaces
         stripZeroWidthSpaces(focus);
+      });
+
+      mutateScribe(scribe, (focus)=> {
         config.get('selectors').forEach((selector)=>{
           //run through EACH kind of note and re-add the zero width spaces
           ensureNoteIntegrity(focus, selector.tagName);
         });
       });
+
     }
 
   }

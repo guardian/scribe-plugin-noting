@@ -1,4 +1,6 @@
-var _ = require('lodash');
+var difference = require('lodash.difference');
+var flatten = require('lodash.flatten');
+
 var VText = require('vtree/vtext');
 var config = require('../../config');
 
@@ -50,12 +52,21 @@ module.exports = function removePartofNote(focus, tagName = config.get('defaultT
   var focusesToUnnote = findTextBetweenScribeMarkers(focus);
   var entireNote = findEntireNote(focusesToUnnote[0], tagName);
 
-  var entireNoteTextNodeFocuses = _(entireNote).map(flattenTree)
-  .flatten().value().filter(isVText);
+  var entireNoteTextNodeFocuses = flatten(entireNote.map(flattenTree)).filter(isVText);
 
   var entireNoteTextNodes = entireNoteTextNodeFocuses.map(nodeFocus => nodeFocus.vNode);
-  var textNodesToUnote = focusesToUnnote.map(nodeFocus => nodeFocus.vNode);
-  var toWrapAndReplace = _.difference(entireNoteTextNodes, textNodesToUnote);
+  var textNodesToUnote = focusesToUnnote.map(nodeFocus => {
+    // If the unnoted nodeFocus happens to be a space, we replace it with a
+    // placeholder, otherwise the note boundaries would not be detected.
+    if(nodeFocus.vNode.text === " ") {
+      var placeholder = new VText('\u200B \u200B')
+      nodeFocus.replace(placeholder)
+    }
+
+    return nodeFocus.vNode
+  });
+
+  var toWrapAndReplace = difference(entireNoteTextNodes, textNodesToUnote);
 
   var focusesToNote = entireNoteTextNodeFocuses.filter(nodeFocus => {
     return (textNodesToUnote.indexOf(nodeFocus.vNode) === -1)
@@ -67,7 +78,7 @@ module.exports = function removePartofNote(focus, tagName = config.get('defaultT
   var wrappedTextNodes = toWrapAndReplace.map(nodeFocus => wrapInNote(nodeFocus, noteData, tagName));
 
   // Replace the nodes in the tree with the wrapped versions.
-  _.zip(focusesToNote, wrappedTextNodes).forEach(node => node[0].replace(node[1]));
+  focusesToNote.forEach((focus, i) => focus.replace(wrappedTextNodes[i]));
 
   // Unwrap previously existing note.
   entireNote.forEach((node)=> unWrapNote(node, tagName));

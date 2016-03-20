@@ -8,8 +8,6 @@
   "description": "Adds notes to scribe",
   "main": "scribe-plugin-noting.js",
   "dependencies": {
-    "scribe-common": "~0.0.11",
-    "lodash": "2.4.1"
   },
   "devDependencies": {
     "requirejs": "~2.1.9",

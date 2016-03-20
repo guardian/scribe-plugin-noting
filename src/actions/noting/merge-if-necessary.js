@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var isVFocus = require('../../utils/vfocus/is-vfocus');
 var errorHandle = require('../../utils/error-handle');
 var findAllNotes = require('../../utils/noting/find-all-notes');
@@ -42,12 +41,11 @@ module.exports = function mergeIfNecessary(focus, tagName = config.get('defaultT
   .filter(note => {
 
     //find any inconsistent time stamps
-    var inconsistentTimeStamps = _(note)
-    .map(segment => !!segment.vNode.properties.dataset.noteEditedBy)
-    .uniq()
-    .value();
+    var inconsistentTimeStamps = new Set(
+      note.map(segment => !!segment.vNode.properties.dataset.noteEditedBy)
+    );
 
-    if(inconsistentTimeStamps.length > 1){
+    if (inconsistentTimeStamps.size > 1) {
       return true;
     }
 

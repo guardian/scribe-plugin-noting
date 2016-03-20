@@ -18,11 +18,11 @@ beforeEach(function(){
 describe('isNoteSegment()', function(){
 
   it('should correctly identify a note element', function(){
-    expect(isNoteSegment(noteFocus)).to.be.true;
+    expect(isNoteSegment(noteFocus, 'gu-note')).to.be.true;
   });
 
   it('should correctly identify an element which is not a note', function(){
-    expect(isNoteSegment(divFocus)).to.be.false;
+    expect(isNoteSegment(divFocus, 'gu-note')).to.be.false;
   });
 
 });

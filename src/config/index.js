@@ -1,4 +1,5 @@
-var _ = require('lodash');
+var assign = require('lodash.assign');
+var isObject = require('lodash.isobject');
 
 //defaults
 var config = {
@@ -8,6 +9,8 @@ var config = {
   defaultTagName: 'gu-note',
   className: 'note',
   defaultClassName: 'note',
+  noteStartClassName: 'note--start',
+  noteEndClassName: 'note--end',
   dataName: 'data-note-edited-by',
   dataNameCamel: 'dataNoteEditedBy',
   dataDate: 'data-note-edited-date',
@@ -37,8 +40,8 @@ module.exports = {
   set: function(key, val){
 
     //if you pass an object we override ALL THE THINGS
-    if(_.isObject(key)){
-      config = _.extend({}, config, key);
+    if(isObject(key)){
+      config = assign({}, config, key);
     }
 
     //else set a specific key

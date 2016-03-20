@@ -1,7 +1,8 @@
 var path = require('path');
-var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
+
+var flatten = require('lodash.flatten');
 
 var h = require('virtual-hyperscript');
 var VText = require('vtree/vtext');
@@ -36,7 +37,7 @@ describe('findAllNotes()', function() {
     ]);
     tree = new VFocus(tree);
 
-    var result = _.flatten(findAllNotes(tree));
+    var result = flatten(findAllNotes(tree));
     expect(result.length).to.equal(2);
   });
 

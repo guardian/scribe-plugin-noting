@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var VText = require('vtree/vtext');
 var config = require('../../config');
 
@@ -23,7 +22,8 @@ var hasClass = require('../../utils/vdom/has-class');
 
 // treeFocus: tree focus of tree containing two scribe markers
 // Note that we will mutate the tree.
-module.exports = function createNoteFromSelection(focus, tagName = config.get('defaultTagName')) {
+module.exports = function createNoteFromSelection(focus, tagName = config.get('defaultTagName'), isAtLeastPartiallyWithinAnotherNote = false) {
+  var isStandaloneNote = !isAtLeastPartiallyWithinAnotherNote
 
   if (!isVFocus(focus)) {
     errorHandle('Only a valid VFocus element can be passed to createNoteFromSelection, you passed: %s', focus);
@@ -37,19 +37,23 @@ module.exports = function createNoteFromSelection(focus, tagName = config.get('d
   var wrappedTextNodes = toWrapAndReplace.map(focus => wrapInNote(focus.vNode, noteDataSet, tagName));
 
   // Replace the nodes in the tree with the wrapped versions.
-  _.zip(toWrapAndReplace, wrappedTextNodes).forEach(focusAndReplacementVNode => {
-    var focus = focusAndReplacementVNode[0];
-    var replacementVNode = focusAndReplacementVNode[1];
-    focus.replace(replacementVNode);
-  });
+  toWrapAndReplace.forEach((focus, i) => focus.replace(wrappedTextNodes[i]));
 
   // If we end up with an empty note a <BR> tag would be created. We have to do
   // this before we remove the markers.
   removeErroneousBrTags(focus, tagName);
 
   // Update note properties (merges if necessary).
-  var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0], tagName);
-  var noteSegments = findEntireNote(lastNoteSegment, tagName);
+  var lastNoteSegment = findLastNoteSegment(toWrapAndReplace[0], tagName, isStandaloneNote);
+
+  // Note segments are the ones selected by the user, except if the selection overlaps
+  // with an existing note. NB if the selection was completely inside another note,
+  // removeNote or removePartOfNote would be called.
+  var noteSegments = toWrapAndReplace
+  if (!isStandaloneNote) {
+    noteSegments = findEntireNote(lastNoteSegment, tagName, isStandaloneNote);
+  }
+
   resetNoteSegmentClasses(noteSegments, tagName);
 
   // We need to clear the cache, and this has to be done before we place
