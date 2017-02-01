@@ -34,14 +34,16 @@
     "scribe-test-harness": "guardian/scribe-test-harness",
     "selenium-webdriver": "^2.44.0",
     "uglify-js": "^2.4.16",
-    "watchify": "^2.4.0"
+    "watchify": "^2.4.0",
+    "requirejs": "~2.1.9",
+    "scribe": "guardian/scribe#fcf4e16",
+    "scribe-plugin-toolbar": "~0.1.4"
   },
   "scripts": {
     "test-firefox": "TEST_SERVER_PORT=9090 BROWSER_NAME='firefox' ./run-tests.sh",
     "test-chrome": "TEST_SERVER_PORT=9090 BROWSER_NAME='chrome' ./run-tests.sh",
     "test-ci": "./run-tests.sh",
     "test": "npm run test-chrome",
-    "postinstall": "bower install",
     "pre-build": "rm -rf ./build && mkdir ./build",
     "browserify-js": "browserify --standalone scribe-plugin-noting --debug scribe-plugin-noting.js -o ./build/scribe-plugin-noting.js",
     "build-js": "npm run browserify-js && uglifyjs ./build/scribe-plugin-noting.js --source-map ./build/scribe-plugin-noting.js.map -c > ./build/scribe-plugin-noting.min.js",
