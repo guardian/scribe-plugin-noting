@@ -6,21 +6,21 @@
   </head>
   <body>
     <div class="scribe"></div>
-    <script src="../../bower_components/requirejs/require.js"></script>
+    <script src="../../node_modules/requirejs/require.js"></script>
     <script>
       require.config({
         baseUrl: '../../../',
         paths: {
           // We have to define a path to Scribe otherwise it will load the file
           // but will not pass along the 'scribe' AMD module.
-          'lodash-amd': 'bower_components/lodash-amd',
-          'immutable': 'bower_components/immutable/dist/immutable'
+          'lodash-amd': 'node_modules/lodash-amd',
+          'immutable': 'node_modules/immutable/dist/immutable'
         }
       });
 
       require([], function() {
         require(
-          ['bower_components/scribe/src/scribe', 'scribe-plugin-toolbar', 'build/scribe-plugin-noting'],
+          ['node_modules/scribe-editor/src/scribe', 'scribe-plugin-toolbar', 'build/scribe-plugin-noting'],
           function(Scribe, scribePluginToolbar, scribePluginNoting) {
             var elem = window.document.querySelector('.scribe'),
                 scribe = window.scribe = new Scribe(elem);
