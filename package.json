@@ -10,6 +10,7 @@
     "lodash.isobject": "^3.0.2",
     "lodash.throttle": "^3.0.3",
     "lodash.toarray": "^3.0.2",
+    "scribe": "guardian/scribe#master",
     "vdom-virtualize": "git://github.com/marcelklehr/vdom-virtualize.git#38c9027e35d194502f74455be721ae49fb31621c",
     "virtual-dom": "0.0.20",
     "virtual-hyperscript": "4.4.0",
@@ -34,7 +35,6 @@
     "uglify-js": "^2.4.16",
     "watchify": "^2.4.0",
     "requirejs": "~2.1.9",
-    "scribe": "guardian/scribe#master",
     "scribe-plugin-toolbar": "~0.1.4"
   },
   "scripts": {
