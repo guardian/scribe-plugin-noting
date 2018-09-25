@@ -32,7 +32,7 @@
     "nodemon": "^1.2.1",
     "q": "^1.1.2",
     "scribe-test-harness": "guardian/scribe-test-harness",
-    "selenium-webdriver": "^2.44.0",
+    "selenium-webdriver": "^3.6.0",
     "uglify-js": "^2.4.16",
     "watchify": "^2.4.0"
   },

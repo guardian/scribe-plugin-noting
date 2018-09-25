@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - 4.2.4
+  - 8.12.0
 
 addons:
   sauce_connect:
