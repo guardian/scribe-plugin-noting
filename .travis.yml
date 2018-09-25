@@ -16,9 +16,7 @@ env:
   global:
     - TEST_SERVER_PORT='9090'
   matrix:
-    - BROWSER_NAME='firefox' BROWSER_VERSION='61' PLATFORM='OSX 10.11'
-    - BROWSER_NAME='chrome' BROWSER_VERSION='69' PLATFORM='OSX 10.11'
-    - BROWSER_NAME='firefox' BROWSER_VERSION='61' PLATFORM='OSX 10.10'
-    - BROWSER_NAME='chrome' BROWSER_VERSION='69' PLATFORM='OSX 10.10'
+    - BROWSER_NAME='firefox'
+    - BROWSER_NAME='chrome'
 
 script: npm run build-prod && npm run test-ci
