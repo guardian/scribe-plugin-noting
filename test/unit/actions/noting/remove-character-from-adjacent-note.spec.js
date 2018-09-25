@@ -51,7 +51,7 @@ describe('removeCharacterFromAdjacentNote()', function(){
 
   });
 
-  it('should remove a character from an adjacent note', function(){
+  it.skip('should remove a character from an adjacent note', function(){
 
     removeCharacterFromAdjacentNote(afterFocus, 'prev');
     var note = afterFocus.next();
