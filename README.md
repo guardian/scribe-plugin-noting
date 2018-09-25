@@ -1,9 +1,6 @@
 # Scribe Plugin Noting
 
 ## Build information
-
-[![Circle CI](https://circleci.com/gh/guardian/scribe-plugin-noting.svg?style=shield&circle-token=243ab02e5db3546c4387594d15a9dc6fca39e13a)](https://circleci.com/gh/guardian/scribe-plugin-noting) <img src="https://david-dm.org/guardian/scribe.svg">
-
 ## Environment
 
 Build and integration test verified to work with **Node 4.2.4**.
